@@ -180,21 +180,22 @@ function SidebarContent({
   return (
     <div className="flex flex-col h-full">
       {/* Logo */}
-      <div className="flex items-center gap-2.5 px-4 py-4 border-b border-[#F4F5F7]">
-        <div className="w-7 h-7 bg-[#0052CC] rounded-md flex items-center justify-center shrink-0">
+      <div className="flex items-center justify-center gap-2 px-4 py-4 border-b border-gray-100">
+        <div className="w-8 h-8 bg-blue-700 rounded-md flex items-center justify-center shrink-0">
           <Image
-            src="/jobpath.png"
-            alt="Job Trackr icon"
-            width={18}
-            height={18}
+            src="/jobpace.png"
+            alt="Job Pace Logo"
+            width={20}
+            height={20}
             className="brightness-0 invert"
           />
         </div>
+
         <Image
-          src="/jobpath-title-horizontal.png"
-          alt="Job Trackr"
-          width={140}
-          height={40}
+          src="/jobpace-title-only.png"
+          alt="Job Pace title logo"
+          width={100}
+          height={20}
         />
       </div>
 
@@ -202,7 +203,7 @@ function SidebarContent({
       <nav className="flex-1 px-2 py-3 overflow-y-auto flex flex-col gap-0.5">
         {navItems.map((group) => (
           <div key={group.section}>
-            <div className="px-2 pt-3 pb-1 text-[10px] font-semibold text-[#97A0AF] uppercase tracking-widest">
+            <div className="px-2 pt-3 pb-1 text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
               {group.section}
             </div>
             {group.items.map((item) => {
@@ -214,14 +215,14 @@ function SidebarContent({
                   onClick={onNavClick}
                   className={`flex items-center gap-2.5 px-2.5 py-2 rounded text-sm transition-colors ${
                     isActive
-                      ? "bg-[#DEEBFF] text-[#0052CC] font-medium"
-                      : "text-[#42526E] hover:bg-[#F4F5F7] hover:text-[#172B4D]"
+                      ? "bg-blue-100 text-blue-700 font-medium"
+                      : "text-slate-700 hover:bg-gray-100 hover:text-blue-900"
                   }`}
                 >
                   {item.icon}
                   <span className="flex-1">{item.label}</span>
                   {"badge" in item && item.badge ? (
-                    <span className="bg-[#FF5630] text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
+                    <span className="bg-orange-600 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
                       {item.badge}
                     </span>
                   ) : null}
@@ -233,10 +234,10 @@ function SidebarContent({
       </nav>
 
       {/* User footer */}
-      <div className="px-2 py-3 border-t border-[#F4F5F7]">
+      <div className="px-2 py-3 border-t border-gray-100">
         <Link
           href="/api/auth/signout"
-          className="flex items-center gap-2.5 px-2.5 py-2 rounded hover:bg-[#F4F5F7] transition-colors cursor-pointer"
+          className="flex items-center gap-2.5 px-2.5 py-2 rounded hover:bg-gray-100 transition-colors cursor-pointer"
         >
           {userImage ? (
             <Image
@@ -247,15 +248,15 @@ function SidebarContent({
               className="rounded-full shrink-0"
             />
           ) : (
-            <div className="w-7 h-7 rounded-full bg-[#DEEBFF] flex items-center justify-center text-[11px] font-bold text-[#0052CC] shrink-0">
+            <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-[11px] font-bold text-[#0052CC] shrink-0">
               {initials}
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <div className="text-[#172B4D] text-xs font-medium truncate">
+            <div className="text-blue-900 text-xs font-medium truncate">
               {userName}
             </div>
-            <div className="text-[#97A0AF] text-[10px]">Sign out</div>
+            <div className="text-slate-400 text-[10px]">Sign out</div>
           </div>
           <svg
             viewBox="0 0 16 16"

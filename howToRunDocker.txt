@@ -1,0 +1,2 @@
+1. podman-compose up -d
+2. podmas ps (to check)
