@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Job Path - Track your journey to your next job",
+  title: "Job Pace - Your job search, at your pace.",
   description:
-    "Job Path is a job hunting tracker built for fresh graduates who want to stay organized and stress-free during their job search.",
+    "Job Pace is a job hunting tracker built for fresh graduates who want to stay organized and stress-free during their job search.",
 };
 
 export default function RootLayout({

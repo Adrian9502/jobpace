@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, bigint } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, bigint, integer } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: text("id").primaryKey(),
@@ -37,11 +37,32 @@ export const verificationTokens = pgTable("verification_tokens", {
 });
 
 // YOUR APP TABLES GO BELOW HERE 👇
-export const jobs = pgTable("jobs", {
-  id: text("id").primaryKey(),
+export const jobApplications = pgTable("job_applications", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   userId: text("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  company: text("company").notNull(),
+
+  // Basic Info
+  companyName: text("companyName").notNull(),
   position: text("position").notNull(),
-  status: text("status").notNull(),
+  location: text("location"),                  // e.g. Makati, BGC, Cebu, Remote
+  workSetup: text("workSetup"),                // onsite | hybrid | remote
+  employmentType: text("employmentType"),      // full-time | part-time | contractual | project-based | OJT/internship
+
+  // Salary (PH uses monthly, not yearly)
+  salaryMin: integer("salaryMin"),             // e.g. 25000
+  salaryMax: integer("salaryMax"),             // e.g. 35000
+
+  // Tracking
+  status: text("status").notNull().default("applied"), // applied | interview | exam | offer | hired | rejected | ghosted
+  source: text("source"),                      // Jobstreet | LinkedIn | Kalibrr | Indeed | Referral | Company Website | Facebook | Walk-in
+  dateApplied: timestamp("dateApplied", { withTimezone: true }).notNull(),
+  followUpDate: timestamp("followUpDate", { withTimezone: true }),
+
+  // Details
+  jobDescription: text("jobDescription"),
+  notes: text("notes"),
+  resumeVersion: text("resumeVersion"),        // e.g. "resume-v3-tech.pdf" to track which resume you sent
+
   createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updatedAt", { withTimezone: true }).defaultNow(),
 });

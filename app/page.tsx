@@ -1,21 +1,22 @@
 import { auth, signIn } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Image from "next/image";
+
 export default async function Home() {
- const isDev = process.env.NEXT_PUBLIC_DEV_MODE === "true";
-const session = isDev ? null : await auth();
+  const isDev = process.env.NEXT_PUBLIC_DEV_MODE === "true";
+  const session = isDev ? null : await auth();
   if (session?.user) redirect("/dashboard");
 
   return (
-    <div className="flex flex-col flex-1 items-center justify-center min-h-screen bg-[#F4F5F7]">
-      <div className="bg-white rounded w-full max-w-sm px-10 py-10 shadow-[0_1px_3px_rgba(9,30,66,0.12),0_0_0_1px_rgba(9,30,66,0.08)] flex flex-col items-center">
+    <div className="flex flex-col flex-1 items-center justify-center min-h-screen bg-[#F4F5F7] px-4">
+      <div className="bg-white rounded w-full max-w-sm px-6 py-8 sm:px-10 sm:py-10 shadow-[0_1px_3px_rgba(9,30,66,0.12),0_0_0_1px_rgba(9,30,66,0.08)] flex flex-col items-center">
         <Image
-          src="/jobpace.png"
+          src="/jobpace-logo-final.png"
           alt="Job Pace Logo"
-          width={50}
-          height={50}
+          width={70}
+          height={70}
           priority
-          className="mb-4 h-auto pointer-events-none"
+          className="mb-4 h-auto pointer-events-none w-14 sm:w-[70px]"
         />
         <Image
           src="/jobpace-title-horizontal2.png"
@@ -23,7 +24,7 @@ const session = isDev ? null : await auth();
           width={200}
           height={46}
           priority
-          className="mb-2 h-auto pointer-events-none"
+          className="mb-2 h-auto pointer-events-none w-36 sm:w-[200px]"
         />
 
         <div className="flex items-center gap-3 w-full mb-5">
@@ -35,6 +36,7 @@ const session = isDev ? null : await auth();
         </div>
 
         <form
+          className="w-full"
           action={async () => {
             "use server";
             await signIn("google", { redirectTo: "/dashboard" });
@@ -84,7 +86,7 @@ const session = isDev ? null : await auth();
         </p>
       </div>
 
-     {process.env.NEXT_PUBLIC_DEV_MODE === "true" && (
+      {process.env.NEXT_PUBLIC_DEV_MODE === "true" && (
         <a href="/dashboard">
           <button className="mt-4 px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 text-xs font-semibold rounded border border-yellow-500 transition-all">
             Dev Login (local only)
