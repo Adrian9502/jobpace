@@ -1,8 +1,14 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import { auth } from "@/lib/auth";
+import { DEV_USER } from "@/lib/dev-auth";
+import { redirect } from "next/navigation";
 
 export default async function DashboardPage() {
-  const session = await auth();
+  const isDev = process.env.NEXT_PUBLIC_DEV_MODE === "true";
+  const session = isDev ? DEV_USER : await auth();
+
+  if (!isDev && !session?.user) redirect("/");
+
   const firstName = session?.user?.name?.split(" ")[0] ?? "there";
 
   return (

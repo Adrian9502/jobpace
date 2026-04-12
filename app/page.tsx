@@ -2,34 +2,29 @@ import { auth, signIn } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Image from "next/image";
 export default async function Home() {
-  const session = await auth();
+ const isDev = process.env.NEXT_PUBLIC_DEV_MODE === "true";
+const session = isDev ? null : await auth();
   if (session?.user) redirect("/dashboard");
 
   return (
     <div className="flex flex-col flex-1 items-center justify-center min-h-screen bg-[#F4F5F7]">
       <div className="bg-white rounded w-full max-w-sm px-10 py-10 shadow-[0_1px_3px_rgba(9,30,66,0.12),0_0_0_1px_rgba(9,30,66,0.08)] flex flex-col items-center">
         <Image
-          src="/jobpath.png"
-          alt="Job Path Logo"
-          width={48}
-          height={48}
+          src="/jobpace.png"
+          alt="Job Pace Logo"
+          width={50}
+          height={50}
           priority
-          className="mb-4 h-auto"
+          className="mb-4 h-auto pointer-events-none"
         />
         <Image
-          src="/jobpath-title-horizontal.png"
-          alt="Job Path"
-          width={180}
-          height={36}
+          src="/jobpace-title-horizontal2.png"
+          alt="Job Pace"
+          width={200}
+          height={46}
           priority
-          className="mb-2 h-auto"
+          className="mb-2 h-auto pointer-events-none"
         />
-
-        <p className="text-sm text-[#5E6C84] text-center leading-relaxed mb-7">
-          Track every application. Stay organized.
-          <br />
-          Land the job.
-        </p>
 
         <div className="flex items-center gap-3 w-full mb-5">
           <div className="flex-1 h-px bg-[#DFE1E6]" />
@@ -88,6 +83,14 @@ export default async function Home() {
           .
         </p>
       </div>
+
+     {process.env.NEXT_PUBLIC_DEV_MODE === "true" && (
+        <a href="/dashboard">
+          <button className="mt-4 px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 text-xs font-semibold rounded border border-yellow-500 transition-all">
+            Dev Login (local only)
+          </button>
+        </a>
+      )}
     </div>
   );
 }
