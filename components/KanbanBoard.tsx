@@ -6,6 +6,7 @@ import type { ApplicationRow } from "@/lib/actions";
 import { updateApplicationStatus } from "@/lib/actions";
 import ApplicationModal from "./ApplicationModal";
 import DeleteConfirmModal from "./DeleteConfirmModal";
+import { toast } from "sonner";
 
 // ──────────────────────────────────────────────
 // Config
@@ -98,7 +99,12 @@ export default function KanbanBoard({ initialApplications }: Props) {
         if (!res.success) {
           // Revert on fail
           console.error("Failed to update status:", res.error);
+          toast.error("Failed to update status");
           setApps(initialApplications);
+        } else {
+          if (res.changes) {
+            res.changes.forEach(c => toast.success(c));
+          }
         }
       }
     },

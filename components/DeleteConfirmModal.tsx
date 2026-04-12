@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { deleteApplication } from "@/lib/actions";
+import { toast } from "sonner";
 
 interface Props {
   open: boolean;
@@ -26,7 +27,10 @@ export default function DeleteConfirmModal({
     startTransition(async () => {
       const result = await deleteApplication(applicationId);
       if (result.success) {
+        toast.success("Application deleted");
         onClose();
+      } else {
+        toast.error(result.error ?? "Failed to delete application.");
       }
     });
   }

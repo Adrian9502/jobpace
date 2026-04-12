@@ -3,6 +3,7 @@
 import { useState, useEffect, useTransition } from "react";
 import { createApplication, updateApplication } from "@/lib/actions";
 import type { ApplicationRow } from "@/lib/actions";
+import { toast } from "sonner";
 
 // ──────────────────────────────────────────────
 // Constants
@@ -101,8 +102,18 @@ export default function ApplicationModal({ open, onClose, editData }: Props) {
         : await createApplication(formData);
 
       if (result.success) {
+        if (isEdit) {
+           if (result.changes && result.changes.length > 0) {
+              toast.success("Application updated", { description: result.changes.join("\n") });
+           } else {
+              toast.success("Application updated");
+           }
+        } else {
+           toast.success("Application added", { description: `${formData.get("companyName")} - ${formData.get("position")}` });
+        }
         onClose();
       } else {
+        toast.error(result.error ?? "Something went wrong.");
         setError(result.error ?? "Something went wrong.");
       }
     });

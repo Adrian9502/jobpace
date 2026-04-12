@@ -66,3 +66,12 @@ export const jobApplications = pgTable("job_applications", {
   createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updatedAt", { withTimezone: true }).defaultNow(),
 });
+
+export const jobActivityLogs = pgTable("job_activity_logs", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: text("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  applicationId: text("applicationId"), // optional, e.g. when logging a general event or if the application was deleted
+  actionType: text("actionType").notNull(), // CREATE, UPDATE, STATUS_CHANGE, DELETE
+  description: text("description").notNull(), // User-friendly description of what happened
+  createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow(),
+});

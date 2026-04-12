@@ -7,6 +7,7 @@ import {
   getKanbanCounts,
   getApplications,
 } from "@/lib/actions";
+import AddApplicationButton from "@/components/AddApplicationButton";
 
 export const dynamic = "force-dynamic";
 
@@ -58,13 +59,16 @@ export default async function DashboardPage() {
   return (
     <DashboardLayout title="Dashboard">
       {/* Welcome */}
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold text-[#172B4D]">
-          Welcome back, {firstName} 👋
-        </h2>
-        <p className="text-sm text-[#5E6C84] mt-1">
-          Here&apos;s a summary of your job search journey.
-        </p>
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-semibold text-[#172B4D]">
+            Welcome back, {firstName} 👋
+          </h2>
+          <p className="text-sm text-[#5E6C84] mt-1">
+            Here&apos;s a summary of your job search journey.
+          </p>
+        </div>
+        <AddApplicationButton />
       </div>
       
 

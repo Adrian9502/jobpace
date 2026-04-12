@@ -68,6 +68,21 @@ const navItems = [
           </svg>
         ),
       },
+      {
+        label: "Activity Logs",
+        href: "/dashboard/activity",
+        icon: (
+          <svg
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            className="w-4 h-4"
+          >
+            <polyline points="2 8 6 8 8 3 10 13 12 8 16 8"></polyline>
+          </svg>
+        ),
+      },
     ],
   },
   {
