@@ -71,37 +71,84 @@ export default async function DashboardPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         {[
-          { label: "Total Applied", value: String(stats.total), sub: "applications" },
+          { 
+            label: "Total Applied", 
+            value: String(stats.total), 
+            sub: "applications",
+            icon: (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-[#5E6C84]">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+              </svg>
+            )
+          },
           {
             label: "Interviews",
             value: String(stats.interviews),
             sub: "scheduled",
             color: "#0052CC",
+            icon: (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-[#0052CC]">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            )
           },
-          { label: "Offers", value: String(stats.offers), sub: "received", color: "#006644" },
+          { 
+            label: "Offers", 
+            value: String(stats.offers), 
+            sub: "received", 
+            color: "#006644",
+            icon: (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-[#006644]">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+              </svg>
+            )
+          },
           {
             label: "Follow-ups Due",
             value: String(stats.followUpsDue),
             sub: "this week",
             color: "#974F0C",
+            href: "/dashboard/reminders",
+            icon: (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-[#974F0C]">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+              </svg>
+            )
           },
-        ].map((stat) => (
-          <div
-            key={stat.label}
-            className="bg-white border border-[#DFE1E6] rounded-md px-4 py-3.5"
-          >
-            <div className="text-[11px] font-semibold text-[#5E6C84] uppercase tracking-wide mb-1.5">
-              {stat.label}
+        ].map((stat) => {
+          const content = (
+            <div className="flex flex-col h-full bg-white border border-[#DFE1E6] rounded-md px-4 py-3.5 hover:shadow-sm transition-shadow">
+              <div className="flex justify-between items-start mb-1.5">
+                <div className="text-[11px] font-semibold text-[#5E6C84] uppercase tracking-wide">
+                  {stat.label}
+                </div>
+                {stat.icon}
+              </div>
+              <div
+                className="text-2xl font-semibold mt-auto"
+                style={{ color: stat.color ?? "#172B4D" }}
+              >
+                {stat.value}
+              </div>
+              <div className="text-[11px] text-[#5E6C84] mt-0.5">{stat.sub}</div>
             </div>
-            <div
-              className="text-2xl font-semibold"
-              style={{ color: stat.color ?? "#172B4D" }}
-            >
-              {stat.value}
+          );
+
+          return stat.href ? (
+            <a key={stat.label} href={stat.href} className="flex flex-col">
+              {content}
+            </a>
+          ) : (
+            <div key={stat.label} className="flex flex-col">
+              {content}
             </div>
-            <div className="text-[11px] text-[#5E6C84] mt-0.5">{stat.sub}</div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Kanban preview */}

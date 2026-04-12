@@ -143,14 +143,28 @@ export default function KanbanBoard({ initialApplications }: Props) {
 
                 {/* Droppable Area */}
                 <Droppable droppableId={columnId}>
-                  {(provided, snapshot) => (
+                  {(provided, snapshot) => {
+                    const isEmpty = columnApps.length === 0;
+                    const showDropHint = isEmpty || snapshot.isDraggingOver;
+                    
+                    return (
                     <div
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      className={`flex-1 overflow-y-auto p-3 space-y-3 min-h-[150px] transition-colors ${
-                        snapshot.isDraggingOver ? "bg-[#EBECF0]" : ""
+                      className={`flex-1 overflow-y-auto p-3 space-y-3 min-h-[150px] transition-all border-2 rounded-b-lg border-transparent ${
+                        snapshot.isDraggingOver ? "bg-[#EBECF0] !border-[#0052CC]/30 border-dashed" : ""
                       }`}
                     >
+                      {isEmpty && (!snapshot.isDraggingOver) && (
+                        <div className="flex items-center justify-center h-full opacity-0 hover:opacity-100 transition-opacity absolute inset-0">
+                          {/* Invisible placeholder to handle spacing, we want to rely on the background transitions */}
+                        </div>
+                      )}
+                      {isEmpty && (
+                        <div className="h-20 border-2 border-dashed border-[#DFE1E6] rounded-lg flex items-center justify-center text-[11px] text-[#5E6C84] bg-white/40">
+                          Drop here
+                        </div>
+                      )}
                       {columnApps.map((app, index) => (
                         <Draggable
                           key={app.id}
@@ -185,7 +199,13 @@ export default function KanbanBoard({ initialApplications }: Props) {
                                   </svg>
                                 </button>
                               </div>
-                              <p className="text-xs text-[#5E6C84] truncate mb-3">{app.position}</p>
+                              <div className="text-xs text-[#5E6C84] truncate mb-3">{app.position}</div>
+
+                              {app.source && (
+                                <div className="mb-3 inline-block bg-[#F4F5F7] border border-[#DFE1E6] px-2 py-0.5 rounded text-[10px] font-medium text-[#5E6C84]">
+                                  {app.source}
+                                </div>
+                              )}
                               
                               <div className="flex items-center justify-between text-[11px] text-[#5E6C84]">
                                 <div className="flex items-center gap-1 bg-[#F4F5F7] px-1.5 py-0.5 rounded">
@@ -205,7 +225,7 @@ export default function KanbanBoard({ initialApplications }: Props) {
                       ))}
                       {provided.placeholder}
                     </div>
-                  )}
+                  )}}
                 </Droppable>
               </div>
             );
