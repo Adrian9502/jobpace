@@ -66,6 +66,7 @@ export default async function DashboardPage() {
           Here&apos;s a summary of your job search journey.
         </p>
       </div>
+      
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">

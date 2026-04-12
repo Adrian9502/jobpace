@@ -55,13 +55,13 @@ export const jobApplications = pgTable("job_applications", {
   // Tracking
   status: text("status").notNull().default("applied"), // applied | interview | exam | offer | hired | rejected | ghosted
   source: text("source"),                      // Jobstreet | LinkedIn | Kalibrr | Indeed | Referral | Company Website | Facebook | Walk-in
+  applicationLink: text("applicationLink"),
   dateApplied: timestamp("dateApplied", { withTimezone: true }).notNull(),
   followUpDate: timestamp("followUpDate", { withTimezone: true }),
 
   // Details
   jobDescription: text("jobDescription"),
   notes: text("notes"),
-  resumeVersion: text("resumeVersion"),        // e.g. "resume-v3-tech.pdf" to track which resume you sent
 
   createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updatedAt", { withTimezone: true }).defaultNow(),

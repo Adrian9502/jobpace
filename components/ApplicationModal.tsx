@@ -333,6 +333,20 @@ export default function ApplicationModal({ open, onClose, editData }: Props) {
                   </select>
                 </div>
 
+                <div className="sm:col-span-2">
+                  <label htmlFor="applicationLink" className="block text-sm font-medium text-[#172B4D] mb-1">
+                    Application Link
+                  </label>
+                  <input
+                    id="applicationLink"
+                    name="applicationLink"
+                    type="url"
+                    defaultValue={editData?.applicationLink ?? ""}
+                    placeholder="e.g. https://jobstreet.com.ph/job/12345"
+                    className="w-full px-3 py-2 border border-[#DFE1E6] rounded-lg text-sm text-[#172B4D] placeholder:text-[#B3BAC5] focus:outline-none focus:ring-2 focus:ring-[#0052CC]/30 focus:border-[#0052CC] transition-all"
+                  />
+                </div>
+
                 <div>
                   <label htmlFor="dateApplied" className="block text-sm font-medium text-[#172B4D] mb-1">
                     Date Applied <span className="text-red-500">*</span>
@@ -397,20 +411,6 @@ export default function ApplicationModal({ open, onClose, editData }: Props) {
                     defaultValue={editData?.notes ?? ""}
                     placeholder="Any personal notes, reminders, or interview details..."
                     className="w-full px-3 py-2 border border-[#DFE1E6] rounded-lg text-sm text-[#172B4D] placeholder:text-[#B3BAC5] focus:outline-none focus:ring-2 focus:ring-[#0052CC]/30 focus:border-[#0052CC] transition-all resize-y min-h-[60px]"
-                  />
-                </div>
-
-                <div className="sm:w-1/2">
-                  <label htmlFor="resumeVersion" className="block text-sm font-medium text-[#172B4D] mb-1">
-                    Resume Version
-                  </label>
-                  <input
-                    id="resumeVersion"
-                    name="resumeVersion"
-                    type="text"
-                    defaultValue={editData?.resumeVersion ?? ""}
-                    placeholder="e.g. resume-v3-tech.pdf"
-                    className="w-full px-3 py-2 border border-[#DFE1E6] rounded-lg text-sm text-[#172B4D] placeholder:text-[#B3BAC5] focus:outline-none focus:ring-2 focus:ring-[#0052CC]/30 focus:border-[#0052CC] transition-all"
                   />
                 </div>
               </div>

@@ -147,13 +147,12 @@ export async function createApplication(
       salaryMax: salaryMaxRaw ? parseInt(salaryMaxRaw, 10) : null,
       status: (formData.get("status") as string) || "applied",
       source: (formData.get("source") as string) || null,
+      applicationLink: (formData.get("applicationLink") as string)?.trim() || null,
       dateApplied: new Date(dateAppliedRaw),
       followUpDate: followUpDateRaw ? new Date(followUpDateRaw) : null,
       jobDescription:
         (formData.get("jobDescription") as string)?.trim() || null,
       notes: (formData.get("notes") as string)?.trim() || null,
-      resumeVersion:
-        (formData.get("resumeVersion") as string)?.trim() || null,
     });
 
     revalidatePath("/dashboard");
@@ -207,13 +206,12 @@ export async function updateApplication(
         salaryMax: salaryMaxRaw ? parseInt(salaryMaxRaw, 10) : null,
         status: (formData.get("status") as string) || "applied",
         source: (formData.get("source") as string) || null,
+        applicationLink: (formData.get("applicationLink") as string)?.trim() || null,
         dateApplied: new Date(dateAppliedRaw),
         followUpDate: followUpDateRaw ? new Date(followUpDateRaw) : null,
         jobDescription:
           (formData.get("jobDescription") as string)?.trim() || null,
         notes: (formData.get("notes") as string)?.trim() || null,
-        resumeVersion:
-          (formData.get("resumeVersion") as string)?.trim() || null,
         updatedAt: new Date(),
       })
       .where(
