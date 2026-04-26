@@ -3,3 +3,9 @@
 3. podman-compose down (to stop)
 4. podman-compose down -v (to stop and remove volumes)
 5. podman-compose down -v --remove-orphans (to stop and remove volumes and orphans)
+
+
+How to reset database and run the seed
+
+# Drop all tables and recreate + reseed
+npx drizzle-kit drop && npx drizzle-kit push && npx tsx db/seed.ts
