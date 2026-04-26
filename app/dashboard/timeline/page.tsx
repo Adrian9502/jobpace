@@ -11,8 +11,8 @@ export default async function TimelinePage() {
   return (
     <DashboardLayout title="Job Hunt Timeline">
       <div className="mb-4">
-        <h2 className="text-xl font-semibold text-[#172B4D]">Job Hunt Timeline</h2>
-        <p className="text-sm text-[#5E6C84] mt-1">
+        <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Job Hunt Timeline</h2>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
           A chronological mapping of all your applications over time.
         </p>
       </div>

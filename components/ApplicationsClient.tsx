@@ -15,45 +15,45 @@ const STATUS_CONFIG: Record<
 > = {
   applied: {
     label: "Applied",
-    bg: "bg-blue-50",
-    text: "text-blue-700",
+    bg: "bg-blue-50 dark:bg-blue-900/20",
+    text: "text-blue-700 dark:text-blue-400",
     dot: "bg-blue-500",
   },
   interview: {
     label: "Interview",
-    bg: "bg-indigo-50",
-    text: "text-indigo-700",
+    bg: "bg-indigo-50 dark:bg-indigo-900/20",
+    text: "text-indigo-700 dark:text-indigo-400",
     dot: "bg-indigo-500",
   },
   exam: {
     label: "Exam",
-    bg: "bg-purple-50",
-    text: "text-purple-700",
+    bg: "bg-purple-50 dark:bg-purple-900/20",
+    text: "text-purple-700 dark:text-purple-400",
     dot: "bg-purple-500",
   },
   offer: {
     label: "Offer",
-    bg: "bg-emerald-50",
-    text: "text-emerald-700",
+    bg: "bg-emerald-50 dark:bg-emerald-900/20",
+    text: "text-emerald-700 dark:text-emerald-400",
     dot: "bg-emerald-500",
   },
   hired: {
     label: "Hired",
-    bg: "bg-green-50",
-    text: "text-green-700",
+    bg: "bg-green-50 dark:bg-green-900/20",
+    text: "text-green-700 dark:text-green-400",
     dot: "bg-green-600",
   },
   rejected: {
     label: "Rejected",
-    bg: "bg-red-50",
-    text: "text-red-700",
+    bg: "bg-red-50 dark:bg-red-900/20",
+    text: "text-red-700 dark:text-red-400",
     dot: "bg-red-500",
   },
   ghosted: {
     label: "Ghosted",
-    bg: "bg-gray-100",
-    text: "text-gray-500",
-    dot: "bg-gray-400",
+    bg: "bg-zinc-100 dark:bg-zinc-800",
+    text: "text-zinc-500 dark:text-zinc-400",
+    dot: "bg-zinc-400",
   },
 };
 
@@ -84,7 +84,7 @@ function StatusBadge({ status }: { status: string }) {
   const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.applied;
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ${cfg.bg} ${cfg.text}`}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${cfg.bg} ${cfg.text}`}
     >
       <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
       {cfg.label}
@@ -143,10 +143,10 @@ export default function ApplicationsClient({ applications }: Props) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
         <div>
-          <h2 className="text-xl font-semibold text-[#172B4D]">
+          <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
             Job Applications
           </h2>
-          <p className="text-sm text-[#5E6C84] mt-0.5">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">
             {applications.length} application{applications.length !== 1 ? "s" : ""} total
           </p>
         </div>
@@ -180,14 +180,14 @@ export default function ApplicationsClient({ applications }: Props) {
             placeholder="Search by company, position, or location..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-3 py-2.5 border border-[#DFE1E6] rounded-lg text-sm text-[#172B4D] placeholder:text-[#B3BAC5] focus:outline-none focus:ring-2 focus:ring-[#0052CC]/30 focus:border-[#0052CC] bg-white transition-all"
+            className="w-full pl-10 pr-3 py-2.5 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white dark:bg-zinc-900 transition-all"
           />
         </div>
 
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-3 py-2.5 border border-[#DFE1E6] rounded-lg text-sm text-[#172B4D] bg-white focus:outline-none focus:ring-2 focus:ring-[#0052CC]/30 focus:border-[#0052CC] transition-all min-w-[160px]"
+          className="px-3 py-2.5 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all min-w-[160px]"
         >
           <option value="all">All Statuses</option>
           {Object.entries(STATUS_CONFIG).map(([val, cfg]) => (
@@ -200,19 +200,19 @@ export default function ApplicationsClient({ applications }: Props) {
 
       {/* Table / Empty state */}
       {filtered.length === 0 ? (
-        <div className="bg-white border border-[#DFE1E6] rounded-xl p-12 text-center">
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-12 text-center shadow-sm">
           {applications.length === 0 ? (
             <>
-              <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8 text-[#0052CC]">
+              <div className="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8 text-blue-600 dark:text-blue-400">
                   <rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="1.5" />
                   <path d="M7 8h10M7 12h6M7 16h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
               </div>
-              <h3 className="text-base font-semibold text-[#172B4D] mb-1">
+              <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 mb-1">
                 No applications yet
               </h3>
-              <p className="text-sm text-[#5E6C84] mb-4 max-w-sm mx-auto">
+              <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4 max-w-sm mx-auto">
                 Start tracking your job hunt! Add your first application to see
                 it here.
               </p>
@@ -229,41 +229,41 @@ export default function ApplicationsClient({ applications }: Props) {
           ) : (
             <>
               <div className="text-3xl mb-2">🔍</div>
-              <h3 className="text-base font-semibold text-[#172B4D] mb-1">
+              <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 mb-1">
                 No matching applications
               </h3>
-              <p className="text-sm text-[#5E6C84]">
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
                 Try adjusting your search or filter.
               </p>
             </>
           )}
         </div>
       ) : (
-        <div className="bg-white border border-[#DFE1E6] rounded-xl overflow-hidden shadow-sm">
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden shadow-sm">
           {/* Desktop table */}
           <div className="hidden lg:block overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-[#F4F5F7] border-b border-[#DFE1E6]">
-                  <th className="text-left px-4 py-3 text-[11px] font-semibold text-[#5E6C84] uppercase tracking-wide">
+                <tr className="bg-zinc-50 dark:bg-zinc-950/50 border-b border-zinc-200 dark:border-zinc-800">
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
                     Company / Position
                   </th>
-                  <th className="text-left px-4 py-3 text-[11px] font-semibold text-[#5E6C84] uppercase tracking-wide">
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
                     Location
                   </th>
-                  <th className="text-left px-4 py-3 text-[11px] font-semibold text-[#5E6C84] uppercase tracking-wide">
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
                     Salary
                   </th>
-                  <th className="text-left px-4 py-3 text-[11px] font-semibold text-[#5E6C84] uppercase tracking-wide">
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
                     Status
                   </th>
-                  <th className="text-left px-4 py-3 text-[11px] font-semibold text-[#5E6C84] uppercase tracking-wide">
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
                     Date Applied
                   </th>
-                  <th className="text-left px-4 py-3 text-[11px] font-semibold text-[#5E6C84] uppercase tracking-wide">
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
                     Source
                   </th>
-                  <th className="text-right px-4 py-3 text-[11px] font-semibold text-[#5E6C84] uppercase tracking-wide">
+                  <th className="text-right px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
                     Actions
                   </th>
                 </tr>
@@ -272,45 +272,45 @@ export default function ApplicationsClient({ applications }: Props) {
                 {filtered.map((app, idx) => (
                   <tr
                     key={app.id}
-                    className={`border-b border-[#F4F5F7] hover:bg-[#FAFBFC] transition-colors ${
-                      idx % 2 === 0 ? "" : "bg-[#FAFBFC]/50"
+                    className={`border-b border-zinc-100 dark:border-zinc-800/50 hover:bg-zinc-50/80 dark:hover:bg-zinc-800/30 transition-colors ${
+                      idx % 2 === 0 ? "" : "bg-zinc-50/30 dark:bg-zinc-900/50"
                     }`}
                   >
                     <td className="px-4 py-3.5">
-                      <div className="text-sm font-medium text-[#172B4D]">
+                      <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
                         {app.companyName}
                       </div>
-                      <div className="text-xs text-[#5E6C84] mt-0.5">
+                      <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
                         {app.position}
                       </div>
                     </td>
                     <td className="px-4 py-3.5">
-                      <div className="text-sm text-[#172B4D]">
+                      <div className="text-sm text-zinc-900 dark:text-zinc-100">
                         {app.location || "—"}
                       </div>
                       {app.workSetup && (
-                        <div className="text-xs text-[#5E6C84] capitalize mt-0.5">
+                        <div className="text-xs text-zinc-500 dark:text-zinc-400 capitalize mt-0.5">
                           {app.workSetup}
                         </div>
                       )}
                     </td>
-                    <td className="px-4 py-3.5 text-sm text-[#172B4D]">
+                    <td className="px-4 py-3.5 text-sm text-zinc-900 dark:text-zinc-100">
                       {formatSalary(app.salaryMin, app.salaryMax)}
                     </td>
                     <td className="px-4 py-3.5">
                       <StatusBadge status={app.status} />
                     </td>
-                    <td className="px-4 py-3.5 text-sm text-[#172B4D]">
+                    <td className="px-4 py-3.5 text-sm text-zinc-900 dark:text-zinc-100">
                       {formatDate(app.dateApplied)}
                     </td>
-                    <td className="px-4 py-3.5 text-sm text-[#5E6C84]">
+                    <td className="px-4 py-3.5 text-sm text-zinc-500 dark:text-zinc-400">
                       {app.source || "—"}
                     </td>
                     <td className="px-4 py-3.5 text-right">
                       <div className="flex items-center justify-end gap-1">
                         <button
                           onClick={() => openEdit(app)}
-                          className="p-1.5 rounded-md text-[#5E6C84] hover:bg-[#F4F5F7] hover:text-[#0052CC] transition-colors"
+                          className="p-1.5 rounded-md text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                           title="Edit"
                         >
                           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4">
@@ -319,7 +319,7 @@ export default function ApplicationsClient({ applications }: Props) {
                         </button>
                         <button
                           onClick={() => setDeleteTarget(app)}
-                          className="p-1.5 rounded-md text-[#5E6C84] hover:bg-red-50 hover:text-red-600 transition-colors"
+                          className="p-1.5 rounded-md text-zinc-500 dark:text-zinc-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                           title="Delete"
                         >
                           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4">
@@ -335,22 +335,22 @@ export default function ApplicationsClient({ applications }: Props) {
           </div>
 
           {/* Mobile cards */}
-          <div className="lg:hidden divide-y divide-[#F4F5F7]">
+          <div className="lg:hidden divide-y divide-zinc-100 dark:divide-zinc-800">
             {filtered.map((app) => (
-              <div key={app.id} className="p-4 hover:bg-[#FAFBFC] transition-colors">
+              <div key={app.id} className="p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div>
-                    <div className="text-sm font-medium text-[#172B4D]">
+                    <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
                       {app.companyName}
                     </div>
-                    <div className="text-xs text-[#5E6C84] mt-0.5">
+                    <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
                       {app.position}
                     </div>
                   </div>
                   <StatusBadge status={app.status} />
                 </div>
 
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs text-[#5E6C84] mb-3">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs text-zinc-500 dark:text-zinc-400 mb-3">
                   {app.location && (
                     <div className="flex items-center gap-1">
                       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3 h-3 shrink-0">
@@ -371,13 +371,13 @@ export default function ApplicationsClient({ applications }: Props) {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => openEdit(app)}
-                    className="flex-1 py-1.5 text-xs font-medium text-[#0052CC] bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
+                    className="flex-1 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => setDeleteTarget(app)}
-                    className="flex-1 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-md hover:bg-red-100 transition-colors"
+                    className="flex-1 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-md hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
                   >
                     Delete
                   </button>

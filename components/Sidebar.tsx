@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const navItems = [
   {
@@ -193,9 +193,9 @@ function SidebarContent({
   onNavClick,
 }: SidebarContentProps) {
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-white dark:bg-zinc-900 transition-colors">
       {/* Logo */}
-      <div className="flex items-center justify-center gap-2 px-4 py-4 border-b border-gray-100">
+      <div className="flex items-center justify-center gap-2 px-4 py-4 border-b border-zinc-100 dark:border-zinc-800">
         <div className="w-8 h-8 bg-blue-700 rounded-md flex items-center justify-center shrink-0">
           <Image
             src="/jobpace-logo-final.png"
@@ -218,7 +218,7 @@ function SidebarContent({
       <nav className="flex-1 px-2 py-3 overflow-y-auto flex flex-col gap-0.5">
         {navItems.map((group) => (
           <div key={group.section}>
-            <div className="px-2 pt-3 pb-1 text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
+            <div className="px-2 pt-3 pb-1 text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">
               {group.section}
             </div>
             {group.items.map((item) => {
@@ -230,14 +230,14 @@ function SidebarContent({
                   onClick={onNavClick}
                   className={`flex items-center gap-2.5 px-2.5 py-2 rounded text-sm transition-colors ${
                     isActive
-                      ? "bg-blue-100 text-blue-700 font-medium"
-                      : "text-slate-700 hover:bg-gray-100 hover:text-blue-900"
+                      ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-medium"
+                      : "text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-blue-600 dark:hover:text-blue-400"
                   }`}
                 >
                   {item.icon}
                   <span className="flex-1">{item.label}</span>
                   {"badge" in item && item.badge ? (
-                    <span className="bg-orange-600 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
+                    <span className="bg-orange-600 text-white text-xs font-semibold px-1.5 py-0.5 rounded-full">
                       {item.badge}
                     </span>
                   ) : null}
@@ -248,11 +248,36 @@ function SidebarContent({
         ))}
       </nav>
 
+      {/* Theme Toggle */}
+      <div className="px-2 py-2 border-t border-zinc-100 dark:border-zinc-800">
+        <button
+          onClick={() => {
+            if (document.documentElement.classList.contains('dark')) {
+              document.documentElement.classList.remove('dark');
+              localStorage.setItem('theme', 'light');
+            } else {
+              document.documentElement.classList.add('dark');
+              localStorage.setItem('theme', 'dark');
+            }
+          }}
+          className="flex items-center gap-2.5 px-2.5 py-2 w-full rounded text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+        >
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4 hidden dark:block">
+            <circle cx="8" cy="8" r="3" />
+            <path d="M8 2v1M8 13v1M2 8h1M13 8h1M3.8 3.8l.7.7M11.5 11.5l.7.7M3.8 12.2l.7-.7M11.5 4.5l.7-.7" />
+          </svg>
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4 block dark:hidden">
+            <path d="M14 10A6 6 0 116 2a6.3 6.3 0 008 8z" />
+          </svg>
+          <span className="flex-1 text-left font-medium">Toggle Theme</span>
+        </button>
+      </div>
+
       {/* User footer */}
-      <div className="px-2 py-3 border-t border-gray-100">
+      <div className="px-2 py-3 border-t border-zinc-100 dark:border-zinc-800">
         <Link
           href="/api/auth/signout"
-          className="flex items-center gap-2.5 px-2.5 py-2 rounded hover:bg-gray-100 transition-colors cursor-pointer"
+          className="flex items-center gap-2.5 px-2.5 py-2 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
         >
           {userImage ? (
             <Image
@@ -263,15 +288,15 @@ function SidebarContent({
               className="rounded-full shrink-0"
             />
           ) : (
-            <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-[11px] font-bold text-[#0052CC] shrink-0">
+            <div className="w-7 h-7 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-xs font-bold text-blue-600 dark:text-blue-400 shrink-0">
               {initials}
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <div className="text-blue-900 text-xs font-medium truncate">
+            <div className="text-zinc-900 dark:text-zinc-100 text-xs font-medium truncate">
               {userName}
             </div>
-            <div className="text-slate-400 text-[10px]">Sign out</div>
+            <div className="text-zinc-400 dark:text-zinc-500 text-xs">Sign out</div>
           </div>
           <svg
             viewBox="0 0 16 16"
@@ -306,11 +331,23 @@ export default function Sidebar({ userName, userImage }: SidebarProps) {
 
   const sharedProps = { pathname, userName, userImage, initials };
 
+  // Sync theme on mount
+  useEffect(() => {
+    if (
+      localStorage.theme === 'dark' ||
+      (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    ) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
   return (
     <>
       {/* Mobile toggle */}
       <button
-        className="lg:hidden fixed top-3 left-3 z-50 w-9 h-9 bg-white border border-[#DFE1E6] rounded-md flex items-center justify-center shadow-sm"
+        className="lg:hidden fixed top-3 left-3 z-50 w-9 h-9 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md flex items-center justify-center shadow-sm"
         onClick={() => setMobileOpen(!mobileOpen)}
       >
         <svg
@@ -338,7 +375,7 @@ export default function Sidebar({ userName, userImage }: SidebarProps) {
 
       {/* Mobile sidebar */}
       <aside
-        className={`lg:hidden fixed top-0 left-0 h-full w-56 bg-white border-r border-[#DFE1E6] z-40 transition-transform duration-200 ${
+        className={`lg:hidden fixed top-0 left-0 h-full w-56 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 z-40 transition-transform duration-200 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -349,7 +386,7 @@ export default function Sidebar({ userName, userImage }: SidebarProps) {
       </aside>
 
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex flex-col w-56 min-h-screen bg-white border-r border-[#DFE1E6] shrink-0">
+      <aside className="hidden lg:flex flex-col w-56 h-screen bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 shrink-0 transition-colors">
         <SidebarContent {...sharedProps} />
       </aside>
     </>

@@ -8,6 +8,7 @@ import {
   getApplications,
 } from "@/lib/actions";
 import AddApplicationButton from "@/components/AddApplicationButton";
+import LiveDateTime from "@/components/LiveDateTime";
 
 export const dynamic = "force-dynamic";
 
@@ -61,14 +62,17 @@ export default async function DashboardPage() {
       {/* Welcome */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-semibold text-[#172B4D]">
+          <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
             Welcome back, {firstName} 👋
           </h2>
-          <p className="text-sm text-[#5E6C84] mt-1">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
             Here&apos;s a summary of your job search journey.
           </p>
         </div>
-        <AddApplicationButton />
+        <div className="flex items-center gap-3">
+          <LiveDateTime />
+          <AddApplicationButton />
+        </div>
       </div>
       
 
@@ -80,19 +84,20 @@ export default async function DashboardPage() {
             value: String(stats.total), 
             sub: "applications",
             icon: (
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-[#5E6C84]">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-zinc-500 dark:text-zinc-400">
                 <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
                 <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
               </svg>
-            )
+            ),
+            colorClass: "text-zinc-900 dark:text-zinc-100"
           },
           {
             label: "Interviews",
             value: String(stats.interviews),
             sub: "scheduled",
-            color: "#0052CC",
+            colorClass: "text-blue-600 dark:text-blue-400",
             icon: (
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-[#0052CC]">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-blue-600 dark:text-blue-400">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                 <line x1="16" y1="2" x2="16" y2="6"></line>
                 <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -104,9 +109,9 @@ export default async function DashboardPage() {
             label: "Offers", 
             value: String(stats.offers), 
             sub: "received", 
-            color: "#006644",
+            colorClass: "text-emerald-600 dark:text-emerald-400",
             icon: (
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-[#006644]">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-emerald-600 dark:text-emerald-400">
                 <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
               </svg>
             )
@@ -115,10 +120,10 @@ export default async function DashboardPage() {
             label: "Follow-ups Due",
             value: String(stats.followUpsDue),
             sub: "this week",
-            color: "#974F0C",
+            colorClass: "text-amber-600 dark:text-amber-400",
             href: "/dashboard/reminders",
             icon: (
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-[#974F0C]">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-amber-600 dark:text-amber-400">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                 <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
               </svg>
@@ -126,20 +131,19 @@ export default async function DashboardPage() {
           },
         ].map((stat) => {
           const content = (
-            <div className="flex flex-col h-full bg-white border border-[#DFE1E6] rounded-md px-4 py-3.5 hover:shadow-sm transition-shadow">
+            <div className="flex flex-col h-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md px-4 py-3.5 hover:shadow-sm transition-shadow">
               <div className="flex justify-between items-start mb-1.5">
-                <div className="text-[11px] font-semibold text-[#5E6C84] uppercase tracking-wide">
+                <div className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
                   {stat.label}
                 </div>
                 {stat.icon}
               </div>
               <div
-                className="text-2xl font-semibold mt-auto"
-                style={{ color: stat.color ?? "#172B4D" }}
+                className={`text-2xl font-semibold mt-auto ${stat.colorClass}`}
               >
                 {stat.value}
               </div>
-              <div className="text-[11px] text-[#5E6C84] mt-0.5">{stat.sub}</div>
+              <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{stat.sub}</div>
             </div>
           );
 
@@ -158,10 +162,10 @@ export default async function DashboardPage() {
       {/* Kanban preview */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-[#172B4D]">Kanban Board</h3>
+          <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Kanban Board</h3>
           <a
             href="/dashboard/kanban"
-            className="text-xs text-[#0052CC] hover:underline"
+            className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
           >
             View all
           </a>
@@ -170,17 +174,17 @@ export default async function DashboardPage() {
           {["applied", "interview", "offer", "hired"].map((stage) => {
             const count = kanbanCounts[stage] ?? 0;
             return (
-              <div key={stage} className="bg-[#F4F5F7] rounded-md p-3">
+              <div key={stage} className="bg-zinc-50 dark:bg-zinc-900 rounded-md p-3 border border-transparent dark:border-zinc-800">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[11px] font-semibold text-[#5E6C84] uppercase tracking-wide">
+                  <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
                     {capitalizeFirst(stage)}
                   </span>
-                  <span className="bg-[#DFE1E6] text-[#5E6C84] text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
+                  <span className="bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-xs font-semibold px-1.5 py-0.5 rounded-full">
                     {count}
                   </span>
                 </div>
                 {count === 0 ? (
-                  <div className="border border-dashed border-[#DFE1E6] rounded bg-white p-2.5 text-center text-[11px] text-[#B3BAC5]">
+                  <div className="border border-dashed border-zinc-200 dark:border-zinc-700 rounded bg-white dark:bg-zinc-900/50 p-2.5 text-center text-xs text-zinc-400 dark:text-zinc-500">
                     No applications yet
                   </div>
                 ) : (
@@ -191,18 +195,18 @@ export default async function DashboardPage() {
                       .map((app) => (
                         <div
                           key={app.id}
-                          className="bg-white rounded p-2 border border-[#DFE1E6] text-xs"
+                          className="bg-white dark:bg-zinc-950 rounded p-2 border border-zinc-200 dark:border-zinc-800 text-xs"
                         >
-                          <div className="font-medium text-[#172B4D] truncate">
+                          <div className="font-medium text-zinc-900 dark:text-zinc-100 truncate">
                             {app.companyName}
                           </div>
-                          <div className="text-[#5E6C84] truncate">
+                          <div className="text-zinc-500 dark:text-zinc-400 truncate">
                             {app.position}
                           </div>
                         </div>
                       ))}
                     {count > 3 && (
-                      <div className="text-center text-[10px] text-[#5E6C84] pt-1">
+                      <div className="text-center text-xs text-zinc-500 dark:text-zinc-400 pt-1">
                         +{count - 3} more
                       </div>
                     )}
@@ -217,18 +221,18 @@ export default async function DashboardPage() {
       {/* Recent applications */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-[#172B4D]">
+          <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
             Recent Applications
           </h3>
           <a
             href="/dashboard/applications"
-            className="text-xs text-[#0052CC] hover:underline"
+            className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
           >
             View all
           </a>
         </div>
-        <div className="bg-white border border-[#DFE1E6] rounded-md overflow-hidden">
-          <div className="grid grid-cols-4 px-4 py-2.5 bg-[#F4F5F7] text-[11px] font-semibold text-[#5E6C84] uppercase tracking-wide">
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md overflow-hidden">
+          <div className="grid grid-cols-4 px-4 py-2.5 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
             <div>Company / Role</div>
             <div>Date Applied</div>
             <div>Status</div>
@@ -236,10 +240,10 @@ export default async function DashboardPage() {
           </div>
 
           {recentApps.length === 0 ? (
-            <div className="px-4 py-8 text-center text-sm text-[#5E6C84]">
+            <div className="px-4 py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
               <p className="text-3xl mb-2">📋</p>
-              <p className="font-medium text-[#172B4D]">No applications yet</p>
-              <p className="text-xs text-[#97A0AF] mt-1">
+              <p className="font-medium text-zinc-900 dark:text-zinc-100">No applications yet</p>
+              <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">
                 Add your first application to get started
               </p>
             </div>
@@ -250,30 +254,30 @@ export default async function DashboardPage() {
                 return (
                   <div
                     key={app.id}
-                    className={`grid grid-cols-4 px-4 py-3 items-center text-sm border-b border-[#F4F5F7] last:border-0 ${
-                      idx % 2 === 0 ? "" : "bg-[#FAFBFC]"
+                    className={`grid grid-cols-4 px-4 py-3 items-center text-sm border-b border-zinc-100 dark:border-zinc-800/50 last:border-0 ${
+                      idx % 2 === 0 ? "" : "bg-zinc-50/50 dark:bg-zinc-900/50"
                     }`}
                   >
                     <div>
-                      <div className="font-medium text-[#172B4D] truncate">
+                      <div className="font-medium text-zinc-900 dark:text-zinc-100 truncate">
                         {app.companyName}
                       </div>
-                      <div className="text-xs text-[#5E6C84] truncate">
+                      <div className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
                         {app.position}
                       </div>
                     </div>
-                    <div className="text-[#5E6C84] text-sm">
+                    <div className="text-zinc-500 dark:text-zinc-400 text-sm">
                       {formatDate(app.dateApplied)}
                     </div>
                     <div>
                       <span
-                        className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold ${sc.bg} ${sc.text}`}
+                        className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold ${sc.bg} ${sc.text}`}
                       >
                         <span className={`w-1.5 h-1.5 rounded-full ${sc.dot}`} />
                         {capitalizeFirst(app.status)}
                       </span>
                     </div>
-                    <div className="text-[#5E6C84] text-sm">
+                    <div className="text-zinc-500 dark:text-zinc-400 text-sm">
                       {app.source || "—"}
                     </div>
                   </div>

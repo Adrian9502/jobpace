@@ -8,15 +8,15 @@ export default async function Home() {
   if (session?.user) redirect("/dashboard");
 
   return (
-    <div className="flex flex-col flex-1 items-center justify-center min-h-screen bg-[#F4F5F7] px-4">
-      <div className="bg-white rounded w-full max-w-sm px-6 py-8 sm:px-10 sm:py-10 shadow-[0_1px_3px_rgba(9,30,66,0.12),0_0_0_1px_rgba(9,30,66,0.08)] flex flex-col items-center">
+    <div className="flex flex-col flex-1 items-center justify-center min-h-screen bg-zinc-50 dark:bg-zinc-950 px-4 transition-colors">
+      <div className="bg-white dark:bg-zinc-900 rounded-xl w-full max-w-sm px-6 py-8 sm:px-10 sm:py-10 shadow-sm border border-zinc-200 dark:border-zinc-800 flex flex-col items-center">
         <Image
           src="/jobpace-logo-final.png"
           alt="Job Pace Logo"
           width={70}
           height={70}
           priority
-          className="mb-4 h-auto pointer-events-none w-14 sm:w-[70px]"
+          className="mb-4 h-auto pointer-events-none w-14 sm:w-[70px] dark:brightness-0 dark:invert"
         />
         <Image
           src="/jobpace-title-horizontal2.png"
@@ -24,15 +24,15 @@ export default async function Home() {
           width={200}
           height={46}
           priority
-          className="mb-2 h-auto pointer-events-none w-36 sm:w-[200px]"
+          className="mb-2 h-auto pointer-events-none w-36 sm:w-[200px] dark:brightness-0 dark:invert"
         />
 
-        <div className="flex items-center gap-3 w-full mb-5">
-          <div className="flex-1 h-px bg-[#DFE1E6]" />
-          <span className="text-[11px] font-medium text-[#97A0AF] uppercase tracking-widest">
+        <div className="flex items-center gap-3 w-full mb-5 mt-2">
+          <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-800" />
+          <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">
             Sign in to continue
           </span>
-          <div className="flex-1 h-px bg-[#DFE1E6]" />
+          <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-800" />
         </div>
 
         <form
@@ -44,7 +44,7 @@ export default async function Home() {
         >
           <button
             type="submit"
-            className="flex items-center justify-center gap-2.5 w-full px-4 py-2.5 bg-white border border-[#DFE1E6] rounded text-sm font-medium text-[#172B4D] hover:bg-[#F4F5F7] hover:border-[#B3BAC5] transition-all"
+            className="flex items-center justify-center gap-2.5 w-full px-4 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm font-medium text-zinc-900 dark:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-600 transition-all shadow-sm"
           >
             <svg
               width="18"
@@ -73,13 +73,13 @@ export default async function Home() {
           </button>
         </form>
 
-        <p className="mt-6 text-[11px] text-[#97A0AF] text-center leading-relaxed">
+        <p className="mt-6 text-xs text-zinc-500 dark:text-zinc-400 text-center leading-relaxed">
           By continuing, you agree to our{" "}
-          <a href="#" className="text-[#0052CC] hover:underline">
+          <a href="#" className="text-blue-600 dark:text-blue-400 hover:underline">
             Terms of Service
           </a>{" "}
           and{" "}
-          <a href="#" className="text-[#0052CC] hover:underline">
+          <a href="#" className="text-blue-600 dark:text-blue-400 hover:underline">
             Privacy Policy
           </a>
           .
