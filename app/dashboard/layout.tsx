@@ -1,6 +1,7 @@
 import { getSession } from "@/lib/auth-helpers";
 import { redirect } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
+import { Analytics } from "@vercel/analytics/next"
 
 export default async function DashboardLayout({
   children,
@@ -21,6 +22,7 @@ export default async function DashboardLayout({
       <div className="flex flex-col flex-1 min-w-0 h-full">
         <main className="flex-1 p-6 overflow-y-auto">{children}</main>
       </div>
+      <Analytics />
     </div>
   );
 }
