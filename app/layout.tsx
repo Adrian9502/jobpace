@@ -32,13 +32,7 @@ export default function RootLayout({
         <Toaster 
           position="bottom-right" 
           richColors 
-          toastOptions={{
-            style: {
-              background: "#172B4D",
-              color: "#FFFFFF",
-              border: "1px solid #DFE1E6",
-            }
-          }} 
+          theme="system" 
         />
       </body>
     </html>

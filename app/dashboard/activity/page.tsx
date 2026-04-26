@@ -1,5 +1,4 @@
-import DashboardLayout from "@/components/DashboardLayout";
-import { getActivityLogs } from "@/lib/actions";
+import { getActivityLogs } from "@/lib/queries";
 import ActivityClient from "@/components/ActivityClient";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +17,7 @@ export default async function ActivityPage() {
   }));
 
   return (
-    <DashboardLayout title="Activity Logs">
+    <>
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
           Activity Logs
@@ -30,6 +29,6 @@ export default async function ActivityPage() {
       </div>
 
       <ActivityClient logs={serializedLogs} />
-    </DashboardLayout>
+    </>
   );
 }

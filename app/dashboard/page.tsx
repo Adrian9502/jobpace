@@ -1,51 +1,19 @@
-import DashboardLayout from "@/components/DashboardLayout";
-import { auth } from "@/lib/auth";
-import { DEV_USER } from "@/lib/dev-auth";
-import { redirect } from "next/navigation";
+import { getSession } from "@/lib/auth-helpers";
 import {
   getApplicationStats,
   getKanbanCounts,
   getApplications,
-} from "@/lib/actions";
+} from "@/lib/queries";
+import { APPLICATION_STATUSES } from "@/lib/constants";
+import { formatDate, capitalizeFirst } from "@/lib/utils";
 import AddApplicationButton from "@/components/AddApplicationButton";
 import LiveDateTime from "@/components/LiveDateTime";
+import StatusBadge from "@/components/StatusBadge";
 
 export const dynamic = "force-dynamic";
 
-// ──────────────────────────────────────────────
-// Status badge config (matches ApplicationsClient)
-// ──────────────────────────────────────────────
-
-const STATUS_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
-  applied: { bg: "bg-blue-50", text: "text-blue-700", dot: "bg-blue-500" },
-  interview: { bg: "bg-indigo-50", text: "text-indigo-700", dot: "bg-indigo-500" },
-  exam: { bg: "bg-purple-50", text: "text-purple-700", dot: "bg-purple-500" },
-  offer: { bg: "bg-emerald-50", text: "text-emerald-700", dot: "bg-emerald-500" },
-  hired: { bg: "bg-green-50", text: "text-green-700", dot: "bg-green-600" },
-  rejected: { bg: "bg-red-50", text: "text-red-700", dot: "bg-red-500" },
-  ghosted: { bg: "bg-gray-100", text: "text-gray-500", dot: "bg-gray-400" },
-};
-
-function formatDate(d: Date | string | null | undefined): string {
-  if (!d) return "—";
-  const date = typeof d === "string" ? new Date(d) : d;
-  return date.toLocaleDateString("en-PH", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
-function capitalizeFirst(s: string): string {
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
 export default async function DashboardPage() {
-  const isDev = process.env.NEXT_PUBLIC_DEV_MODE === "true";
-  const session = isDev ? DEV_USER : await auth();
-
-  if (!isDev && !session?.user) redirect("/");
-
+  const session = await getSession();
   const firstName = session?.user?.name?.split(" ")[0] ?? "there";
 
   // Fetch real data
@@ -58,7 +26,7 @@ export default async function DashboardPage() {
   const recentApps = applications.slice(0, 5);
 
   return (
-    <DashboardLayout title="Dashboard">
+    <>
       {/* Welcome */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -249,9 +217,7 @@ export default async function DashboardPage() {
             </div>
           ) : (
             <div>
-              {recentApps.map((app, idx) => {
-                const sc = STATUS_COLORS[app.status] ?? STATUS_COLORS.applied;
-                return (
+              {recentApps.map((app, idx) => (
                   <div
                     key={app.id}
                     className={`grid grid-cols-4 px-4 py-3 items-center text-sm border-b border-zinc-100 dark:border-zinc-800/50 last:border-0 ${
@@ -270,24 +236,17 @@ export default async function DashboardPage() {
                       {formatDate(app.dateApplied)}
                     </div>
                     <div>
-                      <span
-                        className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold ${sc.bg} ${sc.text}`}
-                      >
-                        <span className={`w-1.5 h-1.5 rounded-full ${sc.dot}`} />
-                        {capitalizeFirst(app.status)}
-                      </span>
+                      <StatusBadge status={app.status} />
                     </div>
                     <div className="text-zinc-500 dark:text-zinc-400 text-sm">
                       {app.source || "—"}
                     </div>
                   </div>
-                );
-              })}
+                ))}
             </div>
           )}
         </div>
       </div>
-    </DashboardLayout>
+    </>
   );
 }
-

@@ -1,5 +1,4 @@
-import DashboardLayout from "@/components/DashboardLayout";
-import { getApplications } from "@/lib/actions";
+import { getApplications } from "@/lib/queries";
 import TimelineClient from "@/components/TimelineClient";
 
 export const dynamic = "force-dynamic";
@@ -9,7 +8,7 @@ export default async function TimelinePage() {
   const applications = await getApplications();
 
   return (
-    <DashboardLayout title="Job Hunt Timeline">
+    <>
       <div className="mb-4">
         <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Job Hunt Timeline</h2>
         <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
@@ -18,6 +17,6 @@ export default async function TimelinePage() {
       </div>
 
       <TimelineClient applications={applications} />
-    </DashboardLayout>
+    </>
   );
 }
