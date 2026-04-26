@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import type { ApplicationRow } from "@/lib/actions";
 import ApplicationModal from "./ApplicationModal";
 import DeleteConfirmModal from "./DeleteConfirmModal";
@@ -100,12 +100,117 @@ interface Props {
   applications: ApplicationRow[];
 }
 
+const PAGE_SIZE = 10;
+
+// ──────────────────────────────────────────────
+// Pagination bar
+// ──────────────────────────────────────────────
+
+function PaginationBar({
+  page,
+  totalPages,
+  total,
+  pageSize,
+  onPage,
+}: {
+  page: number;
+  totalPages: number;
+  total: number;
+  pageSize: number;
+  onPage: (p: number) => void;
+}) {
+  if (totalPages <= 1) return null;
+
+  const start = (page - 1) * pageSize + 1;
+  const end = Math.min(page * pageSize, total);
+
+  const pageNums = Array.from({ length: totalPages }, (_, i) => i + 1)
+    .filter((p) => {
+      if (totalPages <= 7) return true;
+      return p === 1 || p === totalPages || Math.abs(p - page) <= 1;
+    })
+    .reduce<(number | "…")[]>((acc, p, i, arr) => {
+      if (
+        i > 0 &&
+        typeof arr[i - 1] === "number" &&
+        (p as number) - (arr[i - 1] as number) > 1
+      ) {
+        acc.push("…");
+      }
+      acc.push(p);
+      return acc;
+    }, []);
+
+  return (
+    <div className="flex items-center justify-between px-4 py-3 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">
+      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+        Showing{" "}
+        <span className="font-semibold text-zinc-700 dark:text-zinc-300">
+          {start}–{end}
+        </span>{" "}
+        of{" "}
+        <span className="font-semibold text-zinc-700 dark:text-zinc-300">
+          {total}
+        </span>{" "}
+        results
+      </p>
+
+      <div className="flex items-center gap-1">
+        <button
+          onClick={() => onPage(Math.max(1, page - 1))}
+          disabled={page === 1}
+          className="px-2.5 py-1.5 rounded-md text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors border border-zinc-200 dark:border-zinc-700"
+        >
+          ← Prev
+        </button>
+
+        {pageNums.map((p, i) =>
+          p === "…" ? (
+            <span
+              key={`ellipsis-${i}`}
+              className="px-1 text-xs text-zinc-400 dark:text-zinc-600"
+            >
+              …
+            </span>
+          ) : (
+            <button
+              key={p}
+              onClick={() => onPage(p as number)}
+              className={`min-w-[30px] h-[30px] rounded-md text-xs font-medium transition-colors border ${
+                page === p
+                  ? "bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 border-zinc-900 dark:border-zinc-100"
+                  : "text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              }`}
+            >
+              {p}
+            </button>
+          )
+        )}
+
+        <button
+          onClick={() => onPage(Math.min(totalPages, page + 1))}
+          disabled={page === totalPages}
+          className="px-2.5 py-1.5 rounded-md text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors border border-zinc-200 dark:border-zinc-700"
+        >
+          Next →
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function ApplicationsClient({ applications }: Props) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [showModal, setShowModal] = useState(false);
   const [editData, setEditData] = useState<ApplicationRow | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ApplicationRow | null>(null);
+  const [page, setPage] = useState(1);
+
+  // Reset to page 1 when search/filter changes
+  useEffect(() => {
+    setPage(1);
+  }, [search, statusFilter]);
 
   // Filter & search
   const filtered = useMemo(() => {
@@ -122,6 +227,10 @@ export default function ApplicationsClient({ applications }: Props) {
       return matchesSearch && matchesStatus;
     });
   }, [applications, search, statusFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const paginated = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   function openCreate() {
     setEditData(null);
@@ -269,7 +378,7 @@ export default function ApplicationsClient({ applications }: Props) {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((app, idx) => (
+                {paginated.map((app, idx) => (
                   <tr
                     key={app.id}
                     className={`border-b border-zinc-100 dark:border-zinc-800/50 hover:bg-zinc-50/80 dark:hover:bg-zinc-800/30 transition-colors ${
@@ -334,9 +443,10 @@ export default function ApplicationsClient({ applications }: Props) {
             </table>
           </div>
 
+
           {/* Mobile cards */}
           <div className="lg:hidden divide-y divide-zinc-100 dark:divide-zinc-800">
-            {filtered.map((app) => (
+            {paginated.map((app) => (
               <div key={app.id} className="p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div>
@@ -385,6 +495,15 @@ export default function ApplicationsClient({ applications }: Props) {
               </div>
             ))}
           </div>
+
+          {/* Pagination */}
+          <PaginationBar
+            page={safePage}
+            totalPages={totalPages}
+            total={filtered.length}
+            pageSize={PAGE_SIZE}
+            onPage={setPage}
+          />
         </div>
       )}
 

@@ -28,13 +28,21 @@ export type ApplicationRow = typeof jobApplications.$inferSelect;
 // LOGGING HELPER
 // ──────────────────────────────────────────────
 
+interface ChangeEntry {
+  field: string;
+  from: string | null;
+  to: string | null;
+}
+
 async function logActivity(
   userId: string,
   actionType: string,
-  description: string,
-  applicationId?: string
+  summary: string,
+  applicationId?: string,
+  changes: ChangeEntry[] = []
 ) {
   try {
+    const description = JSON.stringify({ summary, changes });
     await db.insert(jobActivityLogs).values({
       userId,
       actionType,
@@ -201,33 +209,40 @@ export async function createApplication(
       notes: (formData.get("notes") as string)?.trim() || null,
     }).returning();
 
-    const changes: string[] = [];
-    const fields: Record<string, string | null> = {
-      "Company Name": newApp.companyName,
-      "Position": newApp.position,
-      "Location": newApp.location,
-      "Work Setup": newApp.workSetup,
-      "Employment Type": newApp.employmentType,
-      "Salary": newApp.salaryMin || newApp.salaryMax ? `${formatMoney(newApp.salaryMin)} - ${formatMoney(newApp.salaryMax)}` : null,
-      "Status": newApp.status,
-      "Source": newApp.source,
-      "Application Link": newApp.applicationLink,
-      "Date Applied": formatDateDisplay(newApp.dateApplied),
-      "Follow-up Date": formatDateDisplay(newApp.followUpDate),
-    };
+    const changes: ChangeEntry[] = [];
+    const fields: [string, string | null][] = [
+      ["Company Name", newApp.companyName],
+      ["Position", newApp.position],
+      ["Location", newApp.location],
+      ["Work Setup", newApp.workSetup],
+      ["Employment Type", newApp.employmentType],
+      ["Salary", newApp.salaryMin || newApp.salaryMax ? `${formatMoney(newApp.salaryMin)} - ${formatMoney(newApp.salaryMax)}` : null],
+      ["Status", newApp.status],
+      ["Source", newApp.source],
+      ["Application Link", newApp.applicationLink],
+      ["Date Applied", formatDateDisplay(newApp.dateApplied)],
+      ["Follow-up Date", formatDateDisplay(newApp.followUpDate)],
+      ["Job Description", newApp.jobDescription ? "(provided)" : null],
+      ["Notes", newApp.notes ? "(provided)" : null],
+    ];
 
-    for (const [key, val] of Object.entries(fields)) {
-      if (val) {
-        const msg = `${key} set to ${val}`;
-        changes.push(msg);
-        await logActivity(userId, "CREATE", msg, newApp.id);
-      }
+    for (const [key, val] of fields) {
+      if (val) changes.push({ field: key, from: null, to: val });
     }
+
+    await logActivity(
+      userId,
+      "CREATE",
+      `Applied for ${newApp.position} at ${newApp.companyName}`,
+      newApp.id,
+      changes
+    );
 
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/applications");
+    revalidatePath("/dashboard/activity");
 
-    return { success: true, changes };
+    return { success: true };
   } catch (err) {
     console.error("createApplication error:", err);
     return { success: false, error: "Failed to create application." };
@@ -309,33 +324,53 @@ export async function updateApplication(
         and(eq(jobApplications.id, id), eq(jobApplications.userId, userId))
       );
 
-    const changes: string[] = [];
+    const changes: ChangeEntry[] = [];
 
-    if (oldApp.companyName !== updates.companyName) changes.push(`Company Name changed from ${oldApp.companyName} to ${updates.companyName}`);
-    if (oldApp.position !== updates.position) changes.push(`Position changed from ${oldApp.position} to ${updates.position}`);
-    if (oldApp.location !== updates.location) changes.push(`Location changed from ${oldApp.location || 'None'} to ${updates.location || 'None'}`);
-    if (oldApp.workSetup !== updates.workSetup) changes.push(`Work Setup changed from ${oldApp.workSetup || 'None'} to ${updates.workSetup || 'None'}`);
-    
-    // Check salary manually
-    const oldSal = oldApp.salaryMin || oldApp.salaryMax ? `${formatMoney(oldApp.salaryMin)} - ${formatMoney(oldApp.salaryMax)}` : 'None';
-    const newSal = updates.salaryMin || updates.salaryMax ? `${formatMoney(updates.salaryMin)} - ${formatMoney(updates.salaryMax)}` : 'None';
-    if (oldSal !== newSal) changes.push(`Salary changed from ${oldSal} to ${newSal}`);
+    if (oldApp.companyName !== updates.companyName)
+      changes.push({ field: "Company Name", from: oldApp.companyName, to: updates.companyName });
+    if (oldApp.position !== updates.position)
+      changes.push({ field: "Position", from: oldApp.position, to: updates.position });
+    if (oldApp.location !== updates.location)
+      changes.push({ field: "Location", from: oldApp.location || "None", to: updates.location || "None" });
+    if (oldApp.workSetup !== updates.workSetup)
+      changes.push({ field: "Work Setup", from: oldApp.workSetup || "None", to: updates.workSetup || "None" });
 
-    if (oldApp.status !== updates.status) changes.push(`Status changed from ${oldApp.status} to ${updates.status}`);
-    if (oldApp.source !== updates.source) changes.push(`Source changed from ${oldApp.source || 'None'} to ${updates.source || 'None'}`);
-    
+    const oldSal = oldApp.salaryMin || oldApp.salaryMax ? `${formatMoney(oldApp.salaryMin)} - ${formatMoney(oldApp.salaryMax)}` : "None";
+    const newSal = updates.salaryMin || updates.salaryMax ? `${formatMoney(updates.salaryMin)} - ${formatMoney(updates.salaryMax)}` : "None";
+    if (oldSal !== newSal)
+      changes.push({ field: "Salary", from: oldSal, to: newSal });
+
+    if (oldApp.status !== updates.status)
+      changes.push({ field: "Status", from: oldApp.status, to: updates.status });
+    if (oldApp.source !== updates.source)
+      changes.push({ field: "Source", from: oldApp.source || "None", to: updates.source || "None" });
+
     const oldFollow = formatDateDisplay(oldApp.followUpDate);
     const newFollow = formatDateDisplay(updates.followUpDate);
-    if (oldFollow !== newFollow) changes.push(`Follow-up date changed from ${oldFollow || 'None'} to ${newFollow || 'None'}`);
+    if (oldFollow !== newFollow)
+      changes.push({ field: "Follow-up Date", from: oldFollow || "None", to: newFollow || "None" });
 
-    for (const msg of changes) {
-      await logActivity(userId, "UPDATE", msg, id);
+    if (oldApp.jobDescription !== updates.jobDescription)
+      changes.push({ field: "Job Description", from: oldApp.jobDescription ? "(provided)" : "None", to: updates.jobDescription ? "(provided)" : "None" });
+
+    if (oldApp.notes !== updates.notes)
+      changes.push({ field: "Notes", from: oldApp.notes ? "(provided)" : "None", to: updates.notes ? "(provided)" : "None" });
+
+    if (changes.length > 0) {
+      await logActivity(
+        userId,
+        "UPDATE",
+        `Updated ${oldApp.position} at ${oldApp.companyName}`,
+        id,
+        changes
+      );
     }
 
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/applications");
+    revalidatePath("/dashboard/activity");
 
-    return { success: true, changes };
+    return { success: true };
   } catch (err) {
     console.error("updateApplication error:", err);
     return { success: false, error: "Failed to update application." };
@@ -360,20 +395,21 @@ export async function updateApplicationStatus(
       .set({ status: newStatus, updatedAt: new Date() })
       .where(and(eq(jobApplications.id, id), eq(jobApplications.userId, userId)));
       
-    const msg = `Status changed from ${oldApp?.status || 'Unknown'} to ${newStatus}`;
+    const msg = `Status changed from ${oldApp?.status || "Unknown"} to ${newStatus}`;
     await logActivity(
       userId,
       "STATUS_CHANGE",
       msg,
-      id
+      id,
+      [{ field: "Status", from: oldApp?.status || "Unknown", to: newStatus }]
     );
 
-    // Revalidate dashboard and kanban paths to ensure accurate counts
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/kanban");
     revalidatePath("/dashboard/applications");
-    
-    return { success: true, changes: [msg] };
+    revalidatePath("/dashboard/activity");
+
+    return { success: true };
   } catch (err) {
     console.error("updateStatus error:", err);
     return { success: false, error: "Failed to update status." };
@@ -401,12 +437,14 @@ export async function deleteApplication(id: string): Promise<ActionResult> {
         userId,
         "DELETE",
         `Deleted application for ${existing.companyName}`,
-        undefined
+        undefined,
+        [{ field: "Application", from: `${existing.position} at ${existing.companyName}`, to: null }]
       );
     }
 
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/applications");
+    revalidatePath("/dashboard/activity");
 
     return { success: true };
   } catch (err) {
