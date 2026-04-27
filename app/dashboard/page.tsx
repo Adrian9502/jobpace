@@ -198,6 +198,8 @@ export default async function DashboardPage() {
         </div>
       </div>
 
+
+
       {/* Recent applications */}
       <div>
         <div className="flex items-center justify-between mb-3">

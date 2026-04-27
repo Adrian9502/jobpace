@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import type { ApplicationRow } from "@/lib/queries";
 import { STAGE_CONFIG, STATUS_CONFIG, STAGES } from "@/lib/constants";
 import type { Stage, Status } from "@/lib/constants";
 import { formatSalaryCompact, capitalizeFirst } from "@/lib/utils";
+import StageBadge from "./StageBadge";
+import StatusBadge from "./StatusBadge";
 
 const STAGE_FILTERS = ["All", ...STAGES.map(s => STAGE_CONFIG[s].label)];
 
@@ -31,11 +33,20 @@ function getStatusNote(stage: string, status: string | null, followUp: Date | nu
 export default function TimelineClient({ applications }: { applications: ApplicationRow[] }) {
   const [filter, setFilter] = useState("All");
 
-  const filteredApps = applications.filter((app) => {
-    if (filter === "All") return true;
-    const stageLabel = STAGE_CONFIG[app.stage as Stage]?.label;
-    return stageLabel === filter;
-  });
+  const filteredApps = useMemo(() => {
+    return applications
+      .filter((app) => {
+        if (filter === "All") return true;
+        const stageLabel = STAGE_CONFIG[app.stage as Stage]?.label;
+        return stageLabel === filter;
+      })
+      .sort((a, b) => {
+        const dateA = new Date(a.dateApplied).getTime();
+        const dateB = new Date(b.dateApplied).getTime();
+        if (dateA !== dateB) return dateB - dateA;
+        return b.id.localeCompare(a.id); // Secondary sort for consistency
+      });
+  }, [applications, filter]);
 
   // Group by Month-Year
   const groupedApps: Record<string, ApplicationRow[]> = {};
@@ -103,14 +114,9 @@ export default function TimelineClient({ applications }: { applications: Applica
                               <h4 className="font-bold text-zinc-900 dark:text-zinc-100 text-base leading-tight">{app.position}</h4>
                               <div className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mt-0.5">{app.companyName}</div>
                             </div>
-                            <div className="flex flex-col gap-1 items-end shrink-0">
-                              <span className={`shrink-0 inline-flex items-center px-2.5 py-1 rounded text-xs font-bold uppercase tracking-wider ${stageCfg.bg} ${stageCfg.text}`}>
-                                {stageCfg.label}
-                              </span>
-                              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${statusCfg.bg} ${statusCfg.text}`}>
-                                <span className={`w-1 h-1 rounded-full ${statusCfg.dot}`} />
-                                {statusCfg.label}
-                              </span>
+                            <div className="flex flex-col gap-1.5 items-end shrink-0">
+                              <StageBadge stage={app.stage} />
+                              <StatusBadge status={app.status} />
                             </div>
                           </div>
                           <div className="flex flex-wrap gap-2 mt-4">

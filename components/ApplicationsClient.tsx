@@ -22,6 +22,7 @@ export default function ApplicationsClient({ applications }: Props) {
   const [showModal, setShowModal] = useState(false);
   const [editData, setEditData] = useState<ApplicationRow | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ApplicationRow | null>(null);
+  const [isViewMode, setIsViewMode] = useState(false);
   const [page, setPage] = useState(1);
 
   useEffect(() => { setPage(1); }, [search, stageFilter]);
@@ -42,9 +43,10 @@ export default function ApplicationsClient({ applications }: Props) {
   const safePage = Math.min(page, totalPages);
   const paginated = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
-  function openCreate() { setEditData(null); setShowModal(true); }
-  function openEdit(app: ApplicationRow) { setEditData(app); setShowModal(true); }
-  function closeModal() { setShowModal(false); setEditData(null); }
+  function openCreate() { setEditData(null); setIsViewMode(false); setShowModal(true); }
+  function openEdit(app: ApplicationRow) { setEditData(app); setIsViewMode(false); setShowModal(true); }
+  function openView(app: ApplicationRow) { setEditData(app); setIsViewMode(true); setShowModal(true); }
+  function closeModal() { setShowModal(false); setEditData(null); setIsViewMode(false); }
 
   return (
     <>
@@ -141,6 +143,9 @@ export default function ApplicationsClient({ applications }: Props) {
                     <td className="px-4 py-3.5 text-sm text-zinc-500 dark:text-zinc-400">{app.source || "—"}</td>
                     <td className="px-4 py-3.5 text-right">
                       <div className="flex items-center justify-end gap-1">
+                        <button onClick={() => openView(app)} className="p-1.5 rounded-md text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" title="View Details">
+                          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4"><path d="M1.5 8s3-4.5 6.5-4.5S14.5 8 14.5 8s-3 4.5-6.5 4.5S1.5 8 1.5 8z" /><circle cx="8" cy="8" r="2" /></svg>
+                        </button>
                         <button onClick={() => openEdit(app)} className="p-1.5 rounded-md text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" title="Edit">
                           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4"><path d="M11.5 2.5l2 2-8 8H3.5v-2l8-8z" /></svg>
                         </button>
@@ -182,8 +187,14 @@ export default function ApplicationsClient({ applications }: Props) {
                   {app.source && <div>{app.source}</div>}
                   <div>{formatSalary(app.salaryMin, app.salaryMax)}</div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button onClick={() => openEdit(app)} className="flex-1 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors">Edit</button>
+                <div className="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-end gap-2">
+                  <button onClick={() => openView(app)} className="px-3 py-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-300 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md shadow-sm hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors flex-1 text-center flex items-center justify-center gap-1.5">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3.5 h-3.5"><path d="M1.5 8s3-4.5 6.5-4.5S14.5 8 14.5 8s-3 4.5-6.5 4.5S1.5 8 1.5 8z" /><circle cx="8" cy="8" r="2" /></svg>
+                    View
+                  </button>
+                  <button onClick={() => openEdit(app)} className="px-3 py-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-300 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md shadow-sm hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors flex-1 text-center">
+                    Edit
+                  </button>
                   <button onClick={() => setDeleteTarget(app)} className="flex-1 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-md hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors">Delete</button>
                 </div>
               </div>
@@ -194,7 +205,8 @@ export default function ApplicationsClient({ applications }: Props) {
         </div>
       )}
 
-      <ApplicationModal open={showModal} onClose={closeModal} editData={editData} />
+      {/* Modals */}
+      <ApplicationModal open={showModal} onClose={closeModal} editData={editData} readOnly={isViewMode} />
       {deleteTarget && (
         <DeleteConfirmModal open={!!deleteTarget} onClose={() => setDeleteTarget(null)} applicationId={deleteTarget.id} companyName={deleteTarget.companyName} position={deleteTarget.position} />
       )}
