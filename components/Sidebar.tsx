@@ -19,7 +19,7 @@ const navItems = [
         ),
       },
       {
-        label: "Applications",
+        label: "All Applications",
         href: "/dashboard/applications",
         badge: null,
         icon: (
@@ -49,6 +49,22 @@ const navItems = [
             <rect x="2" y="2" width="3" height="12" rx="1" />
             <rect x="7" y="2" width="3" height="9" rx="1" />
             <rect x="12" y="2" width="3" height="6" rx="1" />
+          </svg>
+        ),
+      },
+       {
+        label: "Archive",
+        href: "/dashboard/archive",
+        icon: (
+          <svg
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            className="w-4 h-4"
+          >
+            <path d="M2.5 3h11v2h-11zM3.5 5v8a1 1 0 001 1h7a1 1 0 001-1V5" />
+            <path d="M6 8h4" />
           </svg>
         ),
       },
@@ -83,6 +99,7 @@ const navItems = [
           </svg>
         ),
       },
+     
     ],
   },
   {

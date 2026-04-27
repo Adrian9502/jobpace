@@ -9,6 +9,7 @@ import { formatDate } from "@/lib/utils";
 import AddApplicationButton from "@/components/AddApplicationButton";
 import LiveDateTime from "@/components/LiveDateTime";
 import StatusBadge from "@/components/StatusBadge";
+import StageBadge from "@/components/StageBadge";
 import StageStatusGuide from "@/components/StageStatusGuide";
 
 export const dynamic = "force-dynamic";
@@ -211,10 +212,11 @@ export default async function DashboardPage() {
           </a>
         </div>
         <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md overflow-hidden">
-          <div className="grid grid-cols-4 px-4 py-2.5 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
+          <div className="grid grid-cols-5 px-4 py-2.5 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
             <div>Company / Role</div>
             <div>Date Applied</div>
-            <div>Stage / Status</div>
+            <div>Stage</div>
+            <div>Status</div>
             <div>Source</div>
           </div>
 
@@ -231,7 +233,7 @@ export default async function DashboardPage() {
               {recentApps.map((app, idx) => (
                   <div
                     key={app.id}
-                    className={`grid grid-cols-4 px-4 py-3 items-center text-sm border-b border-zinc-100 dark:border-zinc-800/50 last:border-0 ${
+                    className={`grid grid-cols-5 px-4 py-3 items-center text-sm border-b border-zinc-100 dark:border-zinc-800/50 last:border-0 ${
                       idx % 2 === 0 ? "" : "bg-zinc-50/50 dark:bg-zinc-900/50"
                     }`}
                   >
@@ -247,7 +249,10 @@ export default async function DashboardPage() {
                       {formatDate(app.dateApplied)}
                     </div>
                     <div>
-                      <StatusBadge stage={app.stage} status={app.status} />
+                      <StageBadge stage={app.stage} />
+                    </div>
+                    <div>
+                      <StatusBadge status={app.status} />
                     </div>
                     <div className="text-zinc-500 dark:text-zinc-400 text-sm">
                       {app.source || "—"}
