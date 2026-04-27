@@ -6,7 +6,9 @@ import { getUserId } from "./auth-helpers";
 import { getApplicationById } from "./queries";
 import { eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { formatMoney, formatDate } from "./utils";
+import { formatMoney, formatDate, validateDateInBounds } from "./utils";
+import { STAGE_CONFIG, FINAL_STAGES } from "./constants";
+import { count } from "drizzle-orm";
 
 // ──────────────────────────────────────────────
 // Types
@@ -73,7 +75,8 @@ function parseApplicationForm(formData: FormData) {
     employmentType: (formData.get("employmentType") as string) || null,
     salaryMin: salaryMinRaw ? parseInt(salaryMinRaw, 10) : null,
     salaryMax: salaryMaxRaw ? parseInt(salaryMaxRaw, 10) : null,
-    status: (formData.get("status") as string) || "applied",
+    stage: (formData.get("stage") as string) || "applied",
+    status: (formData.get("status") as string) || "pending",
     source: (formData.get("source") as string) || null,
     applicationLink: (formData.get("applicationLink") as string)?.trim() || null,
     dateApplied: dateAppliedRaw ? new Date(dateAppliedRaw) : null,
@@ -83,10 +86,19 @@ function parseApplicationForm(formData: FormData) {
   };
 }
 
-function validateRequired(fields: { companyName: string; position: string; dateApplied: Date | null }): string | null {
+function validateRequired(fields: {
+  companyName: string;
+  position: string;
+  dateApplied: Date | null;
+}): string | null {
   if (!fields.companyName) return "Company name is required.";
   if (!fields.position) return "Position is required.";
   if (!fields.dateApplied) return "Date applied is required.";
+
+  // Date bounds validation
+  const dateError = validateDateInBounds(fields.dateApplied, "Date applied");
+  if (dateError) return dateError;
+
   return null;
 }
 
@@ -104,6 +116,22 @@ export async function createApplication(
     const validationError = validateRequired(parsed);
     if (validationError) return { success: false, error: validationError };
 
+    // Enforce maximum 200 applications per user limit
+    const [{ value: userAppCount }] = await db
+      .select({ value: count() })
+      .from(jobApplications)
+      .where(eq(jobApplications.userId, userId));
+      
+    if (userAppCount >= 200) {
+      return { success: false, error: "Maximum limit of 200 applications reached." };
+    }
+
+    // Validate follow-up date if provided
+    if (parsed.followUpDate) {
+      const followUpError = validateDateInBounds(parsed.followUpDate, "Follow-up date");
+      if (followUpError) return { success: false, error: followUpError };
+    }
+
     const [newApp] = await db.insert(jobApplications).values({
       userId,
       companyName: parsed.companyName,
@@ -113,7 +141,8 @@ export async function createApplication(
       employmentType: parsed.employmentType,
       salaryMin: parsed.salaryMin,
       salaryMax: parsed.salaryMax,
-      status: parsed.status,
+      stage: parsed.stage,
+      status: FINAL_STAGES.includes(parsed.stage as any) ? null : parsed.status,
       source: parsed.source,
       applicationLink: parsed.applicationLink,
       dateApplied: parsed.dateApplied!,
@@ -121,6 +150,8 @@ export async function createApplication(
       jobDescription: parsed.jobDescription,
       notes: parsed.notes,
     }).returning();
+
+    const stageLabel = STAGE_CONFIG[newApp.stage as keyof typeof STAGE_CONFIG]?.label ?? newApp.stage;
 
     const changes: ChangeEntry[] = [];
     const fields: [string, string | null][] = [
@@ -130,6 +161,7 @@ export async function createApplication(
       ["Work Setup", newApp.workSetup],
       ["Employment Type", newApp.employmentType],
       ["Salary", newApp.salaryMin || newApp.salaryMax ? `${formatMoney(newApp.salaryMin)} - ${formatMoney(newApp.salaryMax)}` : null],
+      ["Stage", stageLabel],
       ["Status", newApp.status],
       ["Source", newApp.source],
       ["Application Link", newApp.applicationLink],
@@ -174,6 +206,12 @@ export async function updateApplication(
     const validationError = validateRequired(parsed);
     if (validationError) return { success: false, error: validationError };
 
+    // Validate follow-up date if provided
+    if (parsed.followUpDate) {
+      const followUpError = validateDateInBounds(parsed.followUpDate, "Follow-up date");
+      if (followUpError) return { success: false, error: followUpError };
+    }
+
     const oldApp = await getApplicationById(id);
     if (!oldApp || oldApp.userId !== userId) {
       return { success: false, error: "Application not found." };
@@ -187,7 +225,8 @@ export async function updateApplication(
       employmentType: parsed.employmentType,
       salaryMin: parsed.salaryMin,
       salaryMax: parsed.salaryMax,
-      status: parsed.status,
+      stage: parsed.stage,
+      status: FINAL_STAGES.includes(parsed.stage as any) ? null : parsed.status,
       source: parsed.source,
       applicationLink: parsed.applicationLink,
       dateApplied: parsed.dateApplied!,
@@ -220,6 +259,8 @@ export async function updateApplication(
     if (oldSal !== newSal)
       changes.push({ field: "Salary", from: oldSal, to: newSal });
 
+    if (oldApp.stage !== updates.stage)
+      changes.push({ field: "Stage", from: oldApp.stage, to: updates.stage });
     if (oldApp.status !== updates.status)
       changes.push({ field: "Status", from: oldApp.status, to: updates.status });
     if (oldApp.source !== updates.source)
@@ -255,12 +296,12 @@ export async function updateApplication(
 }
 
 // ──────────────────────────────────────────────
-// UPDATE STATUS (partial / fast)
+// UPDATE STAGE (Kanban drag-and-drop)
 // ──────────────────────────────────────────────
 
-export async function updateApplicationStatus(
+export async function updateApplicationStage(
   id: string,
-  newStatus: string
+  newStage: string
 ): Promise<ActionResult> {
   try {
     const userId = await getUserId();
@@ -269,23 +310,38 @@ export async function updateApplicationStatus(
 
     await db
       .update(jobApplications)
-      .set({ status: newStatus, updatedAt: new Date() })
+      .set({ 
+        stage: newStage, 
+        status: FINAL_STAGES.includes(newStage as any) ? null : "pending", 
+        updatedAt: new Date() 
+      })
       .where(and(eq(jobApplications.id, id), eq(jobApplications.userId, userId)));
 
-    const msg = `Status changed from ${oldApp?.status || "Unknown"} to ${newStatus}`;
+    const oldStageLabel = STAGE_CONFIG[oldApp?.stage as keyof typeof STAGE_CONFIG]?.label ?? oldApp?.stage ?? "Unknown";
+    const newStageLabel = STAGE_CONFIG[newStage as keyof typeof STAGE_CONFIG]?.label ?? newStage;
+
+    const msg = `Stage changed from ${oldStageLabel} to ${newStageLabel}`;
     await logActivity(
       userId,
       "STATUS_CHANGE",
       msg,
       id,
-      [{ field: "Status", from: oldApp?.status || "Unknown", to: newStatus }]
+      [
+        { field: "Stage", from: oldApp?.stage || "Unknown", to: newStage },
+        { field: "Status", from: oldApp?.status || "Unknown", to: FINAL_STAGES.includes(newStage as any) ? null : "pending" },
+      ]
     );
 
     revalidateDashboard();
-    return { success: true };
+    
+    const newStatusMsg = FINAL_STAGES.includes(newStage as any) ? "" : " — status changed to Pending";
+    return {
+      success: true,
+      changes: [`${oldApp?.companyName ?? "Application"} moved to ${newStageLabel}${newStatusMsg}`],
+    };
   } catch (err) {
-    console.error("updateStatus error:", err);
-    return { success: false, error: "Failed to update status." };
+    console.error("updateStage error:", err);
+    return { success: false, error: "Failed to update stage." };
   }
 }
 

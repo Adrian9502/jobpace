@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { APPLICATION_STATUSES, ACTION_TYPES } from "@/lib/constants";
+import { STAGE_CONFIG, STATUS_CONFIG, ACTION_TYPES } from "@/lib/constants";
 import { formatDate, formatDateTime, formatTime } from "@/lib/utils";
 import PaginationBar from "./PaginationBar";
 
@@ -67,16 +67,31 @@ function parseLog(description: string): ParsedLog {
 // Value chip (status-aware)
 // ──────────────────────────────────────────────
 
-function ValueChip({ value }: { value: string }) {
+function ValueChip({ value, field }: { value: string, field: string }) {
   const normalized = value.toLowerCase().trim();
-  const cfg = APPLICATION_STATUSES[normalized];
-  if (cfg) {
-    return (
-      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${cfg.bg} ${cfg.text}`}>
-        {value.charAt(0).toUpperCase() + value.slice(1)}
-      </span>
-    );
+  
+  if (field === "Stage") {
+    // Stage value chip
+    const cfg = Object.values(STAGE_CONFIG).find(c => c.label.toLowerCase() === normalized) || (STAGE_CONFIG as any)[normalized];
+    if (cfg) {
+      return (
+        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${cfg.bg} ${cfg.text}`}>
+          {cfg.label}
+        </span>
+      );
+    }
+  } else if (field === "Status") {
+    // Status value chip
+    const cfg = Object.values(STATUS_CONFIG).find(c => c.label.toLowerCase() === normalized) || (STATUS_CONFIG as any)[normalized];
+    if (cfg) {
+      return (
+        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${cfg.bg} ${cfg.text}`}>
+          {cfg.label}
+        </span>
+      );
+    }
   }
+
   return <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100 break-words">{value}</span>;
 }
 
@@ -131,24 +146,24 @@ function LogDetailModal({ log, onClose }: { log: ActivityLog; onClose: () => voi
                       <div className="grid grid-cols-2 divide-x divide-zinc-200 dark:divide-zinc-700/60">
                         <div className="p-4 bg-red-50/50 dark:bg-red-950/20">
                           <p className="text-[10px] font-bold uppercase tracking-wider text-red-500 dark:text-red-400 mb-2">Before</p>
-                          <ValueChip value={c.from!} />
+                          <ValueChip value={c.from!} field={c.field} />
                         </div>
                         <div className="p-4 bg-emerald-50/50 dark:bg-emerald-950/20">
                           <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-2">After</p>
-                          <ValueChip value={c.to!} />
+                          <ValueChip value={c.to!} field={c.field} />
                         </div>
                       </div>
                     )}
                     {isCreate && (
                       <div className="p-4 bg-blue-50/30 dark:bg-blue-950/10">
                         <p className="text-[10px] font-bold uppercase tracking-wider text-blue-500 dark:text-blue-400 mb-2">Set to</p>
-                        <ValueChip value={c.to!} />
+                        <ValueChip value={c.to!} field={c.field} />
                       </div>
                     )}
                     {isDelete && (
                       <div className="p-4 bg-red-50/30 dark:bg-red-950/10">
                         <p className="text-[10px] font-bold uppercase tracking-wider text-red-500 dark:text-red-400 mb-2">Deleted</p>
-                        <ValueChip value={c.from!} />
+                        <ValueChip value={c.from!} field={c.field} />
                       </div>
                     )}
                   </div>
@@ -214,7 +229,7 @@ export default function ActivityClient({ logs }: { logs: ActivityLog[] }) {
           { key: "ALL", label: "All" },
           { key: "CREATE", label: "Created" },
           { key: "UPDATE", label: "Updated" },
-          { key: "STATUS_CHANGE", label: "Status Changed" },
+          { key: "STATUS_CHANGE", label: "Stage Changed" },
           { key: "DELETE", label: "Deleted" },
         ].map(({ key, label }) => {
           const active = filter === key;

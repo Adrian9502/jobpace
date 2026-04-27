@@ -53,7 +53,8 @@ export const jobApplications = pgTable("job_applications", {
   salaryMax: integer("salaryMax"),             // e.g. 35000
 
   // Tracking
-  status: text("status").notNull().default("applied"), // applied | interview | exam | offer | hired | rejected | ghosted
+  stage: text("stage").notNull().default("applied"),     // applied | screening | interview | assessment | final_interview | offer | hired | rejected | ghosted | withdrawn
+  status: text("status"),                                // pending | ongoing | passed | failed (nullable for final stages)
   source: text("source"),                      // Jobstreet | LinkedIn | Kalibrr | Indeed | Referral | Company Website | Facebook | Walk-in
   applicationLink: text("applicationLink"),
   dateApplied: timestamp("dateApplied", { withTimezone: true }).notNull(),

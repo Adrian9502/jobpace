@@ -4,13 +4,16 @@ import { useState, useEffect, useTransition } from "react";
 import { createApplication, updateApplication } from "@/lib/actions";
 import type { ApplicationRow } from "@/lib/queries";
 import {
+  STAGE_OPTIONS,
   STATUS_OPTIONS,
   SOURCE_OPTIONS,
   WORK_SETUP_OPTIONS,
   EMPLOYMENT_TYPE_OPTIONS,
+  FINAL_STAGES,
 } from "@/lib/constants";
-import { toDateInputValue } from "@/lib/utils";
+import { toDateInputValue, getDateValidationBounds } from "@/lib/utils";
 import { toast } from "sonner";
+import confetti from "canvas-confetti";
 
 // ──────────────────────────────────────────────
 // Types
@@ -30,11 +33,20 @@ export default function ApplicationModal({ open, onClose, editData }: Props) {
   const isEdit = !!editData;
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [selectedStage, setSelectedStage] = useState<string>(editData?.stage ?? "applied");
+
+  const isFinalStage = FINAL_STAGES.includes(selectedStage as any);
+
+  // Date validation bounds
+  const dateBounds = getDateValidationBounds();
 
   // Reset error when modal opens/closes
   useEffect(() => {
-    if (open) setError(null);
-  }, [open]);
+    if (open) {
+      setError(null);
+      setSelectedStage(editData?.stage ?? "applied");
+    }
+  }, [open, editData]);
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -68,6 +80,27 @@ export default function ApplicationModal({ open, onClose, editData }: Props) {
         } else {
            toast.success("Application added", { description: `${formData.get("companyName")} - ${formData.get("position")}` });
         }
+
+        if (selectedStage === "hired" && editData?.stage !== "hired") {
+          const duration = 15 * 1000;
+          const animationEnd = Date.now() + duration;
+          const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+
+          const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+
+          const interval: any = setInterval(function() {
+            const timeLeft = animationEnd - Date.now();
+
+            if (timeLeft <= 0) {
+              return clearInterval(interval);
+            }
+
+            const particleCount = 50 * (timeLeft / duration);
+            confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+            confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+          }, 250);
+        }
+        
         onClose();
       } else {
         toast.error(result.error ?? "Something went wrong.");
@@ -170,8 +203,15 @@ export default function ApplicationModal({ open, onClose, editData }: Props) {
               <legend className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">Tracking</legend>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="status" className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">Status <span className="text-red-500 dark:text-red-400">*</span></label>
-                  <select id="status" name="status" required defaultValue={editData?.status ?? "applied"} className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all">
+                  <label htmlFor="stage" className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">Stage <span className="text-red-500 dark:text-red-400">*</span></label>
+                  <select id="stage" name="stage" required value={selectedStage} onChange={(e) => setSelectedStage(e.target.value)} className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all">
+                    {STAGE_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="status" className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">Status {isFinalStage ? "" : <span className="text-red-500 dark:text-red-400">*</span>}</label>
+                  <select id="status" name="status" required={!isFinalStage} disabled={isFinalStage} defaultValue={editData?.status ?? "pending"} className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all disabled:opacity-50 disabled:bg-zinc-100 dark:disabled:bg-zinc-900">
+                    {isFinalStage && <option value="">Not applicable</option>}
                     {STATUS_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
                   </select>
                 </div>
@@ -188,11 +228,13 @@ export default function ApplicationModal({ open, onClose, editData }: Props) {
                 </div>
                 <div>
                   <label htmlFor="dateApplied" className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">Date Applied <span className="text-red-500 dark:text-red-400">*</span></label>
-                  <input id="dateApplied" name="dateApplied" type="date" required defaultValue={editData ? toDateInputValue(editData.dateApplied) : toDateInputValue(new Date())} className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all" />
+                  <input id="dateApplied" name="dateApplied" type="date" required min={dateBounds.min} max={dateBounds.max} defaultValue={editData ? toDateInputValue(editData.dateApplied) : toDateInputValue(new Date())} className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all" />
+                  <p className="text-[10px] text-zinc-400 dark:text-zinc-500 mt-1">Range: {dateBounds.min} to {dateBounds.max}</p>
                 </div>
                 <div>
                   <label htmlFor="followUpDate" className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">Follow-up Date</label>
-                  <input id="followUpDate" name="followUpDate" type="date" defaultValue={toDateInputValue(editData?.followUpDate)} className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all" />
+                  <input id="followUpDate" name="followUpDate" type="date" min={dateBounds.min} max={dateBounds.max} defaultValue={toDateInputValue(editData?.followUpDate)} className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all" />
+                  <p className="text-[10px] text-zinc-400 dark:text-zinc-500 mt-1">Range: {dateBounds.min} to {dateBounds.max}</p>
                 </div>
               </div>
             </fieldset>

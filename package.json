@@ -9,12 +9,16 @@
     "lint": "eslint",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:seed": "npx tsx --env-file=.env.local db/seed.ts"
+    "db:seed": "npx tsx --env-file=.env.local db/seed.ts",
+    "db:migrate": "tsx --env-file=.env.local scripts/migrate-stage.ts"
   },
   "dependencies": {
     "@auth/pg-adapter": "^1.11.1",
-    "@hello-pangea/dnd": "^18.0.1",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@vercel/analytics": "^2.0.1",
+    "canvas-confetti": "^1.9.4",
     "drizzle-orm": "^0.45.2",
     "next": "16.2.2",
     "next-auth": "^5.0.0-beta.30",
@@ -25,6 +29,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/canvas-confetti": "^1.9.0",
     "@types/node": "^20",
     "@types/pg": "^8.20.0",
     "@types/react": "^19",

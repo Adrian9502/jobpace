@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import type { ApplicationRow } from "@/lib/queries";
-import { APPLICATION_STATUSES } from "@/lib/constants";
+import { STAGE_CONFIG } from "@/lib/constants";
 import { formatDate, formatSalary } from "@/lib/utils";
 import StatusBadge from "./StatusBadge";
 import PaginationBar from "./PaginationBar";
@@ -17,13 +17,13 @@ const PAGE_SIZE = 10;
 
 export default function ApplicationsClient({ applications }: Props) {
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [stageFilter, setStageFilter] = useState("all");
   const [showModal, setShowModal] = useState(false);
   const [editData, setEditData] = useState<ApplicationRow | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ApplicationRow | null>(null);
   const [page, setPage] = useState(1);
 
-  useEffect(() => { setPage(1); }, [search, statusFilter]);
+  useEffect(() => { setPage(1); }, [search, stageFilter]);
 
   const filtered = useMemo(() => {
     return applications.filter((app) => {
@@ -32,10 +32,10 @@ export default function ApplicationsClient({ applications }: Props) {
         app.companyName.toLowerCase().includes(search.toLowerCase()) ||
         app.position.toLowerCase().includes(search.toLowerCase()) ||
         (app.location?.toLowerCase().includes(search.toLowerCase()) ?? false);
-      const matchesStatus = statusFilter === "all" || app.status === statusFilter;
-      return matchesSearch && matchesStatus;
+      const matchesStage = stageFilter === "all" || app.stage === stageFilter;
+      return matchesSearch && matchesStage;
     });
-  }, [applications, search, statusFilter]);
+  }, [applications, search, stageFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
@@ -70,10 +70,10 @@ export default function ApplicationsClient({ applications }: Props) {
           <input type="text" placeholder="Search by company, position, or location..." value={search} onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-10 pr-3 py-2.5 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white dark:bg-zinc-900 transition-all" />
         </div>
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
+        <select value={stageFilter} onChange={(e) => setStageFilter(e.target.value)}
           className="px-3 py-2.5 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all min-w-[160px]">
-          <option value="all">All Statuses</option>
-          {Object.entries(APPLICATION_STATUSES).map(([val, cfg]) => (
+          <option value="all">All Stages</option>
+          {Object.entries(STAGE_CONFIG).map(([val, cfg]) => (
             <option key={val} value={val}>{cfg.label}</option>
           ))}
         </select>
@@ -115,7 +115,7 @@ export default function ApplicationsClient({ applications }: Props) {
                   <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Company / Position</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Location</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Salary</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Status</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Stage / Status</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Date Applied</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Source</th>
                   <th className="text-right px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Actions</th>
@@ -133,7 +133,7 @@ export default function ApplicationsClient({ applications }: Props) {
                       {app.workSetup && <div className="text-xs text-zinc-500 dark:text-zinc-400 capitalize mt-0.5">{app.workSetup}</div>}
                     </td>
                     <td className="px-4 py-3.5 text-sm text-zinc-900 dark:text-zinc-100">{formatSalary(app.salaryMin, app.salaryMax)}</td>
-                    <td className="px-4 py-3.5"><StatusBadge status={app.status} /></td>
+                    <td className="px-4 py-3.5"><StatusBadge stage={app.stage} status={app.status} /></td>
                     <td className="px-4 py-3.5 text-sm text-zinc-900 dark:text-zinc-100">{formatDate(app.dateApplied)}</td>
                     <td className="px-4 py-3.5 text-sm text-zinc-500 dark:text-zinc-400">{app.source || "—"}</td>
                     <td className="px-4 py-3.5 text-right">
@@ -161,7 +161,7 @@ export default function ApplicationsClient({ applications }: Props) {
                     <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{app.companyName}</div>
                     <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{app.position}</div>
                   </div>
-                  <StatusBadge status={app.status} />
+                  <StatusBadge stage={app.stage} status={app.status} />
                 </div>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs text-zinc-500 dark:text-zinc-400 mb-3">
                   {app.location && (

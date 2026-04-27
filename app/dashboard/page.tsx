@@ -4,11 +4,12 @@ import {
   getKanbanCounts,
   getApplications,
 } from "@/lib/queries";
-import { APPLICATION_STATUSES } from "@/lib/constants";
-import { formatDate, capitalizeFirst } from "@/lib/utils";
+import { STAGE_CONFIG, STAGES } from "@/lib/constants";
+import { formatDate } from "@/lib/utils";
 import AddApplicationButton from "@/components/AddApplicationButton";
 import LiveDateTime from "@/components/LiveDateTime";
 import StatusBadge from "@/components/StatusBadge";
+import StageStatusGuide from "@/components/StageStatusGuide";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,9 @@ export default async function DashboardPage() {
   ]);
 
   const recentApps = applications.slice(0, 5);
+
+  // Show a subset of stages for the Kanban preview
+  const previewStages = ["applied", "screening", "interview", "assessment", "offer", "hired"] as const;
 
   return (
     <>
@@ -130,7 +134,10 @@ export default async function DashboardPage() {
       {/* Kanban preview */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Kanban Board</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Kanban Board</h3>
+            <StageStatusGuide />
+          </div>
           <a
             href="/dashboard/kanban"
             className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
@@ -138,15 +145,19 @@ export default async function DashboardPage() {
             View all
           </a>
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {["applied", "interview", "offer", "hired"].map((stage) => {
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          {previewStages.map((stage) => {
             const count = kanbanCounts[stage] ?? 0;
+            const cfg = STAGE_CONFIG[stage];
             return (
               <div key={stage} className="bg-zinc-50 dark:bg-zinc-900 rounded-md p-3 border border-transparent dark:border-zinc-800">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
-                    {capitalizeFirst(stage)}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className={`w-2 h-2 rounded-full ${cfg.dot}`} />
+                    <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
+                      {cfg.label}
+                    </span>
+                  </div>
                   <span className="bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-xs font-semibold px-1.5 py-0.5 rounded-full">
                     {count}
                   </span>
@@ -158,8 +169,8 @@ export default async function DashboardPage() {
                 ) : (
                   <div className="space-y-1.5">
                     {applications
-                      .filter((a) => a.status === stage)
-                      .slice(0, 3)
+                      .filter((a) => a.stage === stage)
+                      .slice(0, 2)
                       .map((app) => (
                         <div
                           key={app.id}
@@ -173,9 +184,9 @@ export default async function DashboardPage() {
                           </div>
                         </div>
                       ))}
-                    {count > 3 && (
+                    {count > 2 && (
                       <div className="text-center text-xs text-zinc-500 dark:text-zinc-400 pt-1">
-                        +{count - 3} more
+                        +{count - 2} more
                       </div>
                     )}
                   </div>
@@ -203,7 +214,7 @@ export default async function DashboardPage() {
           <div className="grid grid-cols-4 px-4 py-2.5 bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
             <div>Company / Role</div>
             <div>Date Applied</div>
-            <div>Status</div>
+            <div>Stage / Status</div>
             <div>Source</div>
           </div>
 
@@ -236,7 +247,7 @@ export default async function DashboardPage() {
                       {formatDate(app.dateApplied)}
                     </div>
                     <div>
-                      <StatusBadge status={app.status} />
+                      <StatusBadge stage={app.stage} status={app.status} />
                     </div>
                     <div className="text-zinc-500 dark:text-zinc-400 text-sm">
                       {app.source || "—"}

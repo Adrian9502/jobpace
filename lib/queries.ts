@@ -69,8 +69,10 @@ export async function getApplicationStats(): Promise<ApplicationStats> {
 
   return {
     total: rows.length,
-    interviews: rows.filter((r) => r.status === "interview").length,
-    offers: rows.filter((r) => r.status === "offer").length,
+    interviews: rows.filter(
+      (r) => r.stage === "interview" || r.stage === "final_interview"
+    ).length,
+    offers: rows.filter((r) => r.stage === "offer").length,
     followUpsDue: rows.filter(
       (r) => r.followUpDate && r.followUpDate <= weekFromNow && r.followUpDate >= now
     ).length,
@@ -81,14 +83,14 @@ export async function getKanbanCounts(): Promise<KanbanCounts> {
   const userId = await getUserId();
 
   const rows = await db
-    .select({ status: jobApplications.status, count: sql<number>`count(*)` })
+    .select({ stage: jobApplications.stage, count: sql<number>`count(*)` })
     .from(jobApplications)
     .where(eq(jobApplications.userId, userId))
-    .groupBy(jobApplications.status);
+    .groupBy(jobApplications.stage);
 
   const counts: KanbanCounts = {};
   for (const row of rows) {
-    counts[row.status] = Number(row.count);
+    counts[row.stage] = Number(row.count);
   }
   return counts;
 }

@@ -74,6 +74,50 @@ export function formatSalaryCompact(min: number | null, max: number | null): str
 }
 
 // ──────────────────────────────────────────────
+// Date validation
+// ──────────────────────────────────────────────
+
+/**
+ * Returns min and max date strings (YYYY-MM-DD) for date inputs.
+ * min = first day of last month
+ * max = same day next month (clamped to end of month)
+ */
+export function getDateValidationBounds(): { min: string; max: string } {
+  const now = new Date();
+
+  // Min: first day of last month
+  const minDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+  // Max: same day next month (clamped)
+  const nextMonth = now.getMonth() + 1;
+  const nextYear = now.getFullYear();
+  // Get last day of next month to clamp
+  const lastDayOfNextMonth = new Date(nextYear, nextMonth + 1, 0).getDate();
+  const clampedDay = Math.min(now.getDate(), lastDayOfNextMonth);
+  const maxDate = new Date(nextYear, nextMonth, clampedDay);
+
+  return {
+    min: minDate.toISOString().split("T")[0],
+    max: maxDate.toISOString().split("T")[0],
+  };
+}
+
+/** Check if a date falls within the allowed bounds. Returns error string or null. */
+export function validateDateInBounds(
+  date: Date,
+  fieldName: string
+): string | null {
+  const { min, max } = getDateValidationBounds();
+  const minDate = new Date(min + "T00:00:00");
+  const maxDate = new Date(max + "T23:59:59");
+
+  if (date < minDate || date > maxDate) {
+    return `${fieldName} must be between ${formatDate(minDate)} and ${formatDate(maxDate)}.`;
+  }
+  return null;
+}
+
+// ──────────────────────────────────────────────
 // String helpers
 // ──────────────────────────────────────────────
 

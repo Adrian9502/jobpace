@@ -2,31 +2,40 @@
 
 import { useState } from "react";
 import type { ApplicationRow } from "@/lib/queries";
-import { APPLICATION_STATUSES } from "@/lib/constants";
+import { STAGE_CONFIG, STATUS_CONFIG, STAGES } from "@/lib/constants";
+import type { Stage, Status } from "@/lib/constants";
 import { formatSalaryCompact, capitalizeFirst } from "@/lib/utils";
 
-const STATUS_FILTERS = ["All", "Applied", "Interview", "Exam", "Offer", "Hired", "Rejected", "Ghosted"];
+const STAGE_FILTERS = ["All", ...STAGES.map(s => STAGE_CONFIG[s].label)];
 
-function getStatusNote(status: string, followUp: Date | null): string {
-  switch (status) {
-    case "applied":
-      return followUp ? `Follow up on ${new Date(followUp).toLocaleDateString("en-US", { month: "short", day: "numeric" })}` : "Waiting for initial response";
-    case "interview": return "Preparing for interview process";
-    case "exam": return "Awaiting assessment results";
-    case "offer": return "Offer received! Reviewing terms";
-    case "hired": return "Offer accepted. Congratulations!";
-    case "rejected": return "Application declined by company";
-    case "ghosted": return "No response after 14 days";
-    default: return "Tracking active";
+function getStatusNote(stage: string, status: string | null, followUp: Date | null): string {
+  if (!status) {
+    if (stage === "hired") return "Congratulations! You got the job.";
+    if (stage === "rejected") return "Application rejected.";
+    if (stage === "ghosted") return "No response received.";
+    if (stage === "withdrawn") return "You withdrew this application.";
+    return "Tracking active";
   }
+
+  if (status === "pending" && stage === "applied") {
+    return followUp ? `Follow up on ${new Date(followUp).toLocaleDateString("en-US", { month: "short", day: "numeric" })}` : "Waiting for initial response";
+  }
+  
+  // Use the standard status description
+  const statusCfg = STATUS_CONFIG[status as Status];
+  if (statusCfg) return statusCfg.description;
+
+  return "Tracking active";
 }
 
 export default function TimelineClient({ applications }: { applications: ApplicationRow[] }) {
   const [filter, setFilter] = useState("All");
 
-  const filteredApps = applications.filter((app) =>
-    filter === "All" ? true : app.status === filter.toLowerCase()
-  );
+  const filteredApps = applications.filter((app) => {
+    if (filter === "All") return true;
+    const stageLabel = STAGE_CONFIG[app.stage as Stage]?.label;
+    return stageLabel === filter;
+  });
 
   // Group by Month-Year
   const groupedApps: Record<string, ApplicationRow[]> = {};
@@ -41,7 +50,7 @@ export default function TimelineClient({ applications }: { applications: Applica
     <div className="max-w-4xl mx-auto pb-12">
       {/* Filters */}
       <div className="flex flex-wrap gap-2 mb-8 border-b border-zinc-200 dark:border-zinc-800 pb-6">
-        {STATUS_FILTERS.map((f) => (
+        {STAGE_FILTERS.map((f) => (
           <button key={f} onClick={() => setFilter(f)}
             className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors border ${
               filter === f
@@ -56,7 +65,7 @@ export default function TimelineClient({ applications }: { applications: Applica
         <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-12 text-center text-zinc-500 dark:text-zinc-400 shadow-sm">
           <p className="text-4xl mb-3">📭</p>
           <p className="font-semibold text-zinc-900 dark:text-zinc-100">No applications found</p>
-          <p className="text-sm mt-1 text-zinc-400 dark:text-zinc-500">Try selecting a different status filter.</p>
+          <p className="text-sm mt-1 text-zinc-400 dark:text-zinc-500">Try selecting a different stage filter.</p>
         </div>
       ) : (
         <div className="space-y-10">
@@ -68,7 +77,8 @@ export default function TimelineClient({ applications }: { applications: Applica
               <div className="mt-4 relative space-y-6">
                 <div className="absolute top-0 bottom-0 left-[66px] w-[2px] bg-zinc-200 dark:bg-zinc-800 hidden sm:block rounded" />
                 {monthApps.map((app) => {
-                  const sc = APPLICATION_STATUSES[app.status] || APPLICATION_STATUSES.applied;
+                  const stageCfg = STAGE_CONFIG[app.stage as Stage] || STAGE_CONFIG.applied;
+                  const statusCfg = STATUS_CONFIG[app.status as Status] || STATUS_CONFIG.pending;
                   const dateStr = new Date(app.dateApplied).toLocaleDateString("en-US", { month: "short", day: "numeric" });
                   const sal = formatSalaryCompact(app.salaryMin, app.salaryMax);
                   const showSal = sal !== "—";
@@ -80,11 +90,11 @@ export default function TimelineClient({ applications }: { applications: Applica
                         <span className="text-sm font-extrabold text-zinc-900 dark:text-zinc-100 leading-none">{dateStr.split(' ')[1]}</span>
                       </div>
                       <div className="relative z-10 sm:mt-1.5 hidden sm:flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white dark:bg-zinc-900 ring-4 ring-zinc-50 dark:ring-zinc-950 border border-zinc-200 dark:border-zinc-700">
-                        <div className={`w-2.5 h-2.5 rounded-full ${sc.dot}`} />
+                        <div className={`w-2.5 h-2.5 rounded-full ${stageCfg.dot}`} />
                       </div>
                       <div className="flex-1 w-full relative">
                         <div className="flex items-center gap-2 mb-2 sm:hidden pl-1">
-                          <div className={`w-2 h-2 rounded-full ${sc.dot}`} />
+                          <div className={`w-2 h-2 rounded-full ${stageCfg.dot}`} />
                           <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">{dateStr}</span>
                         </div>
                         <div className="bg-white dark:bg-zinc-900 p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm hover:shadow-md transition-shadow">
@@ -93,7 +103,15 @@ export default function TimelineClient({ applications }: { applications: Applica
                               <h4 className="font-bold text-zinc-900 dark:text-zinc-100 text-base leading-tight">{app.position}</h4>
                               <div className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mt-0.5">{app.companyName}</div>
                             </div>
-                            <span className={`shrink-0 inline-flex items-center px-2.5 py-1 rounded text-xs font-bold uppercase tracking-wider ${sc.bg} ${sc.text}`}>{app.status}</span>
+                            <div className="flex flex-col gap-1 items-end shrink-0">
+                              <span className={`shrink-0 inline-flex items-center px-2.5 py-1 rounded text-xs font-bold uppercase tracking-wider ${stageCfg.bg} ${stageCfg.text}`}>
+                                {stageCfg.label}
+                              </span>
+                              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${statusCfg.bg} ${statusCfg.text}`}>
+                                <span className={`w-1 h-1 rounded-full ${statusCfg.dot}`} />
+                                {statusCfg.label}
+                              </span>
+                            </div>
                           </div>
                           <div className="flex flex-wrap gap-2 mt-4">
                             {app.source && (
@@ -123,7 +141,7 @@ export default function TimelineClient({ applications }: { applications: Applica
                           </div>
                           <div className="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center gap-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">
                             <svg viewBox="0 0 16 16" fill="currentColor" stroke="none" className="w-3.5 h-3.5 text-zinc-300 dark:text-zinc-600"><path d="M8 2a6 6 0 100 12A6 6 0 008 2zm-.75 3.5h1.5v2h2v1.5h-2v2h-1.5v-2h-2v-1.5h2v-2z" /></svg>
-                            {getStatusNote(app.status, app.followUpDate)}
+                            {getStatusNote(app.stage, app.status, app.followUpDate)}
                           </div>
                         </div>
                       </div>
