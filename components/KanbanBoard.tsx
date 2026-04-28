@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -25,7 +25,12 @@ import { CSS } from "@dnd-kit/utilities";
 import { useDroppable } from "@dnd-kit/core";
 
 import type { ApplicationRow } from "@/lib/queries";
-import { STAGE_CONFIG, STATUS_CONFIG, KANBAN_COLUMNS, KANBAN_HEADER_BG } from "@/lib/constants";
+import {
+  STAGE_CONFIG,
+  STATUS_CONFIG,
+  KANBAN_COLUMNS,
+  KANBAN_HEADER_BG,
+} from "@/lib/constants";
 import type { Stage, Status } from "@/lib/constants";
 import { formatSalaryCompact } from "@/lib/utils";
 import { updateApplicationStage } from "@/lib/actions";
@@ -65,7 +70,9 @@ function SortableAppCard({
     opacity: isDragging ? 0.3 : 1,
   };
 
-  const statusCfg = app.status ? STATUS_CONFIG[app.status as Status] ?? STATUS_CONFIG.pending : null;
+  const statusCfg = app.status
+    ? (STATUS_CONFIG[app.status as Status] ?? STATUS_CONFIG.pending)
+    : null;
 
   return (
     <div
@@ -74,14 +81,20 @@ function SortableAppCard({
       {...attributes}
       {...listeners}
       className={`bg-white dark:bg-zinc-950 p-3.5 rounded-lg border shadow-sm relative group cursor-grab active:cursor-grabbing ${
-        isOverlay ? "rotate-2 scale-105 shadow-xl border-blue-500/50" : isDragging ? "border-blue-500/50" : "border-zinc-200 dark:border-zinc-800 hover:border-blue-500/40"
+        isOverlay
+          ? "rotate-2 scale-105 shadow-xl border-blue-500/50"
+          : isDragging
+            ? "border-blue-500/50"
+            : "border-zinc-200 dark:border-zinc-800 hover:border-blue-500/40"
       }`}
       onClick={(e) => {
         if (onEdit) onEdit(app);
       }}
     >
       <div className="flex justify-between items-start mb-1">
-        <h4 className="font-medium text-sm text-zinc-900 dark:text-zinc-100 truncate pr-4">{app.companyName}</h4>
+        <h4 className="font-medium text-sm text-zinc-900 dark:text-zinc-100 truncate pr-4">
+          {app.companyName}
+        </h4>
         {onDelete && (
           <button
             onClick={(e) => {
@@ -91,17 +104,27 @@ function SortableAppCard({
             className="opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 top-2 p-1 text-zinc-500 dark:text-zinc-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
             title="Delete"
           >
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3.5 h-3.5">
+            <svg
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              className="w-3.5 h-3.5"
+            >
               <path d="M3.5 5h9M6 5V3.5h4V5M4.5 5l.5 8h6l.5-8" />
             </svg>
           </button>
         )}
       </div>
-      <div className="text-xs text-zinc-500 dark:text-zinc-400 truncate mb-2">{app.position}</div>
+      <div className="text-xs text-zinc-500 dark:text-zinc-400 truncate mb-2">
+        {app.position}
+      </div>
       {/* Status badge */}
       {statusCfg && (
         <div className="mb-2">
-          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${statusCfg.bg} ${statusCfg.text}`}>
+          <span
+            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${statusCfg.bg} ${statusCfg.text}`}
+          >
             <span className={`w-1 h-1 rounded-full ${statusCfg.dot}`} />
             {statusCfg.label}
           </span>
@@ -114,13 +137,24 @@ function SortableAppCard({
       )}
       <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
         <div className="flex items-center gap-1 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 px-1.5 py-0.5 rounded">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3 h-3">
+          <svg
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            className="w-3 h-3"
+          >
             <rect x="2" y="3" width="12" height="10" rx="1.5" />
             <path d="M2 6h12" />
           </svg>
-          {new Date(app.dateApplied).toLocaleDateString("en-PH", { month: "short", day: "numeric" })}
+          {new Date(app.dateApplied).toLocaleDateString("en-PH", {
+            month: "short",
+            day: "numeric",
+          })}
         </div>
-        <div className="font-medium text-zinc-700 dark:text-zinc-300">{formatSalaryCompact(app.salaryMin, app.salaryMax)}</div>
+        <div className="font-medium text-zinc-700 dark:text-zinc-300">
+          {formatSalaryCompact(app.salaryMin, app.salaryMax)}
+        </div>
       </div>
     </div>
   );
@@ -147,12 +181,16 @@ function KanbanColumn({
   });
 
   return (
-    <div className="flex flex-col bg-zinc-50 dark:bg-zinc-900 rounded-xl w-[260px] min-w-[260px] shrink-0 overflow-hidden shadow-sm border border-zinc-200 dark:border-zinc-800 transition-colors">
+    <div className="flex flex-col bg-zinc-50 dark:bg-zinc-900 rounded-xl w-65 min-w-65 shrink-0 overflow-hidden shadow-sm border border-zinc-200 dark:border-zinc-800 transition-colors">
       {/* Column Header */}
-      <div className={`px-4 py-3 flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 ${headerBg} bg-opacity-40 dark:bg-opacity-20`}>
+      <div
+        className={`px-4 py-3 flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 ${headerBg} bg-opacity-40 dark:bg-opacity-20`}
+      >
         <div className="flex items-center gap-2">
           <span className={`w-2 h-2 rounded-full ${cfg.dot}`} />
-          <h3 className="font-semibold text-sm text-zinc-900 dark:text-zinc-100">{cfg.label}</h3>
+          <h3 className="font-semibold text-sm text-zinc-900 dark:text-zinc-100">
+            {cfg.label}
+          </h3>
         </div>
         <span className="bg-white/60 dark:bg-zinc-800/60 text-zinc-600 dark:text-zinc-300 text-xs font-semibold px-2 py-0.5 rounded-full shadow-sm">
           {apps.length}
@@ -163,13 +201,23 @@ function KanbanColumn({
       <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-blue-500/20 hover:[&::-webkit-scrollbar-thumb]:bg-blue-500/40 [&::-webkit-scrollbar-thumb]:rounded-full dark:[&::-webkit-scrollbar-thumb]:bg-blue-500/20 dark:hover:[&::-webkit-scrollbar-thumb]:bg-blue-500/40">
         <div
           ref={setNodeRef}
-          className={`p-3 space-y-3 min-h-[150px] transition-colors border-2 rounded-b-lg border-transparent ${
-            isOver ? "bg-zinc-100 dark:bg-zinc-800/50 !border-blue-500/30 border-dashed" : ""
+          className={`p-3 space-y-3 min-h-37.5 transition-colors border-2 rounded-b-lg border-transparent ${
+            isOver
+              ? "bg-zinc-100 dark:bg-zinc-800/50 border-blue-500/30! border-dashed"
+              : ""
           }`}
         >
-          <SortableContext items={apps.map((a) => a.id)} strategy={verticalListSortingStrategy}>
+          <SortableContext
+            items={apps.map((a) => a.id)}
+            strategy={verticalListSortingStrategy}
+          >
             {apps.map((app) => (
-              <SortableAppCard key={app.id} app={app} onEdit={onEdit} onDelete={onDelete} />
+              <SortableAppCard
+                key={app.id}
+                app={app}
+                onEdit={onEdit}
+                onDelete={onDelete}
+              />
             ))}
           </SortableContext>
           {apps.length === 0 && !isOver && (
@@ -206,7 +254,7 @@ export default function KanbanBoard({ initialApplications }: Props) {
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const onDragStart = (event: DragStartEvent) => {
@@ -235,7 +283,10 @@ export default function KanbanBoard({ initialApplications }: Props) {
 
         if (apps[activeIndex].stage !== apps[overIndex].stage) {
           const newApps = [...apps];
-          newApps[activeIndex] = { ...newApps[activeIndex], stage: apps[overIndex].stage };
+          newApps[activeIndex] = {
+            ...newApps[activeIndex],
+            stage: apps[overIndex].stage,
+          };
           return arrayMove(newApps, activeIndex, overIndex);
         }
         return arrayMove(apps, activeIndex, overIndex);
@@ -246,7 +297,10 @@ export default function KanbanBoard({ initialApplications }: Props) {
       setApps((apps) => {
         const activeIndex = apps.findIndex((t) => t.id === activeId);
         const newApps = [...apps];
-        newApps[activeIndex] = { ...newApps[activeIndex], stage: overId as string };
+        newApps[activeIndex] = {
+          ...newApps[activeIndex],
+          stage: overId as string,
+        };
         return arrayMove(newApps, activeIndex, activeIndex);
       });
     }
@@ -266,27 +320,53 @@ export default function KanbanBoard({ initialApplications }: Props) {
     if (oldStage !== newStage) {
       // Optimistic status update (nullify if final stage, else pending)
       setApps((prev) =>
-        prev.map((a) => (a.id === active.id ? { ...a, status: ["hired", "rejected", "ghosted", "withdrawn"].includes(newStage as string) ? null : "pending" } : a))
+        prev.map((a) =>
+          a.id === active.id
+            ? {
+                ...a,
+                status: ["hired", "rejected", "ghosted", "withdrawn"].includes(
+                  newStage as string,
+                )
+                  ? null
+                  : "pending",
+              }
+            : a,
+        ),
       );
 
       // Confetti!
       if (newStage === "hired") {
         const duration = 15 * 1000;
         const animationEnd = Date.now() + duration;
-        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+        const defaults = {
+          startVelocity: 30,
+          spread: 360,
+          ticks: 60,
+          zIndex: 9999,
+        };
 
-        const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+        const randomInRange = (min: number, max: number) =>
+          Math.random() * (max - min) + min;
 
-        const interval: any = setInterval(function() {
+        const interval = window.setInterval(() => {
           const timeLeft = animationEnd - Date.now();
 
           if (timeLeft <= 0) {
-            return clearInterval(interval);
+            window.clearInterval(interval);
+            return;
           }
 
           const particleCount = 50 * (timeLeft / duration);
-          confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
-          confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+          confetti({
+            ...defaults,
+            particleCount,
+            origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+          });
+          confetti({
+            ...defaults,
+            particleCount,
+            origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+          });
         }, 250);
       }
 
@@ -304,11 +384,15 @@ export default function KanbanBoard({ initialApplications }: Props) {
 
   const activeApp = useMemo(
     () => apps.find((a) => a.id === activeId),
-    [activeId, apps]
+    [activeId, apps],
   );
 
   if (!mounted) {
-    return <div className="p-8 text-center text-zinc-500 dark:text-zinc-400">Loading board...</div>;
+    return (
+      <div className="p-8 text-center text-zinc-500 dark:text-zinc-400">
+        Loading board...
+      </div>
+    );
   }
 
   const appsByStage: Record<string, ApplicationRow[]> = {};
@@ -338,7 +422,9 @@ export default function KanbanBoard({ initialApplications }: Props) {
 
           <DragOverlay
             dropAnimation={{
-              sideEffects: defaultDropAnimationSideEffects({ styles: { active: { opacity: "0.4" } } }),
+              sideEffects: defaultDropAnimationSideEffects({
+                styles: { active: { opacity: "0.4" } },
+              }),
             }}
           >
             {activeApp ? <SortableAppCard app={activeApp} isOverlay /> : null}
@@ -346,7 +432,11 @@ export default function KanbanBoard({ initialApplications }: Props) {
         </DndContext>
       </div>
 
-      <ApplicationModal open={!!editData} onClose={() => setEditData(null)} editData={editData} />
+      <ApplicationModal
+        open={!!editData}
+        onClose={() => setEditData(null)}
+        editData={editData}
+      />
       {deleteTarget && (
         <DeleteConfirmModal
           open={!!deleteTarget}
