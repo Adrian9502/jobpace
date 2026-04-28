@@ -33,7 +33,7 @@ export async function getApplications(): Promise<ApplicationRow[]> {
 }
 
 export async function getApplicationById(
-  id: string
+  id: string,
 ): Promise<ApplicationRow | undefined> {
   const userId = await getUserId();
 
@@ -59,23 +59,24 @@ export async function getActivityLogs() {
 export async function getApplicationStats(): Promise<ApplicationStats> {
   const userId = await getUserId();
 
-  const rows = await db
-    .select()
-    .from(jobApplications)
-    .where(eq(jobApplications.userId, userId));
-
   const now = new Date();
   const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
+  const [row] = await db
+    .select({
+      total: sql<number>`count(*)`,
+      interviews: sql<number>`sum(case when ${jobApplications.stage} in ('interview','final_interview') then 1 else 0 end)`,
+      offers: sql<number>`sum(case when ${jobApplications.stage} = 'offer' then 1 else 0 end)`,
+      followUpsDue: sql<number>`sum(case when ${jobApplications.followUpDate} is not null and ${jobApplications.followUpDate} >= ${now} and ${jobApplications.followUpDate} <= ${weekFromNow} then 1 else 0 end)`,
+    })
+    .from(jobApplications)
+    .where(eq(jobApplications.userId, userId));
+
   return {
-    total: rows.length,
-    interviews: rows.filter(
-      (r) => r.stage === "interview" || r.stage === "final_interview"
-    ).length,
-    offers: rows.filter((r) => r.stage === "offer").length,
-    followUpsDue: rows.filter(
-      (r) => r.followUpDate && r.followUpDate <= weekFromNow && r.followUpDate >= now
-    ).length,
+    total: Number(row?.total ?? 0),
+    interviews: Number(row?.interviews ?? 0),
+    offers: Number(row?.offers ?? 0),
+    followUpsDue: Number(row?.followUpsDue ?? 0),
   };
 }
 

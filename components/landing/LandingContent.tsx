@@ -12,7 +12,26 @@ export default function LandingContent() {
 
   const handleLogin = async () => {
     setIsLoading(true);
-    await signIn("google", { callbackUrl: "/dashboard" });
+    try {
+      const result = await signIn("google", {
+        callbackUrl: "/dashboard",
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setIsLoading(false);
+        return;
+      }
+
+      if (result?.url) {
+        window.location.href = result.url;
+        return;
+      }
+
+      setIsLoading(false);
+    } catch {
+      setIsLoading(false);
+    }
   };
 
   const closeModal = () => setModalType(null);
@@ -76,7 +95,7 @@ export default function LandingContent() {
     "Visualize your entire search history in a chronological stream.",
     "Stay accountable with a detailed record of every update and interaction.",
     "Safely store past opportunities and interview notes for future reference.",
-    "No credit card, no trials—just a better way to find work.",
+    "No credit card. No trial. Just a better way to find work.",
   ];
 
   return (
@@ -154,7 +173,7 @@ export default function LandingContent() {
           <div className="w-full max-w-90">
             <div className="mb-10 text-center">
               <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-3">
-                Sign in to JobPace
+                Sign in to <span className="text-blue-600"> JobPace</span>
               </h2>
               <p className="text-[15px] text-gray-500 dark:text-zinc-500">
                 Track every application, never miss a follow-up.

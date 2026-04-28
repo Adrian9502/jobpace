@@ -39,10 +39,34 @@ export function formatTime(date: Date | string | null | undefined): string {
 }
 
 /** Convert a Date to a YYYY-MM-DD string for `<input type="date">`. */
-export function toDateInputValue(date: Date | string | null | undefined): string {
+export function toDateInputValue(
+  date: Date | string | null | undefined,
+): string {
   if (!date) return "";
-  const d = typeof date === "string" ? new Date(date) : date;
-  return d.toISOString().split("T")[0];
+
+  if (typeof date === "string") {
+    const datePrefix = date.slice(0, 10);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(datePrefix)) {
+      return datePrefix;
+    }
+    return formatDateInputUTC(new Date(date));
+  }
+
+  return formatDateInputLocal(date);
+}
+
+function formatDateInputLocal(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function formatDateInputUTC(date: Date): string {
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 // ──────────────────────────────────────────────
@@ -65,7 +89,10 @@ export function formatSalary(min: number | null, max: number | null): string {
 }
 
 /** Format a salary range in compact form for kanban cards (e.g. "₱25k-₱35k"). */
-export function formatSalaryCompact(min: number | null, max: number | null): string {
+export function formatSalaryCompact(
+  min: number | null,
+  max: number | null,
+): string {
   if (!min && !max) return "—";
   const fmt = (n: number) => "₱" + (n / 1000).toFixed(0) + "k";
   if (min && max) return `${fmt(min)}-${fmt(max)}`;
@@ -97,15 +124,15 @@ export function getDateValidationBounds(): { min: string; max: string } {
   const maxDate = new Date(nextYear, nextMonth, clampedDay);
 
   return {
-    min: minDate.toISOString().split("T")[0],
-    max: maxDate.toISOString().split("T")[0],
+    min: formatDateInputLocal(minDate),
+    max: formatDateInputLocal(maxDate),
   };
 }
 
 /** Check if a date falls within the allowed bounds. Returns error string or null. */
 export function validateDateInBounds(
   date: Date,
-  fieldName: string
+  fieldName: string,
 ): string | null {
   const { min, max } = getDateValidationBounds();
   const minDate = new Date(min + "T00:00:00");
