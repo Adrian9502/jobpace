@@ -10,7 +10,12 @@ interface PolicyModalProps {
   content: React.ReactNode;
 }
 
-export default function PolicyModal({ isOpen, onClose, title, content }: PolicyModalProps) {
+export default function PolicyModal({
+  isOpen,
+  onClose,
+  title,
+  content,
+}: PolicyModalProps) {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -23,7 +28,7 @@ export default function PolicyModal({ isOpen, onClose, title, content }: PolicyM
             onClick={onClose}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] cursor-pointer"
           />
-          
+
           {/* Modal Container */}
           <div className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none">
             <motion.div
@@ -34,7 +39,7 @@ export default function PolicyModal({ isOpen, onClose, title, content }: PolicyM
             >
               {/* Header */}
               <div className="flex items-center justify-between p-6 border-b border-zinc-100 dark:border-zinc-800">
-                <h2 className="text-xl font-bold">{title}</h2>
+                <h2 className="text-xl text-slate-600 font-bold">{title}</h2>
                 <button
                   onClick={onClose}
                   className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors"
@@ -52,7 +57,7 @@ export default function PolicyModal({ isOpen, onClose, title, content }: PolicyM
               <div className="p-4 border-t border-zinc-100 dark:border-zinc-800 flex justify-end">
                 <button
                   onClick={onClose}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20"
+                  className="px-6 py-2 bg-blue-600 text-white rounded-sm font-medium hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20"
                 >
                   Close
                 </button>
