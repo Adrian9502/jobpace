@@ -99,18 +99,18 @@ export default function LandingContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] selection:bg-blue-100 dark:selection:bg-blue-900/30 flex items-center justify-center px-6 py-12">
-      <div className="grid grid-cols-1 lg:grid-cols-2 w-full max-w-5xl min-h-160 rounded-2xl border border-gray-200 dark:border-zinc-800 overflow-hidden shadow-sm">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] selection:bg-blue-100 dark:selection:bg-blue-900/30 flex items-center justify-center px-4 sm:px-6 py-10 sm:py-12">
+      <div className="grid grid-cols-1 lg:grid-cols-2 w-full max-w-5xl min-h-140 sm:min-h-160 rounded-2xl border border-gray-200 dark:border-zinc-800 overflow-hidden shadow-sm">
         {/* ── Left: Brand & Story ── */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="flex flex-col justify-center px-10 sm:px-14 py-16 lg:py-0 bg-white dark:bg-[#0a0a0a] border-r border-gray-100 dark:border-zinc-800"
+          className="flex flex-col justify-center px-6 sm:px-10 lg:px-14 py-12 sm:py-16 lg:py-0 bg-white dark:bg-[#0a0a0a] border-r border-gray-100 dark:border-zinc-800"
         >
           <div className="max-w-110 mx-auto lg:mx-0">
             {/* Logo */}
-            <div className="flex items-center gap-2 mb-14">
+            <div className="flex items-center gap-2 mb-10 sm:mb-14">
               <Image
                 src="/jobpace-logo-blue.png"
                 alt="JobPace"
@@ -125,13 +125,13 @@ export default function LandingContent() {
             </div>
 
             {/* Headline */}
-            <h1 className="text-3xl sm:text-4xl font-extrabold leading-[1.1] tracking-tight text-gray-900 dark:text-white mb-8">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold leading-[1.1] tracking-tight text-gray-900 dark:text-white mb-6 sm:mb-8">
               Your job search, <br />
               <span className="text-blue-600"> at your pace.</span>
             </h1>
 
             {/* Copy */}
-            <div className="flex flex-col gap-5 text-[15px] text-gray-500 dark:text-zinc-400 leading-relaxed mb-12">
+            <div className="flex flex-col gap-4 sm:gap-5 text-sm sm:text-[15px] text-gray-500 dark:text-zinc-400 leading-relaxed mb-8 sm:mb-12">
               <p>
                 Applications get lost, follow-ups are forgotten, and the whole
                 process starts to feel like shouting into the void.
@@ -143,17 +143,17 @@ export default function LandingContent() {
             </div>
 
             {/* Feature list */}
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-4 sm:gap-6">
               {features.map((f) => (
                 <div key={f.label} className="flex items-start gap-4">
                   <div className="w-10 h-10 bg-blue-50 dark:bg-blue-900/30 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
                     {f.icon}
                   </div>
                   <div className="flex flex-col gap-1">
-                    <span className="text-[15px] font-bold text-gray-900 dark:text-white">
+                    <span className="text-sm sm:text-[15px] font-bold text-gray-900 dark:text-white">
                       {f.label}
                     </span>
-                    <span className="text-[14px] text-gray-400 dark:text-zinc-500 leading-snug">
+                    <span className="text-[13px] sm:text-[14px] text-gray-400 dark:text-zinc-500 leading-snug">
                       {f.desc}
                     </span>
                   </div>
@@ -168,14 +168,14 @@ export default function LandingContent() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="flex flex-col justify-center items-center px-10 sm:px-14 py-16 lg:py-0 bg-gray-50 dark:bg-zinc-900/30"
+          className="flex flex-col justify-center items-center px-6 sm:px-10 lg:px-14 py-12 sm:py-16 lg:py-0 bg-gray-50 dark:bg-zinc-900/30"
         >
           <div className="w-full max-w-90">
             <div className="mb-10 text-center">
-              <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-3">
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-3">
                 Sign in to <span className="text-blue-600"> JobPace</span>
               </h2>
-              <p className="text-[15px] text-gray-500 dark:text-zinc-500">
+              <p className="text-sm sm:text-[15px] text-gray-500 dark:text-zinc-500">
                 Track every application, never miss a follow-up.
               </p>
             </div>
@@ -183,7 +183,7 @@ export default function LandingContent() {
             <button
               onClick={handleLogin}
               disabled={isLoading}
-              className="w-full cursor-pointer flex items-center justify-center gap-3 px-6 py-4 rounded-xl bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 hover:border-blue-500 hover:shadow-lg text-gray-800 dark:text-white text-[15px] font-bold transition-all mb-8 disabled:opacity-50"
+              className="w-full cursor-pointer flex items-center justify-center gap-3 px-5 sm:px-6 py-3.5 sm:py-4 rounded-xl bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 hover:border-blue-500 hover:shadow-lg text-gray-800 dark:text-white text-sm sm:text-[15px] font-bold transition-all mb-8 disabled:opacity-50"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
@@ -213,7 +213,7 @@ export default function LandingContent() {
             </button>
 
             <div className="bg-white dark:bg-zinc-800/50 border border-gray-100 dark:border-zinc-700/50 rounded-2xl p-6 mb-8">
-              <p className="text-[12px] text-center font-bold text-gray-400 uppercase tracking-widest mb-4">
+              <p className="text-[11px] sm:text-[12px] text-center font-bold text-gray-400 uppercase tracking-widest mb-4">
                 Unlock your workspace
               </p>
               <div className="flex flex-col gap-4">
@@ -230,7 +230,7 @@ export default function LandingContent() {
                         <polyline points="20 6 9 17 4 12" />
                       </svg>
                     </div>
-                    <span className="text-[14px] text-gray-600 dark:text-zinc-300 font-medium">
+                    <span className="text-[13px] sm:text-[14px] text-gray-600 dark:text-zinc-300 font-medium">
                       {perk}
                     </span>
                   </div>
@@ -238,7 +238,7 @@ export default function LandingContent() {
               </div>
             </div>
 
-            <p className="text-[13px] text-gray-400 text-center leading-relaxed">
+            <p className="text-[12px] sm:text-[13px] text-gray-400 text-center leading-relaxed">
               By continuing you agree to our{" "}
               <button
                 onClick={() => setModalType("terms")}
