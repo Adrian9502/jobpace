@@ -145,6 +145,20 @@ export function validateDateInBounds(
 }
 
 // ──────────────────────────────────────────────
+// Misc helpers
+// ──────────────────────────────────────────────
+
+/** Get initials from a name (e.g. "John Doe" → "JD"). */
+export function getInitials(name: string): string {
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
+
+// ──────────────────────────────────────────────
 // String helpers
 // ──────────────────────────────────────────────
 

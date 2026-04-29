@@ -1,7 +1,7 @@
 import { getSession } from "@/lib/auth-helpers";
 import { redirect } from "next/navigation";
-import Sidebar from "@/components/Sidebar";
-import { Analytics } from "@vercel/analytics/next"
+import Sidebar from "@/components/sidebar/Sidebar";
+import { Analytics } from "@vercel/analytics/next";
 
 export default async function DashboardLayout({
   children,
