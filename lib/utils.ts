@@ -115,19 +115,20 @@ export function getDateValidationBounds(): { min: string; max: string } {
   // Min: first day of last month
   const minDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
 
-  // Max: same day next month (clamped)
-  const nextMonth = now.getMonth() + 1;
+  // Max: same day 3 months from now (clamped)
+  const nextMonths = now.getMonth() + 3;
   const nextYear = now.getFullYear();
-  // Get last day of next month to clamp
-  const lastDayOfNextMonth = new Date(nextYear, nextMonth + 1, 0).getDate();
-  const clampedDay = Math.min(now.getDate(), lastDayOfNextMonth);
-  const maxDate = new Date(nextYear, nextMonth, clampedDay);
+  // Get last day of that month to clamp
+  const lastDayOfFutureMonth = new Date(nextYear, nextMonths + 1, 0).getDate();
+  const clampedDay = Math.min(now.getDate(), lastDayOfFutureMonth);
+  const maxDate = new Date(nextYear, nextMonths, clampedDay);
 
   return {
     min: formatDateInputLocal(minDate),
     max: formatDateInputLocal(maxDate),
   };
 }
+
 
 /** Check if a date falls within the allowed bounds. Returns error string or null. */
 export function validateDateInBounds(

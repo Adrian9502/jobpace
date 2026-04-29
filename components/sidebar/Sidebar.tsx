@@ -25,7 +25,10 @@ export default function Sidebar({ userName, userImage }: SidebarProps) {
         onClick={() => setMobileOpen(!mobileOpen)}
         aria-label="Toggle sidebar"
       >
-        {mobileOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+        {mobileOpen 
+          ? <X className="w-4 h-4 text-zinc-800 dark:text-zinc-100" /> 
+          : <Menu className="w-4 h-4 text-zinc-800 dark:text-zinc-100" />
+        }
       </button>
 
       {/* Mobile overlay */}

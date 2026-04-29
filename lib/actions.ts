@@ -65,6 +65,7 @@ function parseApplicationForm(formData: FormData) {
   const salaryMinRaw = formData.get("salaryMin") as string;
   const salaryMaxRaw = formData.get("salaryMax") as string;
   const followUpDateRaw = formData.get("followUpDate") as string;
+  const interviewDateRaw = formData.get("interviewDate") as string;
 
   return {
     companyName,
@@ -82,8 +83,13 @@ function parseApplicationForm(formData: FormData) {
       (formData.get("applicationLink") as string)?.trim() || null,
     dateApplied: dateAppliedRaw ? new Date(dateAppliedRaw) : null,
     followUpDate: followUpDateRaw ? new Date(followUpDateRaw) : null,
+    interviewDate: interviewDateRaw ? new Date(interviewDateRaw) : null,
+
+    contactName: (formData.get("contactName") as string)?.trim() || null,
+    contactEmail: (formData.get("contactEmail") as string)?.trim() || null,
     jobDescription: (formData.get("jobDescription") as string)?.trim() || null,
     notes: (formData.get("notes") as string)?.trim() || null,
+    companyResearch: (formData.get("companyResearch") as string)?.trim() || null,
   };
 }
 
@@ -158,8 +164,12 @@ export async function createApplication(
         applicationLink: parsed.applicationLink,
         dateApplied: parsed.dateApplied!,
         followUpDate: parsed.followUpDate,
+        interviewDate: parsed.interviewDate,
+        contactName: parsed.contactName,
+        contactEmail: parsed.contactEmail,
         jobDescription: parsed.jobDescription,
         notes: parsed.notes,
+        companyResearch: parsed.companyResearch,
       })
       .returning();
 
@@ -186,8 +196,12 @@ export async function createApplication(
       ["Application Link", newApp.applicationLink],
       ["Date Applied", formatDate(newApp.dateApplied)],
       ["Follow-up Date", formatDate(newApp.followUpDate)],
+      ["Interview Date", formatDate(newApp.interviewDate)],
+      ["Contact Name", newApp.contactName],
+      ["Contact Email", newApp.contactEmail],
       ["Job Description", newApp.jobDescription ? "(provided)" : null],
       ["Notes", newApp.notes ? "(provided)" : null],
+      ["Company Research", newApp.companyResearch ? "(provided)" : null],
     ];
 
     for (const [key, val] of fields) {
@@ -253,8 +267,12 @@ export async function updateApplication(
       applicationLink: parsed.applicationLink,
       dateApplied: parsed.dateApplied!,
       followUpDate: parsed.followUpDate,
+      interviewDate: parsed.interviewDate,
+      contactName: parsed.contactName,
+      contactEmail: parsed.contactEmail,
       jobDescription: parsed.jobDescription,
       notes: parsed.notes,
+      companyResearch: parsed.companyResearch,
       updatedAt: new Date(),
     };
 
@@ -339,6 +357,36 @@ export async function updateApplication(
         field: "Notes",
         from: oldApp.notes ? "(provided)" : "None",
         to: updates.notes ? "(provided)" : "None",
+      });
+
+    if (oldApp.companyResearch !== updates.companyResearch)
+      changes.push({
+        field: "Company Research",
+        from: oldApp.companyResearch ? "(provided)" : "None",
+        to: updates.companyResearch ? "(provided)" : "None",
+      });
+
+    const oldInt = formatDate(oldApp.interviewDate);
+    const newInt = formatDate(updates.interviewDate);
+    if (oldInt !== newInt)
+      changes.push({
+        field: "Interview Date",
+        from: oldInt || "None",
+        to: newInt || "None",
+      });
+
+    if (oldApp.contactName !== updates.contactName)
+      changes.push({
+        field: "Contact Name",
+        from: oldApp.contactName || "None",
+        to: updates.contactName || "None",
+      });
+
+    if (oldApp.contactEmail !== updates.contactEmail)
+      changes.push({
+        field: "Contact Email",
+        from: oldApp.contactEmail || "None",
+        to: updates.contactEmail || "None",
       });
 
     if (changes.length > 0) {

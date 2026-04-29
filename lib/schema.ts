@@ -59,10 +59,17 @@ export const jobApplications = pgTable("job_applications", {
   applicationLink: text("applicationLink"),
   dateApplied: timestamp("dateApplied", { withTimezone: true }).notNull(),
   followUpDate: timestamp("followUpDate", { withTimezone: true }),
+  interviewDate: timestamp("interviewDate", { withTimezone: true }),
+
+  // Contact Info
+  contactName: text("contactName"),
+  contactEmail: text("contactEmail"),
 
   // Details
   jobDescription: text("jobDescription"),
   notes: text("notes"),
+  companyResearch: text("companyResearch"),
+
 
   createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updatedAt", { withTimezone: true }).defaultNow(),

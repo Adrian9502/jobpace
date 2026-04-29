@@ -10,7 +10,9 @@ import {
   FileText,
   Trophy,
   Settings,
+  Mail,
 } from "lucide-react";
+
 import { NavGroup } from "@/types/nav";
 
 export const navItems: NavGroup[] = [
@@ -21,18 +23,25 @@ export const navItems: NavGroup[] = [
       {
         label: "All Applications",
         href: "/dashboard/applications",
+        icon: FileText,
+      },
+      {
+        label: "Interview Calendar",
+        href: "/dashboard/calendar",
         icon: CalendarDays,
       },
       { label: "Kanban Board", href: "/dashboard/kanban", icon: Kanban },
       { label: "Archive", href: "/dashboard/archive", icon: Archive },
       { label: "Timeline", href: "/dashboard/timeline", icon: Clock },
       { label: "Activity Logs", href: "/dashboard/activity", icon: Activity },
+
     ],
   },
   {
     section: "Insights",
     items: [
       { label: "Analytics", href: "/dashboard/analytics", icon: BarChart2 },
+      { label: "Email Templates", href: "/dashboard/email-templates", icon: Mail },
       {
         label: "Reminders",
         href: "/dashboard/reminders",
@@ -41,6 +50,7 @@ export const navItems: NavGroup[] = [
       },
     ],
   },
+
   {
     section: "Profile",
     items: [
