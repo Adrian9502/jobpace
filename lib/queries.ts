@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { jobApplications, jobActivityLogs } from "./schema";
+import { jobApplications, jobActivityLogs, personalNotes } from "./schema";
 import { getUserId } from "./auth-helpers";
 import { eq, desc, and, sql } from "drizzle-orm";
 
@@ -8,6 +8,8 @@ import { eq, desc, and, sql } from "drizzle-orm";
 // ──────────────────────────────────────────────
 
 export type ApplicationRow = typeof jobApplications.$inferSelect;
+export type PersonalNoteRow = typeof personalNotes.$inferSelect;
+
 
 export type ApplicationStats = {
   total: number;
@@ -95,3 +97,14 @@ export async function getKanbanCounts(): Promise<KanbanCounts> {
   }
   return counts;
 }
+
+export async function getPersonalNotes(): Promise<PersonalNoteRow[]> {
+  const userId = await getUserId();
+
+  return db
+    .select()
+    .from(personalNotes)
+    .where(eq(personalNotes.userId, userId))
+    .orderBy(desc(personalNotes.updatedAt));
+}
+

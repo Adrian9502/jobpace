@@ -35,9 +35,12 @@ import type { Stage, Status } from "@/lib/constants";
 import { formatSalaryCompact } from "@/lib/utils";
 import { updateApplicationStage } from "@/lib/actions";
 import ApplicationModal from "./ApplicationModal";
-import DeleteConfirmModal from "./DeleteConfirmModal";
+import { deleteApplication } from "@/lib/actions";
 import { toast } from "sonner";
+import DeleteConfirmModal from "./DeleteConfirmModal";
+
 import confetti from "canvas-confetti";
+
 
 interface Props {
   initialApplications: ApplicationRow[];
@@ -441,10 +444,20 @@ export default function KanbanBoard({ initialApplications }: Props) {
         <DeleteConfirmModal
           open={!!deleteTarget}
           onClose={() => setDeleteTarget(null)}
-          applicationId={deleteTarget.id}
-          companyName={deleteTarget.companyName}
-          position={deleteTarget.position}
+          title="Delete Application"
+          description="Are you sure you want to delete this application?"
+          itemName={`${deleteTarget.position} at ${deleteTarget.companyName}`}
+          onConfirm={async () => {
+            const result = await deleteApplication(deleteTarget.id);
+            if (result.success) {
+              toast.success("Application deleted");
+            } else {
+              toast.error(result.error ?? "Failed to delete application.");
+              throw new Error(result.error);
+            }
+          }}
         />
+
       )}
     </>
   );

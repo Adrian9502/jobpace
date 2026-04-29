@@ -2,37 +2,34 @@
 
 import { useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { deleteApplication } from "@/lib/actions";
-import { toast } from "sonner";
+import { AlertTriangle, Trash2 } from "lucide-react";
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  applicationId: string;
-  companyName: string;
-  position: string;
+  onConfirm: () => Promise<void>;
+  title: string;
+  description: string;
+  itemName?: string;
 }
 
 export default function DeleteConfirmModal({
   open,
   onClose,
-  applicationId,
-  companyName,
-  position,
+  onConfirm,
+  title,
+  description,
+  itemName,
 }: Props) {
   const [isPending, startTransition] = useTransition();
 
   function handleDelete() {
     startTransition(async () => {
-      const result = await deleteApplication(applicationId);
-      if (result.success) {
-        toast.success("Application deleted");
-        onClose();
-      } else {
-        toast.error(result.error ?? "Failed to delete application.");
-      }
+      await onConfirm();
+      onClose();
     });
   }
+
 
   return (
     <AnimatePresence>
@@ -59,26 +56,20 @@ export default function DeleteConfirmModal({
             <div className="px-6 py-5">
               {/* Warning icon */}
               <div className="w-12 h-12 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center mx-auto mb-4">
-                <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6 text-red-500 dark:text-red-400">
-                  <path
-                    d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                <AlertTriangle className="w-6 h-6 text-red-500 dark:text-red-400" />
               </div>
 
               <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 text-center mb-1">
-                Delete Application
+                {title}
               </h3>
               <p className="text-sm text-zinc-500 dark:text-zinc-400 text-center mb-1">
-                Are you sure you want to delete this application?
+                {description}
               </p>
-              <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 text-center">
-                {position} at {companyName}
-              </p>
+              {itemName && (
+                <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 text-center">
+                  {itemName}
+                </p>
+              )}
               <p className="text-xs text-zinc-400 dark:text-zinc-500 text-center mt-2">
                 This action cannot be undone.
               </p>
@@ -99,10 +90,15 @@ export default function DeleteConfirmModal({
                 disabled={isPending}
                 className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
               >
-                {isPending && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
+                {isPending ? (
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <Trash2 className="w-4 h-4" />
+                )}
                 Delete
               </button>
             </div>
+
           </motion.div>
         </div>
       )}

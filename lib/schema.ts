@@ -83,3 +83,12 @@ export const jobActivityLogs = pgTable("job_activity_logs", {
   description: text("description").notNull(), // User-friendly description of what happened
   createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow(),
 });
+
+export const personalNotes = pgTable("personal_notes", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  userId: text("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  content: text("content"),
+  createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updatedAt", { withTimezone: true }).defaultNow(),
+});

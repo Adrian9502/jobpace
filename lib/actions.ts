@@ -1,7 +1,8 @@
 "use server";
 
 import { db } from "./db";
-import { jobApplications, jobActivityLogs } from "./schema";
+import { jobApplications, jobActivityLogs, personalNotes } from "./schema";
+
 import { getUserId } from "./auth-helpers";
 import { getApplicationById } from "./queries";
 import { eq, and } from "drizzle-orm";
@@ -506,3 +507,51 @@ export async function deleteApplication(id: string): Promise<ActionResult> {
     return { success: false, error: "Failed to delete application." };
   }
 }
+
+// ──────────────────────────────────────────────
+// PERSONAL NOTES
+// ──────────────────────────────────────────────
+
+export async function createNote(title: string, content: string): Promise<ActionResult> {
+  try {
+    const userId = await getUserId();
+    await db.insert(personalNotes).values({
+      userId,
+      title,
+      content,
+    });
+    revalidatePath("/dashboard/notes");
+    return { success: true };
+  } catch (err) {
+    console.error("createNote error:", err);
+    return { success: false, error: "Failed to create note." };
+  }
+}
+
+export async function updateNote(id: string, title: string, content: string): Promise<ActionResult> {
+  try {
+    const userId = await getUserId();
+    await db.update(personalNotes)
+      .set({ title, content, updatedAt: new Date() })
+      .where(and(eq(personalNotes.id, id), eq(personalNotes.userId, userId)));
+    revalidatePath("/dashboard/notes");
+    return { success: true };
+  } catch (err) {
+    console.error("updateNote error:", err);
+    return { success: false, error: "Failed to update note." };
+  }
+}
+
+export async function deleteNote(id: string): Promise<ActionResult> {
+  try {
+    const userId = await getUserId();
+    await db.delete(personalNotes)
+      .where(and(eq(personalNotes.id, id), eq(personalNotes.userId, userId)));
+    revalidatePath("/dashboard/notes");
+    return { success: true };
+  } catch (err) {
+    console.error("deleteNote error:", err);
+    return { success: false, error: "Failed to delete note." };
+  }
+}
+

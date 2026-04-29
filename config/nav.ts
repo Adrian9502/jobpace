@@ -32,7 +32,9 @@ export const navItems: NavGroup[] = [
       },
       { label: "Kanban Board", href: "/dashboard/kanban", icon: Kanban },
       { label: "Archive", href: "/dashboard/archive", icon: Archive },
+      { label: "My Notes", href: "/dashboard/notes", icon: FileText },
       { label: "Timeline", href: "/dashboard/timeline", icon: Clock },
+
       { label: "Activity Logs", href: "/dashboard/activity", icon: Activity },
 
     ],

@@ -2,8 +2,10 @@
 
 import { useState, useMemo, useEffect } from "react";
 import type { ApplicationRow } from "@/lib/queries";
-import { FINAL_STAGES, STAGE_CONFIG } from "@/lib/constants";
+import { STAGE_CONFIG, FINAL_STAGES } from "@/lib/constants";
 import { formatDate, formatSalary } from "@/lib/utils";
+import { deleteApplication } from "@/lib/actions";
+import { toast } from "sonner";
 import StatusBadge from "./StatusBadge";
 import StageBadge from "./StageBadge";
 import PaginationBar from "./PaginationBar";
@@ -188,11 +190,21 @@ export default function ArchiveClient({ applications }: Props) {
         <DeleteConfirmModal
           open={!!deleteTarget}
           onClose={() => setDeleteTarget(null)}
-          applicationId={deleteTarget.id}
-          companyName={deleteTarget.companyName}
-          position={deleteTarget.position}
+          title="Delete from Archive"
+          description="Are you sure you want to delete this application? This action cannot be undone."
+          itemName={`${deleteTarget.position} at ${deleteTarget.companyName}`}
+          onConfirm={async () => {
+            const result = await deleteApplication(deleteTarget.id);
+            if (result.success) {
+              toast.success("Application deleted");
+            } else {
+              toast.error(result.error ?? "Failed to delete application.");
+              throw new Error(result.error);
+            }
+          }}
         />
       )}
+
     </>
   );
 }
