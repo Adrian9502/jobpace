@@ -5,6 +5,8 @@ import { signIn } from "next-auth/react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import PolicyModal from "../PolicyModal";
+import ThemeToggle from "../ThemeToggle";
+
 
 export default function LandingContent() {
   const [modalType, setModalType] = useState<"terms" | "privacy" | null>(null);
@@ -36,6 +38,7 @@ export default function LandingContent() {
 
   const closeModal = () => setModalType(null);
 
+  // todo: remove constant here
   const features = [
     {
       label: "Kanban board",
@@ -99,8 +102,14 @@ export default function LandingContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] selection:bg-blue-100 dark:selection:bg-blue-900/30 flex items-center justify-center px-4 sm:px-6 py-10 sm:py-12">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] selection:bg-blue-100 dark:selection:bg-blue-900/30 flex items-center justify-center px-4 sm:px-6 py-10 sm:py-12 relative">
+      {/* Theme Toggle Button */}
+      <div className="absolute top-6 right-6 sm:top-10 sm:right-10 z-50">
+        <ThemeToggle />
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 w-full max-w-5xl min-h-140 sm:min-h-160 rounded-2xl border border-gray-200 dark:border-zinc-800 overflow-hidden shadow-sm">
+
         {/* ── Left: Brand & Story ── */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
