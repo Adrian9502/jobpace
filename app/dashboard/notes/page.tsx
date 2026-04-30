@@ -2,8 +2,7 @@ import { getPersonalNotes } from "@/lib/queries";
 import NotesClient from "@/components/NotesClient";
 
 export const metadata = {
-  title: "My Notes | JobPace",
-  description: "Organize your job search research and personal notes.",
+  title: "Notes - JobPace",
 };
 
 export default async function NotesPage() {

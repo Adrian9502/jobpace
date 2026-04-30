@@ -3,10 +3,15 @@ import { getApplications } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  title: "All Applications - JobPace",
+};
 export default async function ApplicationsPage() {
   const applications = await getApplications();
 
   return (
-    <ApplicationsClient applications={JSON.parse(JSON.stringify(applications))} />
+    <ApplicationsClient
+      applications={JSON.parse(JSON.stringify(applications))}
+    />
   );
 }

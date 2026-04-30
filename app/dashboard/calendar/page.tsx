@@ -2,8 +2,7 @@ import { getApplications } from "@/lib/queries";
 import CalendarClient from "@/components/CalendarClient";
 
 export const metadata = {
-  title: "Interview Calendar | JobPace",
-  description: "View and manage your scheduled interviews.",
+  title: "Interview Calendar - JobPace",
 };
 
 export default async function CalendarPage() {

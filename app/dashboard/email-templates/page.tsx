@@ -1,8 +1,7 @@
 import EmailTemplates from "@/components/EmailTemplates";
 
 export const metadata = {
-  title: "Email Templates | JobPace",
-  description: "Professional email templates for job seekers.",
+  title: "Email Templates - JobPace",
 };
 
 export default function EmailTemplatesPage() {
