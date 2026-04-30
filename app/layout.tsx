@@ -13,9 +13,9 @@ const ibmPlexSans = IBM_Plex_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Job Pace - Your job search, at your pace.",
+  title: "JobPace - Your job search, at your pace.",
   description:
-    "Job Pace is a job hunting tracker built for fresh graduates who want to stay organized and stress-free during their job search.",
+    "JobPace is a job search tracker that helps you stay organized, focused, and in control — no matter where you are in your career.",
 };
 
 export default function RootLayout({

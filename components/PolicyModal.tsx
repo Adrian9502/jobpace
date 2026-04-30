@@ -39,7 +39,7 @@ export default function PolicyModal({
             >
               {/* Header */}
               <div className="flex items-center justify-between p-6 border-b border-zinc-100 dark:border-zinc-800">
-                <h2 className="text-xl text-slate-600 font-bold">{title}</h2>
+                <h2 className="text-xl text-slate-600 dark:text-slate-200 font-bold">{title}</h2>
                 <button
                   onClick={onClose}
                   className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors"

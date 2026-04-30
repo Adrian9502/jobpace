@@ -1,28 +1,39 @@
-import { getSession } from "@/lib/auth-helpers";
-import { redirect } from "next/navigation";
-import Sidebar from "@/components/sidebar/Sidebar";
-import { Analytics } from "@vercel/analytics/next";
+import { Suspense } from "react";
+import DashboardShell from "./DashboardShell";
+import DashboardLoading from "./loading";
+import { Skeleton } from "@/components/ui/Skeleton";
 
-export default async function DashboardLayout({
+function DashboardShellFallback() {
+  return (
+    <div className="flex h-screen overflow-hidden bg-zinc-50 dark:bg-zinc-950">
+      <div className="hidden lg:flex w-56 flex-col border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 gap-3">
+        <Skeleton className="h-6 w-28" />
+        <div className="space-y-2">
+          {Array.from({ length: 8 }).map((_, index) => (
+            <Skeleton key={index} className="h-8 w-full rounded-md" />
+          ))}
+        </div>
+        <div className="mt-auto">
+          <Skeleton className="h-10 w-full rounded-lg" />
+        </div>
+      </div>
+      <div className="flex flex-col flex-1 min-w-0 h-full">
+        <main className="flex-1 p-6 overflow-y-auto">
+          <DashboardLoading />
+        </main>
+      </div>
+    </div>
+  );
+}
+
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const isDev = process.env.NEXT_PUBLIC_DEV_MODE === "true";
-  const session = await getSession();
-
-  if (!isDev && !session?.user) redirect("/");
-
   return (
-    <div className="flex h-screen overflow-hidden bg-zinc-50 dark:bg-zinc-950">
-      <Sidebar
-        userName={session!.user!.name ?? "User"}
-        userImage={session!.user!.image}
-      />
-      <div className="flex flex-col flex-1 min-w-0 h-full">
-        <main className="flex-1 p-6 overflow-y-auto">{children}</main>
-      </div>
-      <Analytics />
-    </div>
+    <Suspense fallback={<DashboardShellFallback />}>
+      <DashboardShell>{children}</DashboardShell>
+    </Suspense>
   );
 }
