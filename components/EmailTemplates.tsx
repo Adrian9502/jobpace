@@ -128,7 +128,7 @@ export default function EmailTemplates() {
         </div>
 
         {/* Content */}
-        <div className="lg:col-span-8">
+        <div className="lg:col-span-8 self-start">
           <AnimatePresence mode="wait">
             {selectedTemplate ? (
               <motion.div
@@ -182,7 +182,7 @@ export default function EmailTemplates() {
                         {copiedField === "Email Body" ? "COPIED" : "COPY"}
                       </button>
                     </div>
-                    <div className="flex-1 p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-lg text-sm text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap font-serif leading-relaxed">
+                    <div className="flex-1 p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-lg text-sm text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap leading-relaxed">
                       {selectedTemplate.body}
                     </div>
                   </div>

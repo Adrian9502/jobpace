@@ -11,300 +11,342 @@ export const EMAIL_TEMPLATES: EmailTemplate[] = [
     id: "follow-up-1",
     title: "Follow-up (1 Week)",
     category: "Follow-up",
-    subject: "Follow-up on my application for [Position] at [Company]",
-    body: `Hello [Recruiter Name/Hiring Manager],
+    subject: "Follow-up on My Application for [Position] at [Company]",
+    body: `Good day, [Recruiter/Hiring Manager Name],
 
-I applied for the [Position] role on [Date] and wanted to follow up on the status of my application. I remain very interested in the opportunity at [Company] and would appreciate any update on next steps.
+I hope this message finds you well. I am writing to follow up on my application for the [Position] role at [Company], which I submitted on [Date].
 
-If helpful, I can share additional information, references, or work samples.
+I remain very interested in the opportunity and would like to kindly inquire about the current status of my application. Please do not hesitate to let me know if you require any additional documents or information from my end.
 
-Thank you for your time,
+Thank you for your time and consideration. I look forward to hearing from you.
+
+Respectfully,
 [Your Name]
-[Phone] | [LinkedIn/Portfolio]`,
+[Contact Number] | [LinkedIn/Portfolio]`,
   },
   {
     id: "follow-up-2",
     title: "Follow-up (Referral)",
     category: "Follow-up",
-    subject: "Checking in on [Position] application (referred by [Referrer])",
-    body: `Hi [Recruiter Name],
+    subject: "Follow-up on [Position] Application — Referred by [Referrer]",
+    body: `Good day, [Recruiter Name],
 
-I applied for the [Position] role on [Date] and was referred by [Referrer Name]. I wanted to check in on my application and confirm it was received.
+I hope you are doing well. I am reaching out to follow up on my application for the [Position] role, which I submitted on [Date]. I was referred by [Referrer Name], who spoke highly of [Company] and encouraged me to apply.
 
-I am excited about the role and believe my experience with [relevant skill/experience] would be a strong match. Please let me know if there is any other information I can provide.
+I would like to confirm that my application has been received and to express my continued interest in the role. I believe my background in [relevant skill/experience] aligns well with the requirements of the position.
 
-Best regards,
+Please let me know if there is anything else you need from me. I am available at your convenience.
+
+Thank you very much.
+
+Respectfully,
 [Your Name]
-[Phone] | [LinkedIn/Portfolio]`,
+[Contact Number] | [LinkedIn/Portfolio]`,
   },
   {
     id: "follow-up-3",
-    title: "Follow-up (Added Info)",
+    title: "Follow-up (Additional Info)",
     category: "Follow-up",
-    subject: "Additional info for [Position] application at [Company]",
-    body: `Hello [Recruiter Name],
+    subject: "Additional Information — [Position] Application at [Company]",
+    body: `Good day, [Recruiter Name],
 
-I recently applied for the [Position] role and wanted to share a relevant work sample: [Link]. It highlights my work on [brief context] and may be helpful as you review my application.
+I hope this email finds you in good health. I recently submitted my application for the [Position] role and would like to share an additional work sample that may be relevant to your review: [Link].
 
-Please let me know if I can answer any questions or provide more detail.
+This highlights my work on [brief context] and demonstrates my capabilities in [relevant skill]. I hope it provides further insight into my qualifications for the role.
 
-Thank you,
+Please feel free to reach out if you have any questions. Thank you for your time.
+
+Respectfully,
 [Your Name]
-[Phone] | [LinkedIn/Portfolio]`,
+[Contact Number] | [LinkedIn/Portfolio]`,
   },
   {
     id: "follow-up-4",
     title: "Follow-up (Post-Screening)",
     category: "Follow-up",
-    subject: "Thank you and next steps for [Position]",
-    body: `Hi [Recruiter Name],
+    subject: "Thank You and Follow-up — [Position] at [Company]",
+    body: `Good day, [Recruiter Name],
 
-Thank you for the phone screen on [Date]. I enjoyed learning more about the [Team/Department] and the [Position] role.
+Thank you for taking the time to speak with me during the initial screening call on [Date]. It was a pleasure learning more about the [Position] role and the team at [Company].
 
-I wanted to follow up on next steps and the expected timeline. Please let me know if you need anything else from me.
+I would like to kindly follow up on the next steps in the hiring process and the expected timeline. I remain enthusiastic about the opportunity and am happy to provide any additional information you may need.
 
-Best,
+Thank you once again for your time and consideration.
+
+Respectfully,
 [Your Name]
-[Phone] | [LinkedIn/Portfolio]`,
+[Contact Number] | [LinkedIn/Portfolio]`,
   },
   {
     id: "follow-up-5",
     title: "Follow-up (Post-Assessment)",
     category: "Follow-up",
-    subject: "Assessment submission for [Position] - [Your Name]",
-    body: `Hello [Hiring Manager],
+    subject: "Assessment Submission Confirmation — [Position] at [Company]",
+    body: `Good day, [Hiring Manager Name],
 
-I submitted the [assessment/take-home] for the [Position] role on [Date] and wanted to confirm it was received. Please let me know if anything is missing or if you have any questions about my approach.
+I hope you are doing well. I am writing to confirm that I have submitted the [assessment/technical exam] for the [Position] role on [Date] and to ensure that it was received on your end.
 
-I appreciate your time and look forward to the next steps.
+Please do not hesitate to let me know if there are any concerns with my submission or if you need any clarification regarding my approach.
 
-Sincerely,
+I appreciate your time and I look forward to the next steps.
+
+Respectfully,
 [Your Name]
-[Phone] | [LinkedIn/Portfolio]`,
+[Contact Number] | [LinkedIn/Portfolio]`,
   },
   {
     id: "thank-you-1",
     title: "Thank You (Initial Interview)",
     category: "Interview",
-    subject: "Thank you for the [Position] interview",
-    body: `Hello [Interviewer Name],
+    subject: "Thank You — [Position] Interview at [Company]",
+    body: `Good day, [Interviewer Name],
 
-Thank you for meeting with me today about the [Position] role. I enjoyed our conversation about [topic discussed] and learning more about the team at [Company].
+Thank you for taking the time to meet with me today regarding the [Position] role at [Company]. I truly appreciate the opportunity to learn more about the team and the responsibilities of the position.
 
-I am excited about the opportunity and confident my experience with [relevant skill] would help me contribute quickly. Please let me know if I can provide anything else.
+Our conversation about [topic discussed] gave me a clearer picture of how I can contribute, and I am confident that my experience in [relevant skill] would allow me to add value to your organization.
 
-Best regards,
+Please let me know if you need any additional documents or information. I look forward to hearing from you.
+
+Respectfully,
 [Your Name]
-[Phone] | [LinkedIn/Portfolio]`,
+[Contact Number] | [LinkedIn/Portfolio]`,
   },
   {
     id: "thank-you-2",
     title: "Thank You (Panel Interview)",
     category: "Interview",
-    subject: "Thank you - [Position] panel interview",
-    body: `Hi [Interviewer Names],
+    subject: "Thank You — [Position] Panel Interview",
+    body: `Good day, [Interviewer Names],
 
-Thank you all for the panel interview today. I appreciated hearing each of your perspectives on the [Team/Project] and the goals for this role.
+I sincerely thank each of you for the time you dedicated to my panel interview today. I valued the opportunity to hear your different perspectives on the [Team/Project] and the direction of the [Position] role.
 
-I am very interested in moving forward and believe my background in [relevant experience] aligns well with what you described. Please let me know if there is any additional information I can provide.
+I am very much interested in moving forward in the process, and I believe my background in [relevant experience] is a strong match for what you described. I am happy to provide any supporting materials upon request.
 
-Thank you again,
+Thank you again and I hope to be of service to your team.
+
+Respectfully,
 [Your Name]
-[Phone] | [LinkedIn/Portfolio]`,
+[Contact Number] | [LinkedIn/Portfolio]`,
   },
   {
     id: "thank-you-3",
     title: "Thank You (Technical Interview)",
     category: "Interview",
-    subject: "Thank you for the technical interview - [Position]",
-    body: `Hello [Interviewer Name],
+    subject: "Thank You — Technical Interview for [Position]",
+    body: `Good day, [Interviewer Name],
 
-Thank you for the technical interview today. I enjoyed working through [problem/topic] and discussing how your team approaches [relevant area].
+Thank you for the technical interview earlier today. I enjoyed working through [problem/topic] and the insightful discussion on how your team approaches [relevant area].
 
-I am excited about the role and would welcome the chance to contribute my skills in [relevant skill/stack]. Please let me know if you would like any follow-up details.
+I am enthusiastic about the possibility of contributing my skills in [relevant skill/stack] to [Company]. Please let me know if you need any follow-up information on my end.
 
-Best,
+Thank you very much for the opportunity.
+
+Respectfully,
 [Your Name]
-[Phone] | [LinkedIn/Portfolio]`,
+[Contact Number] | [LinkedIn/Portfolio]`,
   },
   {
     id: "thank-you-4",
     title: "Thank You (Final Round)",
     category: "Interview",
-    subject: "Thank you - final round for [Position]",
-    body: `Hi [Interviewer Name],
+    subject: "Thank You — Final Round Interview for [Position]",
+    body: `Good day, [Interviewer Name],
 
-Thank you for the final round interview for the [Position] role. I appreciated the chance to discuss [topic] and learn more about the team's priorities for the next quarter.
+Thank you for the final round interview for the [Position] role. I am grateful for the opportunity to meet the team and discuss [topic] in greater depth.
 
-I remain very interested in the position and believe I can contribute in [specific way]. Please let me know if there are any next steps or additional materials you would like from me.
+I remain highly interested in joining [Company] and am confident in my ability to contribute in [specific way]. Kindly let me know if there are additional requirements or next steps I should prepare for.
 
-Sincerely,
+I look forward to your response.
+
+Respectfully,
 [Your Name]
-[Phone] | [LinkedIn/Portfolio]`,
+[Contact Number] | [LinkedIn/Portfolio]`,
   },
   {
     id: "thank-you-5",
     title: "Thank You (Interview + Case Study)",
     category: "Interview",
-    subject: "Thank you - [Position] interview and case study",
-    body: `Hello [Interviewer Name],
+    subject: "Thank You — [Position] Interview and Case Study",
+    body: `Good day, [Interviewer Name],
 
-Thank you for the interview and the chance to walk through my case study. I enjoyed discussing [topic] and your feedback on [specific detail].
+Thank you for the opportunity to present my case study and discuss it with you today. I appreciated your feedback on [specific detail] and found the conversation about [topic] very valuable.
 
-I am enthusiastic about the opportunity to join [Company]. Please let me know if you need a written summary or any supporting materials.
+I am genuinely excited about the possibility of joining [Company] and contributing to the team. Please let me know if a written summary or any additional materials would be helpful.
 
-Best regards,
+Thank you for your time and consideration.
+
+Respectfully,
 [Your Name]
-[Phone] | [LinkedIn/Portfolio]`,
+[Contact Number] | [LinkedIn/Portfolio]`,
   },
   {
     id: "accept-offer-1",
     title: "Accepting Offer (Confirm Start Date)",
     category: "Offer - Accept",
-    subject: "Offer acceptance - [Position] at [Company]",
-    body: `Hello [Hiring Manager Name],
+    subject: "Job Offer Acceptance — [Position] at [Company]",
+    body: `Good day, [Hiring Manager Name],
 
-I am happy to accept the offer for the [Position] role at [Company]. I confirm a start date of [Start Date].
+I am pleased and honored to formally accept the offer for the [Position] role at [Company]. I confirm my availability to begin on [Start Date].
 
-Please let me know the next steps and any paperwork I should complete ahead of my start date.
+Please let me know the next steps and any pre-employment requirements I need to complete prior to my start date. I will make sure to comply promptly.
 
-Thank you again for the opportunity,
+Thank you very much for this opportunity. I look forward to being part of the team.
+
+Respectfully,
 [Your Name]
-[Phone] | [Email]`,
+[Contact Number] | [Email]`,
   },
   {
     id: "accept-offer-2",
     title: "Accepting Offer (After Negotiation)",
     category: "Offer - Accept",
-    subject: "Acceptance of updated offer - [Position]",
-    body: `Hi [Hiring Manager Name],
+    subject: "Acceptance of Updated Offer — [Position] at [Company]",
+    body: `Good day, [Hiring Manager Name],
 
-Thank you for the updated offer details. I am pleased to accept the [Position] role at [Company] with the terms discussed, including a start date of [Start Date] and a base salary of [Salary].
+Thank you for accommodating my request and for the updated offer details. I am happy to formally accept the [Position] role at [Company] under the agreed terms, including a start date of [Start Date] and a monthly salary of [Salary].
 
-Please share any next steps or onboarding materials.
+Please send over any pre-employment requirements or onboarding documents at your earliest convenience. I am ready to comply with all necessary steps.
 
-Best regards,
+Thank you again for this opportunity.
+
+Respectfully,
 [Your Name]
-[Phone] | [Email]`,
+[Contact Number] | [Email]`,
   },
   {
     id: "accept-offer-3",
     title: "Accepting Offer (Request Offer Letter)",
     category: "Offer - Accept",
-    subject: "Accepting offer - [Position] (requesting written confirmation)",
-    body: `Hello [Hiring Manager Name],
+    subject: "Job Offer Acceptance — Requesting Written Confirmation",
+    body: `Good day, [Hiring Manager Name],
 
-I am excited to accept the offer for the [Position] role at [Company]. Could you please send a written offer letter confirming the role details, compensation, benefits, and start date?
+I am very pleased to accept the offer for the [Position] role at [Company]. May I kindly request a written offer letter confirming the position title, compensation package, benefits, and intended start date?
 
-Once received, I will review and sign promptly.
+Once I receive the letter, I will review and sign it as soon as possible. Please let me know if there is anything else required from my end.
 
-Thank you,
+Thank you very much for this opportunity.
+
+Respectfully,
 [Your Name]
-[Phone] | [Email]`,
+[Contact Number] | [Email]`,
   },
   {
     id: "accept-offer-4",
-    title: "Accepting Offer (Remote/Hybrid Details)",
+    title: "Accepting Offer (Remote/Hybrid Setup)",
     category: "Offer - Accept",
-    subject: "Offer acceptance - [Position] (work arrangement)",
-    body: `Hi [Hiring Manager Name],
+    subject: "Job Offer Acceptance — [Position] ([Remote/Hybrid] Setup)",
+    body: `Good day, [Hiring Manager Name],
 
-I am pleased to accept the [Position] role at [Company]. I confirm the agreed work arrangement ([Remote/Hybrid]) and a start date of [Start Date].
+I am glad to formally accept the offer for the [Position] role at [Company]. I confirm the agreed work arrangement ([Remote/Hybrid]) and my start date of [Start Date].
 
-Please let me know the next steps for onboarding and equipment setup.
+Kindly advise on the onboarding process and any equipment or system setup that needs to be arranged ahead of time. I want to make sure I am fully prepared on day one.
 
-Sincerely,
+Thank you again for this opportunity. I am looking forward to contributing to the team.
+
+Respectfully,
 [Your Name]
-[Phone] | [Email]`,
+[Contact Number] | [Email]`,
   },
   {
     id: "accept-offer-5",
-    title: "Accepting Offer (Start Date Flexibility)",
+    title: "Accepting Offer (Flexible Start Date)",
     category: "Offer - Accept",
-    subject: "Acceptance of offer - [Position] at [Company]",
-    body: `Hello [Hiring Manager Name],
+    subject: "Job Offer Acceptance — [Position] at [Company]",
+    body: `Good day, [Hiring Manager Name],
 
-I am happy to accept the offer for the [Position] role at [Company]. My earliest start date is [Start Date], and I am also flexible to begin on [Alternate Date] if that is more convenient.
+I am honored to accept the offer for the [Position] role at [Company]. My earliest available start date is [Start Date], though I am also open to starting on [Alternate Date] should that be more convenient for the team.
 
-Please share the next steps and any paperwork required.
+Please share the pre-employment requirements and any other steps I need to complete before my onboarding. I am committed to making the transition as smooth as possible.
 
-Thank you,
+Thank you very much for the opportunity.
+
+Respectfully,
 [Your Name]
-[Phone] | [Email]`,
+[Contact Number] | [Email]`,
   },
   {
     id: "decline-offer-1",
     title: "Decline Offer (Another Role)",
     category: "Offer - Decline",
-    subject: "Update on [Position] offer - [Your Name]",
-    body: `Hello [Hiring Manager Name],
+    subject: "Regarding the [Position] Offer — [Your Name]",
+    body: `Good day, [Hiring Manager Name],
 
-Thank you very much for the offer to join [Company] as a [Position]. After careful consideration, I have decided to accept another opportunity that is a better fit for my current goals.
+Thank you sincerely for offering me the [Position] role at [Company] and for the time and effort you and your team invested throughout the hiring process.
 
-I appreciate your time and the chance to meet the team. I hope we can stay in touch in the future.
+After careful deliberation, I have decided to accept another opportunity that is more aligned with my current career goals. This was not an easy decision, as I have a high regard for [Company] and the team I had the pleasure of meeting.
 
-Sincerely,
+I hope we can stay connected, and I wish [Company] continued success.
+
+Respectfully,
 [Your Name]
-[Phone] | [Email]`,
+[Contact Number] | [Email]`,
   },
   {
     id: "decline-offer-2",
     title: "Decline Offer (Compensation)",
     category: "Offer - Decline",
-    subject: "[Position] offer decision - [Your Name]",
-    body: `Hi [Hiring Manager Name],
+    subject: "Decision on [Position] Offer — [Your Name]",
+    body: `Good day, [Hiring Manager Name],
 
-Thank you for the offer and for the time you and the team invested in the process. After reviewing the compensation details, I have decided to decline the offer at this time.
+Thank you for the offer and for the opportunity to go through your hiring process. I genuinely appreciate the time your team extended to me.
 
-I appreciate the opportunity and hope we can reconnect in the future if circumstances change.
+After careful consideration of the compensation package, I have respectfully decided to decline the offer at this time. I hope you understand that this was not a reflection of my regard for [Company], which I hold in high esteem.
 
-Best regards,
+I hope we may have the chance to work together in the future under different circumstances.
+
+Respectfully,
 [Your Name]
-[Phone] | [Email]`,
+[Contact Number] | [Email]`,
   },
   {
     id: "decline-offer-3",
     title: "Decline Offer (Role Fit)",
     category: "Offer - Decline",
-    subject: "Decision on [Position] offer",
-    body: `Hello [Hiring Manager Name],
+    subject: "Decision on [Position] Offer",
+    body: `Good day, [Hiring Manager Name],
 
-Thank you for the offer to join [Company]. After careful consideration, I have decided to decline because the role is not the best fit for my current focus.
+Thank you very much for offering me the [Position] role at [Company]. I truly appreciate the warmth and professionalism your team showed throughout the entire process.
 
-I truly appreciate the time and effort from everyone involved and wish you and the team continued success.
+After thorough reflection, I have decided to respectfully decline the offer, as I feel the role is not the best fit for my current career direction. I hope this does not close the door on future opportunities to collaborate.
 
-Sincerely,
+I wish you and the entire team all the best.
+
+Respectfully,
 [Your Name]
-[Phone] | [Email]`,
+[Contact Number] | [Email]`,
   },
   {
     id: "decline-offer-4",
     title: "Decline Offer (Timing)",
     category: "Offer - Decline",
-    subject: "[Position] offer - update",
-    body: `Hi [Hiring Manager Name],
+    subject: "Update on [Position] Offer",
+    body: `Good day, [Hiring Manager Name],
 
-Thank you for the offer. Due to timing considerations, I will need to decline at this time. I appreciate the opportunity and enjoyed learning more about [Company].
+Thank you for the offer to join [Company] as [Position]. I genuinely appreciate the opportunity and enjoyed the conversations I had with your team.
 
-I would welcome the chance to stay in touch for future roles.
+Unfortunately, due to timing considerations on my end, I am unable to accept the offer at this time. I hope we can stay in touch, as I would welcome the chance to explore future opportunities with [Company].
 
-Best,
+Thank you again for your understanding.
+
+Respectfully,
 [Your Name]
-[Phone] | [Email]`,
+[Contact Number] | [Email]`,
   },
   {
     id: "decline-offer-5",
     title: "Decline Offer (Personal Reasons)",
     category: "Offer - Decline",
-    subject: "Thank you for the [Position] offer",
-    body: `Hello [Hiring Manager Name],
+    subject: "Thank You for the [Position] Offer",
+    body: `Good day, [Hiring Manager Name],
 
-Thank you for offering me the [Position] role at [Company]. After careful consideration, I have decided to decline the offer due to personal reasons.
+Thank you very much for the offer to join [Company] as [Position]. I am truly grateful for the time and consideration your team extended to me throughout the process.
 
-I am grateful for your time and the opportunity to meet the team. I hope we can connect again in the future.
+After careful thought, I have decided to respectfully decline the offer due to personal circumstances at this time. I sincerely hope this does not affect any possibility of reconnecting in the future.
 
-Sincerely,
+I wish [Company] and your team continued growth and success.
+
+Respectfully,
 [Your Name]
-[Phone] | [Email]`,
+[Contact Number] | [Email]`,
   },
 ];
