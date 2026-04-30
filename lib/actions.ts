@@ -100,7 +100,8 @@ function parseApplicationForm(formData: FormData) {
     contactEmail: (formData.get("contactEmail") as string)?.trim() || null,
     jobDescription: (formData.get("jobDescription") as string)?.trim() || null,
     notes: (formData.get("notes") as string)?.trim() || null,
-    companyResearch: (formData.get("companyResearch") as string)?.trim() || null,
+    companyResearch:
+      (formData.get("companyResearch") as string)?.trim() || null,
   };
 }
 
@@ -522,7 +523,10 @@ export async function deleteApplication(id: string): Promise<ActionResult> {
 // PERSONAL NOTES
 // ──────────────────────────────────────────────
 
-export async function createNote(title: string, content: string): Promise<ActionResult> {
+export async function createNote(
+  title: string,
+  content: string,
+): Promise<ActionResult> {
   try {
     const userId = await getUserId();
     const [newNote] = await db
@@ -558,12 +562,17 @@ export async function createNote(title: string, content: string): Promise<Action
   }
 }
 
-export async function updateNote(id: string, title: string, content: string): Promise<ActionResult> {
+export async function updateNote(
+  id: string,
+  title: string,
+  content: string,
+): Promise<ActionResult> {
   try {
     const userId = await getUserId();
     const existing = await getNoteById(userId, id);
 
-    await db.update(personalNotes)
+    await db
+      .update(personalNotes)
       .set({ title, content, updatedAt: new Date() })
       .where(and(eq(personalNotes.id, id), eq(personalNotes.userId, userId)));
 
@@ -605,7 +614,8 @@ export async function deleteNote(id: string): Promise<ActionResult> {
     const userId = await getUserId();
     const existing = await getNoteById(userId, id);
 
-    await db.delete(personalNotes)
+    await db
+      .delete(personalNotes)
       .where(and(eq(personalNotes.id, id), eq(personalNotes.userId, userId)));
 
     if (existing) {
@@ -625,4 +635,3 @@ export async function deleteNote(id: string): Promise<ActionResult> {
     return { success: false, error: "Failed to delete note." };
   }
 }
-
