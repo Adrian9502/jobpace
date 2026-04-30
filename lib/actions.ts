@@ -51,6 +51,16 @@ async function logActivity(
   }
 }
 
+async function getNoteById(userId: string, noteId: string) {
+  const rows = await db
+    .select()
+    .from(personalNotes)
+    .where(and(eq(personalNotes.id, noteId), eq(personalNotes.userId, userId)))
+    .limit(1);
+
+  return rows[0];
+}
+
 function revalidateDashboard() {
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/applications");
@@ -515,12 +525,32 @@ export async function deleteApplication(id: string): Promise<ActionResult> {
 export async function createNote(title: string, content: string): Promise<ActionResult> {
   try {
     const userId = await getUserId();
-    await db.insert(personalNotes).values({
+    const [newNote] = await db
+      .insert(personalNotes)
+      .values({
+        userId,
+        title,
+        content,
+      })
+      .returning();
+
+    const changes: ChangeEntry[] = [];
+    if (newNote?.title) {
+      changes.push({ field: "Title", from: null, to: newNote.title });
+    }
+    if (newNote?.content) {
+      changes.push({ field: "Content", from: null, to: "(provided)" });
+    }
+
+    await logActivity(
       userId,
-      title,
-      content,
-    });
+      "CREATE",
+      `Created note: ${newNote?.title || "Untitled"}`,
+      undefined,
+      changes,
+    );
     revalidatePath("/dashboard/notes");
+    revalidatePath("/dashboard/activity");
     return { success: true };
   } catch (err) {
     console.error("createNote error:", err);
@@ -531,10 +561,38 @@ export async function createNote(title: string, content: string): Promise<Action
 export async function updateNote(id: string, title: string, content: string): Promise<ActionResult> {
   try {
     const userId = await getUserId();
+    const existing = await getNoteById(userId, id);
+
     await db.update(personalNotes)
       .set({ title, content, updatedAt: new Date() })
       .where(and(eq(personalNotes.id, id), eq(personalNotes.userId, userId)));
+
+    if (existing) {
+      const changes: ChangeEntry[] = [];
+      if (existing.title !== title) {
+        changes.push({
+          field: "Title",
+          from: existing.title || "Untitled",
+          to: title || "Untitled",
+        });
+      }
+
+      const oldContent = existing.content ? "(provided)" : "None";
+      const newContent = content ? "(provided)" : "None";
+      if (oldContent !== newContent) {
+        changes.push({ field: "Content", from: oldContent, to: newContent });
+      }
+
+      await logActivity(
+        userId,
+        "UPDATE",
+        `Updated note: ${title || existing.title || "Untitled"}`,
+        undefined,
+        changes,
+      );
+    }
     revalidatePath("/dashboard/notes");
+    revalidatePath("/dashboard/activity");
     return { success: true };
   } catch (err) {
     console.error("updateNote error:", err);
@@ -545,9 +603,22 @@ export async function updateNote(id: string, title: string, content: string): Pr
 export async function deleteNote(id: string): Promise<ActionResult> {
   try {
     const userId = await getUserId();
+    const existing = await getNoteById(userId, id);
+
     await db.delete(personalNotes)
       .where(and(eq(personalNotes.id, id), eq(personalNotes.userId, userId)));
+
+    if (existing) {
+      await logActivity(
+        userId,
+        "DELETE",
+        `Deleted note: ${existing.title || "Untitled"}`,
+        undefined,
+        [{ field: "Note", from: existing.title || "Untitled", to: null }],
+      );
+    }
     revalidatePath("/dashboard/notes");
+    revalidatePath("/dashboard/activity");
     return { success: true };
   } catch (err) {
     console.error("deleteNote error:", err);
