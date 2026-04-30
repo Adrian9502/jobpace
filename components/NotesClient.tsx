@@ -132,16 +132,6 @@ export default function NotesClient({ initialNotes }: Props) {
 
   return (
     <div className="flex flex-col h-[calc(100vh-140px)] gap-4">
-      {/* Header */}
-      <div>
-        <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
-          Notes
-        </h2>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          Organize your job search research and personal notes.
-        </p>
-      </div>
-
       {/* Notes Sidebar + Editor */}
       <div className="flex flex-1 overflow-hidden gap-4">
         {/* Notes Sidebar */}

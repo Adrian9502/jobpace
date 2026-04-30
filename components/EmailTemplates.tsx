@@ -56,16 +56,6 @@ export default function EmailTemplates() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
-          Email Templates
-        </h2>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          Professional templates to help you communicate effectively with
-          recruiters.
-        </p>
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Sidebar */}
         <div className="lg:col-span-4 space-y-4">
