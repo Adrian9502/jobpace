@@ -6,7 +6,7 @@ import { createNote, updateNote, deleteNote } from "@/lib/actions";
 import type { PersonalNoteRow } from "@/lib/queries";
 import { toast } from "sonner";
 import { formatDate } from "@/lib/utils";
-import DeleteConfirmModal from "./DeleteConfirmModal";
+import DeleteConfirmModal from "../DeleteConfirmModal";
 import NoteEditor from "@/components/notes/NoteEditor";
 interface Props {
   initialNotes: PersonalNoteRow[];

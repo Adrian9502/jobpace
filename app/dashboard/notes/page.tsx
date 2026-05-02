@@ -1,5 +1,5 @@
 import { getPersonalNotes } from "@/lib/queries";
-import NotesClient from "@/components/NotesClient";
+import NotesClient from "@/components/notes/NotesClient";
 
 export const metadata = {
   title: "Notes - JobPace",
