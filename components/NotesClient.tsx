@@ -1,85 +1,15 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Plus, Search, Trash2, FileText, Save, Clock } from "lucide-react";
+import { Plus, Search, FileText, StickyNote } from "lucide-react";
 import { createNote, updateNote, deleteNote } from "@/lib/actions";
 import type { PersonalNoteRow } from "@/lib/queries";
 import { toast } from "sonner";
 import { formatDate } from "@/lib/utils";
 import DeleteConfirmModal from "./DeleteConfirmModal";
-
+import NoteEditor from "@/components/notes/NoteEditor";
 interface Props {
   initialNotes: PersonalNoteRow[];
-}
-
-function NoteEditor({
-  note,
-  isPending,
-  onSave,
-  onDelete,
-}: {
-  note: PersonalNoteRow;
-  isPending: boolean;
-  onSave: (title: string, content: string) => void;
-  onDelete: () => void;
-}) {
-  const [title, setTitle] = useState(note.title || "");
-  const [content, setContent] = useState(note.content || "");
-  const hasChanges =
-    title !== (note.title || "") || content !== (note.content || "");
-
-  return (
-    <div className="flex-1 flex flex-col overflow-hidden">
-      {/* Editor Header */}
-      <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/30 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">
-          <Clock className="w-3 h-3" />
-          Last edited {formatDate(note.updatedAt)}
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={onDelete}
-            disabled={isPending}
-            className="p-2 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-all"
-            title="Delete Note"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => onSave(title, content)}
-            disabled={isPending || !hasChanges}
-            className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
-              hasChanges
-                ? "bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:opacity-90"
-                : "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 cursor-not-allowed"
-            }`}
-          >
-            <Save className="w-4 h-4" />
-            {isPending ? "Saving..." : "Save"}
-          </button>
-        </div>
-      </div>
-
-      {/* Editor Body */}
-      <div className="flex-1 overflow-y-auto p-6 sm:p-12">
-        <div className="max-w-3xl mx-auto space-y-6">
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Note Title"
-            className="w-full text-3xl sm:text-4xl font-bold bg-transparent border-none focus:outline-none placeholder:text-zinc-200 dark:placeholder:text-zinc-800 text-zinc-900 dark:text-zinc-100"
-          />
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Start typing your thoughts..."
-            className="w-full h-[calc(100vh-350px)] text-lg bg-transparent border-none focus:outline-none resize-none placeholder:text-zinc-200 dark:placeholder:text-zinc-800 text-zinc-700 dark:text-zinc-300 leading-relaxed font-serif"
-          />
-        </div>
-      </div>
-    </div>
-  );
 }
 
 export default function NotesClient({ initialNotes }: Props) {
@@ -89,25 +19,22 @@ export default function NotesClient({ initialNotes }: Props) {
   );
   const [search, setSearch] = useState("");
   const [isPending, startTransition] = useTransition();
-
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const activeNoteId = selectedId ?? notes[0]?.id ?? null;
   const selectedNote = notes.find((n) => n.id === activeNoteId) ?? null;
 
-  const filteredNotes = notes.filter((n) =>
-    n.title.toLowerCase().includes(search.toLowerCase()),
+  const filteredNotes = notes.filter(
+    (n) =>
+      n.title.toLowerCase().includes(search.toLowerCase()) ||
+      (n.content ?? "").toLowerCase().includes(search.toLowerCase()),
   );
 
   const handleAddNote = () => {
     startTransition(async () => {
-      const title = "New Note";
-      const content = "";
-      const result = await createNote(title, content);
+      const result = await createNote("New Note", "");
       if (result.success) {
         toast.success("Note created");
-        // Re-fetch or update local state logic would go here if not using revalidatePath properly
-        // For simplicity, we'll assume revalidatePath triggers a server refresh of the props
       } else {
         toast.error(result.error || "Failed to create note");
       }
@@ -118,7 +45,7 @@ export default function NotesClient({ initialNotes }: Props) {
     startTransition(async () => {
       const result = await updateNote(noteId, title, content);
       if (result.success) {
-        toast.success("Note saved");
+        toast.success("Saved");
       } else {
         toast.error(result.error || "Failed to save note");
       }
@@ -131,112 +58,121 @@ export default function NotesClient({ initialNotes }: Props) {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-140px)] gap-4">
-      {/* Notes Sidebar + Editor */}
-      <div className="flex flex-1 overflow-hidden gap-4">
-        {/* Notes Sidebar */}
-        <div className="w-full sm:w-80 flex flex-col bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden">
-          <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/30 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-blue-600" />
-                My Notes
-              </h2>
-              <button
-                onClick={handleAddNote}
-                disabled={isPending}
-                className="p-1.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
-              >
-                <Plus className="w-4 h-4" />
-              </button>
+    <div className="flex h-[calc(100vh-140px)] gap-0 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden shadow-sm">
+      {/* ── Sidebar ────────────────────────────────── */}
+      <div className="w-72 shrink-0 flex flex-col border-r border-zinc-100 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-900/40">
+        {/* Sidebar header */}
+        <div className="px-4 pt-4 pb-3 space-y-3 border-b border-zinc-100 dark:border-zinc-800">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <StickyNote className="w-4 h-4 text-zinc-400" />
+              <span className="text-sm font-medium text-zinc-500 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full">
+                {notes.length} notes
+              </span>
             </div>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
-              <input
-                type="text"
-                placeholder="Search notes..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-9 pr-4 py-1.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
-              />
-            </div>
+            <button
+              onClick={handleAddNote}
+              disabled={isPending}
+              className="w-7 h-7 flex items-center justify-center rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
+            >
+              <Plus className="w-3.5 h-3.5" />
+            </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-2 space-y-1">
-            {filteredNotes.map((note) => (
-              <button
-                key={note.id}
-                onClick={() => setSelectedId(note.id)}
-                className={`w-full text-left p-3 rounded-xl transition-all group ${
-                  activeNoteId === note.id
-                    ? "bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 ring-1 ring-zinc-200/50 dark:ring-zinc-700/50"
-                    : "hover:bg-zinc-100 dark:hover:bg-zinc-800/50 border border-transparent"
-                }`}
-              >
-                <p
-                  className={`text-sm font-semibold truncate ${
-                    activeNoteId === note.id
-                      ? "text-blue-600 dark:text-blue-400"
-                      : "text-zinc-700 dark:text-zinc-300"
-                  }`}
-                >
-                  {note.title || "Untitled"}
-                </p>
-                <div className="flex items-center gap-2 mt-1.5">
-                  <Clock className="w-3 h-3 text-zinc-400" />
-                  <p className="text-[10px] text-zinc-500 dark:text-zinc-500">
-                    {formatDate(note.updatedAt)}
-                  </p>
-                </div>
-              </button>
-            ))}
-            {filteredNotes.length === 0 && (
-              <div className="py-12 text-center">
-                <FileText className="w-8 h-8 text-zinc-200 dark:text-zinc-800 mx-auto mb-2" />
-                <p className="text-xs text-zinc-400">No notes found</p>
-              </div>
-            )}
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400" />
+            <input
+              type="text"
+              placeholder="Search notes…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-8 pr-3 py-1.5 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all placeholder:text-zinc-400"
+            />
           </div>
         </div>
 
-        {/* Editor Area */}
-        <div className="flex-1 flex flex-col bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden">
-          {selectedNote ? (
-            <NoteEditor
-              key={selectedNote.id}
-              note={selectedNote}
-              isPending={isPending}
-              onSave={(title, content) =>
-                handleSave(selectedNote.id, title, content)
-              }
-              onDelete={handleDelete}
-            />
-          ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-center p-12">
-              <div className="w-16 h-16 rounded-3xl bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center mb-4">
-                <FileText className="w-8 h-8 text-zinc-300 dark:text-zinc-700" />
-              </div>
-              <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
-                No Note Selected
-              </h3>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1 max-w-xs mx-auto">
-                Select a note from the sidebar or create a new one to get
-                started.
-              </p>
-              <button
-                onClick={handleAddNote}
-                disabled={isPending}
-                className="mt-6 flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20"
-              >
-                <Plus className="w-4 h-4" />
-                Create First Note
-              </button>
+        {/* Note list */}
+        <div className="flex-1 overflow-y-auto py-2 px-2 space-y-0.5">
+          {filteredNotes.length === 0 ? (
+            <div className="py-12 text-center">
+              <FileText className="w-7 h-7 text-zinc-200 dark:text-zinc-800 mx-auto mb-2" />
+              <p className="text-xs text-zinc-400">No notes found</p>
             </div>
+          ) : (
+            filteredNotes.map((note) => {
+              const isActive = activeNoteId === note.id;
+              const preview =
+                (note.content ?? "").trim().slice(0, 80) || "No content";
+
+              return (
+                <button
+                  key={note.id}
+                  onClick={() => setSelectedId(note.id)}
+                  className={`w-full text-left px-3 py-3 rounded-lg transition-all group ${
+                    isActive
+                      ? "bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700"
+                      : "hover:bg-white/70 dark:hover:bg-zinc-800/50 border border-transparent"
+                  }`}
+                >
+                  <p
+                    className={`text-sm font-semibold truncate leading-snug ${
+                      isActive
+                        ? "text-blue-600 dark:text-blue-400"
+                        : "text-zinc-700 dark:text-zinc-300"
+                    }`}
+                  >
+                    {note.title || "Untitled"}
+                  </p>
+                  <p className="text-xs text-zinc-400 dark:text-zinc-500 truncate mt-0.5 leading-relaxed">
+                    {preview}
+                  </p>
+                  <p className="text-[10px] text-zinc-300 dark:text-zinc-600 mt-1.5">
+                    {formatDate(note.updatedAt)}
+                  </p>
+                </button>
+              );
+            })
           )}
         </div>
       </div>
 
-      {/* Delete Modal */}
+      {/* ── Editor ─────────────────────────────────── */}
+      <div className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-zinc-950">
+        {selectedNote ? (
+          <NoteEditor
+            key={selectedNote.id}
+            note={selectedNote}
+            isPending={isPending}
+            onSave={(title, content) =>
+              handleSave(selectedNote.id, title, content)
+            }
+            onDelete={handleDelete}
+          />
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center text-center p-12">
+            <div className="w-14 h-14 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 flex items-center justify-center mb-4">
+              <StickyNote className="w-6 h-6 text-zinc-300 dark:text-zinc-700" />
+            </div>
+            <h3 className="text-base font-semibold text-zinc-800 dark:text-zinc-200">
+              No note selected
+            </h3>
+            <p className="text-sm text-zinc-400 mt-1 max-w-xs">
+              Pick a note from the sidebar or create a new one.
+            </p>
+            <button
+              onClick={handleAddNote}
+              disabled={isPending}
+              className="mt-5 flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-all"
+            >
+              <Plus className="w-4 h-4" />
+              New Note
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Delete modal */}
       {selectedNote && (
         <DeleteConfirmModal
           open={isDeleteModalOpen}
