@@ -14,7 +14,11 @@ if (!connectionString) {
 
 export const pool = new Pool({
   connectionString,
-  ssl: isDev ? false : { rejectUnauthorized: false },
+  ssl: isDev
+    ? false
+    : {
+        rejectUnauthorized: true,
+      },
 });
 
 export const db = drizzle(pool, { schema });
