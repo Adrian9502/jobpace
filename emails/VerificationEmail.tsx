@@ -27,20 +27,36 @@ export function VerificationEmail({ verificationUrl }: VerificationEmailProps) {
         <Container style={container}>
           {/* Header */}
           <Section style={headerSection}>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <img
-                src={`${APP_URL}/jobpace-logo-blue.png`}
-                alt="JobPace"
-                width={33}
-                height={33}
-                style={{ borderRadius: "8px", border: "1px solid #cbd5e1" }}
-              />
-              <span
-                style={{ fontSize: "20px", fontWeight: 700, color: "#ffffff" }}
-              >
-                JobPace
-              </span>
-            </div>
+            <table cellPadding={0} cellSpacing={0} style={{ margin: "0 auto" }}>
+              <tbody>
+                <tr>
+                  <td style={{ verticalAlign: "middle", paddingRight: "10px" }}>
+                    <img
+                      src={`${APP_URL}/jobpace-logo-blue.png`}
+                      alt="JobPace"
+                      width={33}
+                      height={33}
+                      style={{
+                        borderRadius: "8px",
+                        border: "1px solid #cbd5e1",
+                        display: "block",
+                      }}
+                    />
+                  </td>
+                  <td style={{ verticalAlign: "middle" }}>
+                    <span
+                      style={{
+                        fontSize: "20px",
+                        fontWeight: 700,
+                        color: "#ffffff",
+                      }}
+                    >
+                      JobPace
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </Section>
           {/* Content */}
           <Section style={contentSection}>

@@ -21,25 +21,41 @@ export function WelcomeEmail({ name }: WelcomeEmailProps) {
   return (
     <Html>
       <Head />
-      <Preview>Welcome to JobPace — let's get you hired!</Preview>
+      <Preview>Welcome to JobPace - let's get you hired!</Preview>
       <Body style={main}>
         <Container style={container}>
           {/* Header */}
           <Section style={headerSection}>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <img
-                src={`${APP_URL}/jobpace-logo-blue.png`}
-                alt="JobPace"
-                width={33}
-                height={33}
-                style={{ borderRadius: "8px", border: "1px solid #93c5fd" }}
-              />
-              <span
-                style={{ fontSize: "20px", fontWeight: 700, color: "#ffffff" }}
-              >
-                JobPace
-              </span>
-            </div>
+            <table cellPadding={0} cellSpacing={0} style={{ margin: "0 auto" }}>
+              <tbody>
+                <tr>
+                  <td style={{ verticalAlign: "middle", paddingRight: "10px" }}>
+                    <img
+                      src={`${APP_URL}/jobpace-logo-blue.png`}
+                      alt="JobPace"
+                      width={33}
+                      height={33}
+                      style={{
+                        borderRadius: "8px",
+                        border: "1px solid #cbd5e1",
+                        display: "block",
+                      }}
+                    />
+                  </td>
+                  <td style={{ verticalAlign: "middle" }}>
+                    <span
+                      style={{
+                        fontSize: "20px",
+                        fontWeight: 700,
+                        color: "#ffffff",
+                      }}
+                    >
+                      JobPace
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </Section>
 
           {/* Content */}
@@ -49,7 +65,7 @@ export function WelcomeEmail({ name }: WelcomeEmailProps) {
             </Heading>
             <Text style={paragraph}>
               We're glad you're here. JobPace was built to take the chaos out of
-              your job search — one application at a time.
+              your job search - one application at a time.
             </Text>
 
             {/* Features */}
