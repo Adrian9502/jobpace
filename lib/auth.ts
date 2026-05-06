@@ -7,6 +7,7 @@ import { db } from "./db";
 import { users } from "./schema";
 import { eq } from "drizzle-orm";
 import { compare } from "bcryptjs";
+import { sendWelcomeEmail } from "./email";
 
 const authSecret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
 
@@ -72,6 +73,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
   events: {
+    // Send welcome email for OAuth sign-ups (Google users)
+    async createUser({ user }) {
+      if (user.email && user.name) {
+        await sendWelcomeEmail(user.email, user.name);
+      }
+    },
     // Auto-verify email for OAuth sign-ups (Google users are inherently verified)
     async linkAccount({ user }) {
       if (user.id) {

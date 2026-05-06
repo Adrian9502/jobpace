@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { users, verificationTokens } from "@/lib/schema";
 import { eq, and } from "drizzle-orm";
+import { sendWelcomeEmail } from "@/lib/email";
 
 export const runtime = "nodejs";
 
@@ -65,6 +66,11 @@ export async function GET(request: NextRequest) {
       .update(users)
       .set({ emailVerified: new Date() })
       .where(eq(users.id, user.id));
+
+    // Send welcome email
+    if (user.email && user.name) {
+      await sendWelcomeEmail(user.email, user.name);
+    }
 
     // Delete the used token
     await db

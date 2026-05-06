@@ -1,6 +1,5 @@
 import {
   Body,
-  Button,
   Container,
   Head,
   Heading,
@@ -12,17 +11,17 @@ import {
 } from "@react-email/components";
 import * as React from "react";
 
-interface VerificationEmailProps {
-  verificationUrl: string;
+interface WelcomeEmailProps {
+  name: string;
 }
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-export function VerificationEmail({ verificationUrl }: VerificationEmailProps) {
+export function WelcomeEmail({ name }: WelcomeEmailProps) {
   return (
     <Html>
       <Head />
-      <Preview>Verify your email to get started with JobPace</Preview>
+      <Preview>Welcome to JobPace — let's get you hired!</Preview>
       <Body style={main}>
         <Container style={container}>
           {/* Header */}
@@ -33,7 +32,7 @@ export function VerificationEmail({ verificationUrl }: VerificationEmailProps) {
                 alt="JobPace"
                 width={33}
                 height={33}
-                style={{ borderRadius: "8px", border: "1px solid #cbd5e1" }}
+                style={{ borderRadius: "8px", border: "1px solid #93c5fd" }}
               />
               <span
                 style={{ fontSize: "20px", fontWeight: 700, color: "#ffffff" }}
@@ -42,43 +41,73 @@ export function VerificationEmail({ verificationUrl }: VerificationEmailProps) {
               </span>
             </div>
           </Section>
+
           {/* Content */}
           <Section style={contentSection}>
             <Heading as="h1" style={heading}>
-              Verify your email address
+              Welcome, {name}!
             </Heading>
             <Text style={paragraph}>
-              Thanks for signing up for JobPace! Please click the button below
-              to verify your email address and activate your account.
+              We're glad you're here. JobPace was built to take the chaos out of
+              your job search — one application at a time.
             </Text>
+
+            {/* Features */}
+            <div style={featureBox}>
+              <div style={featureItem}>
+                <span style={featureCheck}>✓</span>
+                <div>
+                  <Text style={featureHeading}>Add your first application</Text>
+                  <Text style={featureDescription}>
+                    Track where you've applied and keep all the details in one
+                    place.
+                  </Text>
+                </div>
+              </div>
+              <div style={featureItem}>
+                <span style={featureCheck}>✓</span>
+                <div>
+                  <Text style={featureHeading}>Move through stages</Text>
+                  <Text style={featureDescription}>
+                    Drag and drop applications across your Kanban board as you
+                    progress.
+                  </Text>
+                </div>
+              </div>
+              <div style={{ ...featureItem, marginBottom: 0 }}>
+                <span style={featureCheck}>✓</span>
+                <div>
+                  <Text style={featureHeading}>Analyze your progress</Text>
+                  <Text style={featureDescription}>
+                    See your response rates and identify where you can improve.
+                  </Text>
+                </div>
+              </div>
+            </div>
 
             {/* CTA Button */}
             <Section style={buttonContainer}>
-              <Button style={button} href={verificationUrl}>
-                Verify Email Address
-              </Button>
+              <Link style={button} href={`${APP_URL}/dashboard`}>
+                Go to Dashboard
+              </Link>
             </Section>
 
-            {/* Expiry Notice */}
-            <Text style={expiryText}>
-              This link will expire in <strong>30 minutes</strong>.
+            <Text style={paragraph}>
+              If you have any questions, just reply to this email. I'm happy to
+              help.
             </Text>
-
-            {/* Fallback URL */}
-            <Text style={fallbackText}>
-              If the button above doesn&apos;t work, copy and paste this URL
-              into your browser:
+            <Text style={paragraph}>
+              Best,
+              <br />
+              John Adrian Bonto
             </Text>
-            <Link href={verificationUrl} style={linkText}>
-              {verificationUrl}
-            </Link>
           </Section>
 
           {/* Footer */}
           <Section style={footerSection}>
             <Text style={footerText}>
-              If you didn&apos;t create a JobPace account, you can safely ignore
-              this email.
+              You received this email because you recently created a JobPace
+              account.
             </Text>
             <Text style={footerCopyright}>
               © {new Date().getFullYear()} JobPace. All rights reserved.
@@ -90,7 +119,7 @@ export function VerificationEmail({ verificationUrl }: VerificationEmailProps) {
   );
 }
 
-export default VerificationEmail;
+export default WelcomeEmail;
 
 // ──────────────────────────────────────────────
 // Styles
@@ -118,7 +147,7 @@ const headerSection: React.CSSProperties = {
 };
 
 const contentSection: React.CSSProperties = {
-  padding: "32px 32px 32px",
+  padding: "32px 32px 24px",
 };
 
 const heading: React.CSSProperties = {
@@ -134,6 +163,44 @@ const paragraph: React.CSSProperties = {
   fontSize: "15px",
   lineHeight: "1.6",
   margin: "0 0 24px",
+};
+
+const featureBox: React.CSSProperties = {
+  backgroundColor: "#f9fafb",
+  border: "1px solid #e5e7eb",
+  borderRadius: "8px",
+  padding: "20px 24px",
+  marginBottom: "24px",
+};
+
+const featureItem: React.CSSProperties = {
+  display: "flex",
+  alignItems: "flex-start",
+  gap: "12px",
+  marginBottom: "16px",
+};
+
+const featureCheck: React.CSSProperties = {
+  color: "#2563eb",
+  fontSize: "16px",
+  fontWeight: 700,
+  marginTop: "1px",
+  flexShrink: 0,
+  lineHeight: "1.4",
+};
+
+const featureHeading: React.CSSProperties = {
+  color: "#111827",
+  fontSize: "14px",
+  fontWeight: 600,
+  margin: "0 0 2px",
+};
+
+const featureDescription: React.CSSProperties = {
+  color: "#6b7280",
+  fontSize: "13px",
+  lineHeight: "1.5",
+  margin: 0,
 };
 
 const buttonContainer: React.CSSProperties = {
@@ -152,36 +219,9 @@ const button: React.CSSProperties = {
   textDecoration: "none",
 };
 
-const expiryText: React.CSSProperties = {
-  backgroundColor: "#eff6ff",
-  border: "1px solid #bfdbfe",
-  borderRadius: "8px",
-  color: "#1e40af",
-  fontSize: "13px",
-  lineHeight: "1.5",
-  margin: "0 0 24px",
-  padding: "12px 16px",
-  textAlign: "center" as const,
-};
-
-const fallbackText: React.CSSProperties = {
-  color: "#6b7280",
-  fontSize: "13px",
-  lineHeight: "1.5",
-  margin: "0 0 8px",
-};
-
-const linkText: React.CSSProperties = {
-  color: "#2563eb",
-  fontSize: "13px",
-  lineHeight: "1.5",
-  wordBreak: "break-all" as const,
-};
-
 const footerSection: React.CSSProperties = {
   borderTop: "1px solid #e5e7eb",
-  padding: "24px 32px 32px",
-  backgroundColor: "#f9fafb",
+  padding: "24px 32px",
 };
 
 const footerText: React.CSSProperties = {
