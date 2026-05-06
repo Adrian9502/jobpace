@@ -7,7 +7,7 @@ import {
   passwordResetTokens,
   sessions,
 } from "@/lib/schema";
-import { eq, and, lt } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { hash, compare } from "bcryptjs";
 import { signIn } from "@/lib/auth";
 import { getUserId, getSession } from "@/lib/auth-helpers";
@@ -121,6 +121,49 @@ export async function signUpWithCredentials(
     // Check if email already exists
     const existingUser = await findUserByEmail(email);
     if (existingUser) {
+      if (!existingUser.emailVerified) {
+        // Check for valid verification tokens
+        const tokens = await db
+          .select()
+          .from(verificationTokens)
+          .where(eq(verificationTokens.identifier, email.toLowerCase()));
+
+        const hasValidToken = tokens.some(t => new Date() <= t.expires);
+
+        if (!hasValidToken) {
+          // No valid token exists, treat as incomplete registration and overwrite
+          await db
+            .delete(verificationTokens)
+            .where(eq(verificationTokens.identifier, email.toLowerCase()));
+
+          const hashedPassword = await hash(password, SALT_ROUNDS);
+          await db
+            .update(users)
+            .set({
+              name,
+              password: hashedPassword,
+            })
+            .where(eq(users.id, existingUser.id));
+
+          const token = await generateToken();
+          const expires = new Date(Date.now() + TOKEN_EXPIRY_MS);
+
+          await db.insert(verificationTokens).values({
+            identifier: email.toLowerCase(),
+            token,
+            expires,
+          });
+
+          await sendVerificationEmail(email.toLowerCase(), token);
+          return { success: true };
+        } else {
+          return {
+            success: false,
+            fieldErrors: { email: ["An account with this email is pending verification. Please check your inbox."] },
+          };
+        }
+      }
+
       return {
         success: false,
         fieldErrors: { email: ["An account with this email already exists"] },

@@ -8,6 +8,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import PolicyModal from "../PolicyModal";
+import VerificationModal from "./VerificationModal";
 import ThemeToggle from "../ThemeToggle";
 import {
   signUpWithCredentials,
@@ -125,7 +126,8 @@ export default function LandingContent() {
           );
           setUnverifiedEmail(formData.get("email") as string);
           setShowVerificationNotice(true);
-          setActiveTab("signin");
+          setResendCooldown(60);
+          setPassword("");
           setIsSubmitting(false);
           return;
         }
@@ -268,38 +270,7 @@ export default function LandingContent() {
                 ))}
               </div>
 
-              {/* Verification Notice */}
-              <AnimatePresence>
-                {showVerificationNotice && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="mb-3 overflow-hidden"
-                  >
-                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-3.5">
-                      <p className="text-sm text-amber-800 dark:text-amber-200 font-medium mb-1.5">
-                        Please verify your email address before signing in.
-                      </p>
-                      <p className="text-xs text-amber-600 dark:text-amber-400 mb-2.5">
-                        Check your inbox for a verification link. Didn&apos;t
-                        get it?
-                      </p>
-                      <button
-                        onClick={handleResendVerification}
-                        disabled={isResending || resendCooldown > 0}
-                        className="text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer disabled:opacity-50"
-                      >
-                        {isResending
-                          ? "Sending..."
-                          : resendCooldown > 0
-                            ? `Resend available in ${resendCooldown}s`
-                            : "Resend verification email"}
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+
 
               {/* General Error */}
               <AnimatePresence>
@@ -521,6 +492,15 @@ export default function LandingContent() {
             </div>
           </motion.div>
         </div>
+
+        <VerificationModal
+          isOpen={showVerificationNotice}
+          onClose={() => setShowVerificationNotice(false)}
+          email={unverifiedEmail}
+          onResend={handleResendVerification}
+          isResending={isResending}
+          resendCooldown={resendCooldown}
+        />
 
         <PolicyModal
           isOpen={modalType === "terms"}
