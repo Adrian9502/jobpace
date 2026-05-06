@@ -8,6 +8,7 @@ export const users = pgTable("users", {
   email: text("email").notNull(),
   emailVerified: timestamp("emailVerified", { withTimezone: true }),
   image: text("image"),
+  password: text("password"),
 });
 
 export const accounts = pgTable("accounts", {
@@ -44,6 +45,18 @@ export const verificationTokens = pgTable("verification_tokens", {
   identifier: text("identifier").notNull(),
   token: text("token").notNull(),
   expires: timestamp("expires", { withTimezone: true }).notNull(),
+});
+
+export const passwordResetTokens = pgTable("password_reset_tokens", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  token: text("token").notNull().unique(),
+  expires: timestamp("expires", { withTimezone: true }).notNull(),
+  createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow(),
 });
 
 // YOUR APP TABLES GO BELOW HERE 👇
