@@ -3,6 +3,7 @@ import { render } from "@react-email/render";
 import { VerificationEmail } from "@/emails/VerificationEmail";
 import { PasswordResetEmail } from "@/emails/PasswordResetEmail";
 import { WelcomeEmail } from "@/emails/WelcomeEmail";
+import { PasswordChangedEmail } from "@/emails/PasswordChangedEmail";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
@@ -18,7 +19,7 @@ export async function sendVerificationEmail(
   email: string,
   token: string,
 ): Promise<void> {
-  const verificationUrl = `${APP_URL}/api/auth/verify-email?token=${token}`;
+  const verificationUrl = `${APP_URL}/api/auth/verify-email?token=${token}&email=${encodeURIComponent(email)}`;
   
   const html = await render(VerificationEmail({ verificationUrl }));
 
@@ -72,5 +73,26 @@ export async function sendWelcomeEmail(
   } catch (error) {
     console.error("Nodemailer welcome email error:", error);
     // Don't throw here to avoid blocking sign-in if welcome email fails
+  }
+}
+
+export async function sendPasswordChangedEmail(
+  email: string,
+  name: string,
+  ipAddress: string,
+  time: string,
+  date: string,
+): Promise<void> {
+  const html = await render(PasswordChangedEmail({ name, ipAddress, time, date }));
+
+  try {
+    await transporter.sendMail({
+      from: `"JobPace Security" <${process.env.EMAIL_SERVER_USER}>`,
+      to: email,
+      subject: "Security Alert: Your password was changed",
+      html,
+    });
+  } catch (error) {
+    console.error("Nodemailer password changed email error:", error);
   }
 }

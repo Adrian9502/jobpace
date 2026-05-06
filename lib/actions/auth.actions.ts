@@ -1,12 +1,21 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { users, verificationTokens, passwordResetTokens, sessions } from "@/lib/schema";
+import {
+  users,
+  verificationTokens,
+  passwordResetTokens,
+  sessions,
+} from "@/lib/schema";
 import { eq, and, lt } from "drizzle-orm";
 import { hash, compare } from "bcryptjs";
 import { signIn } from "@/lib/auth";
 import { getUserId, getSession } from "@/lib/auth-helpers";
-import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/email";
+import {
+  sendVerificationEmail,
+  sendPasswordResetEmail,
+  sendPasswordChangedEmail,
+} from "@/lib/email";
 import {
   signUpSchema,
   signInSchema,
@@ -16,6 +25,7 @@ import {
   extractFieldErrors,
 } from "@/lib/validations/auth";
 import { AuthError } from "next-auth";
+import { headers } from "next/headers";
 
 // ──────────────────────────────────────────────
 // Types
@@ -385,25 +395,47 @@ export async function resetPassword(
       })
       .where(eq(users.id, resetToken.userId));
 
-    // Delete the used token
-    await db
-      .delete(passwordResetTokens)
-      .where(eq(passwordResetTokens.id, resetToken.id));
-
     // Invalidate all existing sessions for this user
-    await db
-      .delete(sessions)
-      .where(eq(sessions.userId, resetToken.userId));
+    await db.delete(sessions).where(eq(sessions.userId, resetToken.userId));
 
-    // Clean up any other expired tokens for this user
-    await db
-      .delete(passwordResetTokens)
-      .where(
-        and(
-          eq(passwordResetTokens.userId, resetToken.userId),
-          lt(passwordResetTokens.expires, new Date()),
-        ),
-      );
+    // Send password changed notification
+    try {
+      const [updatedUser] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, resetToken.userId))
+        .limit(1);
+
+      if (updatedUser?.email) {
+        const headersList = await headers();
+        const ip =
+          headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+          headersList.get("x-real-ip") ||
+          "Unknown";
+
+        const now = new Date();
+        const date = now.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+        const time = now.toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+          timeZoneName: "short",
+        });
+
+        await sendPasswordChangedEmail(
+          updatedUser.email,
+          updatedUser.name ?? "User",
+          ip,
+          time,
+          date,
+        );
+      }
+    } catch {
+      // Don't block response if email fails
+    }
 
     return { success: true };
   } catch (error) {
@@ -478,6 +510,37 @@ export async function changePassword(
       .update(users)
       .set({ password: hashedPassword })
       .where(eq(users.id, userId));
+
+    // Send password changed notification
+    try {
+      const headersList = await headers();
+      const ip =
+        headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+        headersList.get("x-real-ip") ||
+        "Unknown";
+
+      const now = new Date();
+      const date = now.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+      const time = now.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        timeZoneName: "short",
+      });
+
+      await sendPasswordChangedEmail(
+        user.email!,
+        user.name ?? "User",
+        ip,
+        time,
+        date,
+      );
+    } catch {
+      // Don't block response if email fails
+    }
 
     return { success: true };
   } catch (error) {

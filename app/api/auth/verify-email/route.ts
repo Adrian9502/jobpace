@@ -10,13 +10,27 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const token = searchParams.get("token");
+    const email = searchParams.get("email");
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
     if (!token) {
-      return NextResponse.redirect(
-        `${appUrl}/?error=missing_token`,
-      );
+      return NextResponse.redirect(`${appUrl}/?error=missing_token`);
     }
+
+    // Check if the user is already verified (handles email scanners pre-fetching the link)
+    if (email) {
+      const [existingUser] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, email))
+        .limit(1);
+
+      if (existingUser && existingUser.emailVerified) {
+        return NextResponse.redirect(`${appUrl}/?verified=true`);
+      }
+    }
+
+    const emailParam = email ? `&email=${encodeURIComponent(email)}` : "";
 
     // Look up the token
     const [verificationRecord] = await db
@@ -26,9 +40,7 @@ export async function GET(request: NextRequest) {
       .limit(1);
 
     if (!verificationRecord) {
-      return NextResponse.redirect(
-        `${appUrl}/?error=invalid_token`,
-      );
+      return NextResponse.redirect(`${appUrl}/?error=invalid_token${emailParam}`);
     }
 
     // Check if token has expired
@@ -43,9 +55,7 @@ export async function GET(request: NextRequest) {
           ),
         );
 
-      return NextResponse.redirect(
-        `${appUrl}/?error=token_expired`,
-      );
+      return NextResponse.redirect(`${appUrl}/?error=token_expired${emailParam}`);
     }
 
     // Find the user by email (identifier)
@@ -56,9 +66,7 @@ export async function GET(request: NextRequest) {
       .limit(1);
 
     if (!user) {
-      return NextResponse.redirect(
-        `${appUrl}/?error=user_not_found`,
-      );
+      return NextResponse.redirect(`${appUrl}/?error=user_not_found${emailParam}`);
     }
 
     // Set emailVerified

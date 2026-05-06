@@ -35,9 +35,20 @@ export default function LandingContent() {
   const [showVerificationNotice, setShowVerificationNotice] = useState(false);
   const [unverifiedEmail, setUnverifiedEmail] = useState<string>("");
   const [isResending, setIsResending] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
   const [passwordFocused, setPasswordFocused] = useState(false);
 
   const { password, setPassword, validation } = usePasswordValidation();
+
+  // Handle cooldown timer
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setInterval(
+      () => setResendCooldown((prev) => prev - 1),
+      1000,
+    );
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
 
   // Show requirements when focused OR has value, signup tab only
   const showRequirements =
@@ -51,10 +62,22 @@ export default function LandingContent() {
         "Password reset successfully! Sign in with your new password.",
       );
     const error = searchParams.get("error");
-    if (error === "invalid_token" || error === "missing_token")
+    const emailStr = searchParams.get("email");
+
+    if (error === "invalid_token" || error === "missing_token") {
       toast.error("Invalid verification link. Please request a new one.");
-    if (error === "token_expired")
+      if (emailStr) {
+        setUnverifiedEmail(emailStr);
+        setShowVerificationNotice(true);
+      }
+    }
+    if (error === "token_expired") {
       toast.error("Verification link has expired. Please request a new one.");
+      if (emailStr) {
+        setUnverifiedEmail(emailStr);
+        setShowVerificationNotice(true);
+      }
+    }
   }, [searchParams]);
 
   useEffect(() => {
@@ -100,6 +123,8 @@ export default function LandingContent() {
           toast.success(
             "Account created! Check your email to verify your account.",
           );
+          setUnverifiedEmail(formData.get("email") as string);
+          setShowVerificationNotice(true);
           setActiveTab("signin");
           setIsSubmitting(false);
           return;
@@ -128,13 +153,16 @@ export default function LandingContent() {
   };
 
   const handleResendVerification = async () => {
-    if (!unverifiedEmail) return;
+    if (!unverifiedEmail || resendCooldown > 0) return;
     setIsResending(true);
     try {
       const result = await resendVerificationEmail(unverifiedEmail);
-      if (result.success)
+      if (result.success) {
         toast.success("Verification email sent! Check your inbox.");
-      else if (result.error) toast.error(result.error);
+        setResendCooldown(60);
+      } else if (result.error) {
+        toast.error(result.error);
+      }
     } catch {
       toast.error("Failed to resend verification email.");
     }
@@ -259,12 +287,14 @@ export default function LandingContent() {
                       </p>
                       <button
                         onClick={handleResendVerification}
-                        disabled={isResending}
+                        disabled={isResending || resendCooldown > 0}
                         className="text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 cursor-pointer disabled:opacity-50"
                       >
                         {isResending
                           ? "Sending..."
-                          : "Resend verification email"}
+                          : resendCooldown > 0
+                            ? `Resend available in ${resendCooldown}s`
+                            : "Resend verification email"}
                       </button>
                     </div>
                   </motion.div>
