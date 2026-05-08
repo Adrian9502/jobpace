@@ -126,3 +126,15 @@ export const personalNotes = pgTable("personal_notes", {
   createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updatedAt", { withTimezone: true }).defaultNow(),
 });
+
+export const notificationLogs = pgTable("notification_logs", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  applicationId: text("applicationId"),
+  notificationType: text("notificationType").notNull(), // 'interview_reminder' | 'follow_up_reminder'
+  sentAt: timestamp("sentAt", { withTimezone: true }).defaultNow(),
+});

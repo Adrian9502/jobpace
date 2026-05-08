@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import {
   format,
   addMonths,
@@ -31,6 +31,26 @@ interface Props {
   applications: ApplicationRow[];
 }
 
+/**
+ * Get today's date string in Asia/Manila timezone (YYYY-MM-DD format).
+ */
+function getManilaDateStr(date: Date = new Date()): string {
+  return date.toLocaleDateString("en-CA", { timeZone: "Asia/Manila" });
+}
+
+/**
+ * Determine interview time status relative to today in Asia/Manila timezone.
+ */
+function getInterviewStatus(
+  interviewDate: Date,
+): "past" | "today" | "future" {
+  const today = getManilaDateStr();
+  const eventDate = getManilaDateStr(new Date(interviewDate));
+  if (eventDate < today) return "past";
+  if (eventDate === today) return "today";
+  return "future";
+}
+
 export default function CalendarClient({ applications }: Props) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -42,6 +62,11 @@ export default function CalendarClient({ applications }: Props) {
   const interviews = useMemo(
     () => applications.filter((app) => app.interviewDate !== null),
     [applications],
+  );
+
+  const getEventStatus = useCallback(
+    (app: ApplicationRow) => getInterviewStatus(new Date(app.interviewDate!)),
+    [],
   );
 
   const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
@@ -78,6 +103,17 @@ export default function CalendarClient({ applications }: Props) {
 
   return (
     <div className="space-y-5">
+      {/* Pulse animation for today's interviews */}
+      <style>{`
+        @keyframes interview-pulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
+          50% { box-shadow: 0 0 0 4px rgba(37, 99, 235, 0); }
+        }
+        .interview-today {
+          animation: interview-pulse 2s ease-in-out infinite;
+        }
+      `}</style>
+
       {/* Month nav */}
       <div className="flex items-center gap-2 bg-white dark:bg-zinc-900 p-1 rounded-lg border border-zinc-200 dark:border-zinc-800 shadow-sm w-fit">
         <button
@@ -153,18 +189,37 @@ export default function CalendarClient({ applications }: Props) {
                 </div>
 
                 <div className="space-y-1">
-                  {dayInterviews.slice(0, 2).map((app) => (
-                    <button
-                      key={app.id}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEdit(app);
-                      }}
-                      className="w-full text-left text-[10px] truncate px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-800/50 hover:bg-blue-200 dark:hover:bg-blue-800/50 transition-colors"
-                    >
-                      {app.companyName}
-                    </button>
-                  ))}
+                  {dayInterviews.slice(0, 2).map((app) => {
+                    const status = getEventStatus(app);
+                    return (
+                      <button
+                        key={app.id}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(app);
+                        }}
+                        className={`relative w-full text-left text-[10px] truncate px-1.5 py-0.5 rounded transition-colors ${
+                          status === "past"
+                            ? "opacity-45 line-through bg-zinc-100 dark:bg-zinc-800/30 text-zinc-400 dark:text-zinc-500 border border-zinc-200/50 dark:border-zinc-700/50"
+                            : status === "today"
+                              ? "interview-today bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-2 border-blue-600"
+                              : "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-800/50 hover:bg-blue-200 dark:hover:bg-blue-800/50"
+                        }`}
+                      >
+                        {app.companyName}
+                        {status === "past" && (
+                          <span className="absolute -top-1.5 -right-1 text-[8px] font-semibold bg-zinc-200 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400 px-1 py-px rounded-full leading-none">
+                            Passed
+                          </span>
+                        )}
+                        {status === "today" && (
+                          <span className="absolute -top-1.5 -right-1 text-[8px] font-semibold bg-blue-600 text-white px-1 py-px rounded-full leading-none">
+                            Today
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
                   {dayInterviews.length > 2 && (
                     <p className="text-[9px] text-zinc-400 px-1">
                       +{dayInterviews.length - 2} more
