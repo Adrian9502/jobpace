@@ -55,6 +55,7 @@ export async function getTodayInterviews(db: Database): Promise<InterviewNotific
       and(
         isNotNull(jobApplications.interviewDate),
         sql`DATE(${jobApplications.interviewDate} AT TIME ZONE 'Asia/Manila') = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Manila')::date`,
+        sql`${jobApplications.stage} NOT IN ('hired', 'rejected', 'ghosted', 'withdrawn')`,
         sql`NOT EXISTS (
           SELECT 1 FROM ${notificationLogs} nl 
           WHERE nl."applicationId" = ${jobApplications.id} 
@@ -89,6 +90,7 @@ export async function getTodayFollowUps(db: Database): Promise<FollowUpNotificat
       and(
         isNotNull(jobApplications.followUpDate),
         sql`DATE(${jobApplications.followUpDate} AT TIME ZONE 'Asia/Manila') = (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Manila')::date`,
+        sql`${jobApplications.stage} NOT IN ('hired', 'rejected', 'ghosted', 'withdrawn')`,
         sql`NOT EXISTS (
           SELECT 1 FROM ${notificationLogs} nl 
           WHERE nl."applicationId" = ${jobApplications.id} 

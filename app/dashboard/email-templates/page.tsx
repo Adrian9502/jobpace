@@ -1,10 +1,14 @@
 import EmailTemplates from "@/components/EmailTemplates";
+import { getApplications } from "@/lib/queries";
+import { getUserId } from "@/lib/auth-helpers";
 
 export const metadata = {
   title: "Email Templates - JobPace",
 };
 
-export default function EmailTemplatesPage() {
+export default async function EmailTemplatesPage() {
+  const applications = await getApplications();
+
   return (
     <>
       <div className="mb-6">
@@ -16,7 +20,7 @@ export default function EmailTemplatesPage() {
           recruiters.
         </p>
       </div>
-      <EmailTemplates />
+      <EmailTemplates applications={applications} />
     </>
   );
 }

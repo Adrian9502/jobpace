@@ -5,6 +5,7 @@ import { Copy, Check, Search, X, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { EMAIL_TEMPLATES } from "@/lib/email-templates";
+import type { ApplicationRow } from "@/lib/queries";
 
 const CATEGORY_ORDER = [
   "Follow-up",
@@ -46,11 +47,24 @@ const DEFAULT_COLOR = {
   dot: "bg-zinc-400",
 };
 
-export default function EmailTemplates() {
+export default function EmailTemplates({ applications = [] }: { applications?: ApplicationRow[] }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState(ALL_CATEGORY);
   const [search, setSearch] = useState("");
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [selectedAppId, setSelectedAppId] = useState<string>("");
+
+  const processTemplate = (text: string) => {
+    if (!selectedAppId) return text;
+    const app = applications.find(a => a.id === selectedAppId);
+    if (!app) return text;
+
+    return text
+      .replace(/\[Company Name\]/gi, app.companyName)
+      .replace(/\[Position\]/gi, app.position)
+      .replace(/\[Recruiter Name\]|\[Interviewer Name\]|\[Hiring Manager Name\]/gi, app.contactName || "[Name]")
+      .replace(/\[Date\]/gi, new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }));
+  };
 
   const categories = [
     ALL_CATEGORY,
@@ -234,6 +248,28 @@ export default function EmailTemplates() {
               </button>
             </div>
 
+            {/* Smart Injection Dropdown */}
+            {applications.length > 0 && (
+              <div className="px-6 py-4 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 shrink-0">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                  Smart Autofill
+                </label>
+                <select
+                  value={selectedAppId}
+                  onChange={(e) => setSelectedAppId(e.target.value)}
+                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                >
+                  <option value="">Select an application to autofill...</option>
+                  {applications.map((app) => (
+                    <option key={app.id} value={app.id}>
+                      {app.companyName} - {app.position}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             {/* Drawer content — scrollable */}
             <div className="flex-1 overflow-y-auto p-6 space-y-5">
               {/* Subject */}
@@ -246,12 +282,12 @@ export default function EmailTemplates() {
                     field="Subject"
                     copiedField={copiedField}
                     onClick={() =>
-                      copyToClipboard(selectedTemplate.subject, "Subject")
+                      copyToClipboard(processTemplate(selectedTemplate.subject), "Subject")
                     }
                   />
                 </div>
                 <div className="p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-lg text-sm font-medium text-zinc-900 dark:text-zinc-100 leading-relaxed">
-                  {selectedTemplate.subject}
+                  {processTemplate(selectedTemplate.subject)}
                 </div>
               </div>
 
@@ -265,12 +301,12 @@ export default function EmailTemplates() {
                     field="Email Body"
                     copiedField={copiedField}
                     onClick={() =>
-                      copyToClipboard(selectedTemplate.body, "Email Body")
+                      copyToClipboard(processTemplate(selectedTemplate.body), "Email Body")
                     }
                   />
                 </div>
                 <div className="p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-lg text-sm text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap leading-relaxed">
-                  {selectedTemplate.body}
+                  {processTemplate(selectedTemplate.body)}
                 </div>
               </div>
 

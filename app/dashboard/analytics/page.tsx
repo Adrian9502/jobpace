@@ -1,11 +1,14 @@
-import { getApplications } from "@/lib/queries";
+import { getApplications, getActivityLogs } from "@/lib/queries";
 import AnalyticsCharts from "@/components/AnalyticsCharts";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Analytics - JobPace" };
 
 export default async function AnalyticsPage() {
-  const applications = await getApplications();
+  const [applications, logs] = await Promise.all([
+    getApplications(),
+    getActivityLogs(),
+  ]);
 
   return (
     <>
@@ -16,7 +19,7 @@ export default async function AnalyticsPage() {
         </p>
       </div>
 
-      <AnalyticsCharts applications={applications} />
+      <AnalyticsCharts applications={applications} logs={logs} />
     </>
   );
 }

@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import type { ApplicationRow } from "@/lib/queries";
 import { STAGE_CONFIG, FINAL_STAGES } from "@/lib/constants";
 import { formatDate, formatSalary } from "@/lib/utils";
-import { deleteApplication } from "@/lib/actions";
+import { deleteApplication, restoreApplication } from "@/lib/actions";
 import { toast } from "sonner";
 import StatusBadge from "./StatusBadge";
 import StageBadge from "./StageBadge";
@@ -25,6 +25,7 @@ export default function ArchiveClient({ applications }: Props) {
   const [showModal, setShowModal] = useState(false);
   const [viewData, setViewData] = useState<ApplicationRow | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ApplicationRow | null>(null);
+  const [restoringId, setRestoringId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
 
   // Filter only archived applications
@@ -59,6 +60,20 @@ export default function ArchiveClient({ applications }: Props) {
   function closeModal() {
     setShowModal(false);
     setViewData(null);
+  }
+
+  async function handleRestore(app: ApplicationRow) {
+    setRestoringId(app.id);
+    try {
+      const result = await restoreApplication(app.id);
+      if (result.success) {
+        toast.success("Application restored to Active");
+      } else {
+        toast.error(result.error ?? "Failed to restore application.");
+      }
+    } finally {
+      setRestoringId(null);
+    }
   }
 
   return (
@@ -225,6 +240,20 @@ export default function ArchiveClient({ applications }: Props) {
                           </svg>
                         </button>
                         <button
+                          onClick={() => handleRestore(app)}
+                          disabled={restoringId === app.id}
+                          className="p-1.5 rounded-md text-zinc-500 dark:text-zinc-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors disabled:opacity-50"
+                          title="Restore to Active"
+                        >
+                          {restoringId === app.id ? (
+                            <div className="w-4 h-4 border-2 border-emerald-600/30 border-t-emerald-600 rounded-full animate-spin" />
+                          ) : (
+                            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4">
+                              <path d="M2.5 5h11M5 2.5L2.5 5 5 7.5M10.5 13.5A4.5 4.5 0 0013.5 5" />
+                            </svg>
+                          )}
+                        </button>
+                        <button
                           onClick={() => setDeleteTarget(app)}
                           className="p-1.5 rounded-md text-zinc-500 dark:text-zinc-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                           title="Delete from Archive"
@@ -302,6 +331,13 @@ export default function ArchiveClient({ applications }: Props) {
                       <circle cx="8" cy="8" r="2" />
                     </svg>
                     View
+                  </button>
+                  <button
+                    onClick={() => handleRestore(app)}
+                    disabled={restoringId === app.id}
+                    className="px-3 py-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 rounded-md hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
+                  >
+                    {restoringId === app.id ? "Restoring..." : "Restore"}
                   </button>
                   <button
                     onClick={() => setDeleteTarget(app)}

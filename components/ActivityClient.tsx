@@ -257,43 +257,42 @@ export default function ActivityClient({ logs }: { logs: ActivityLog[] }) {
           <p className="text-sm mt-1 text-zinc-400 dark:text-zinc-500">Actions you make on your Dashboard will appear here.</p>
         </div>
       ) : (
-        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-zinc-50 dark:bg-zinc-950/50 border-b border-zinc-200 dark:border-zinc-800">
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide w-10">#</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide whitespace-nowrap">Action</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Description</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide whitespace-nowrap">Date</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide whitespace-nowrap">Time</th>
-                  <th className="text-right px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Details</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginated.map((log, idx) => {
-                  const { summary } = parseLog(log.description);
-                  return (
-                    <tr key={log.id} className={`border-b border-zinc-100 dark:border-zinc-800/50 hover:bg-zinc-50/80 dark:hover:bg-zinc-800/30 transition-colors ${idx % 2 === 0 ? "" : "bg-zinc-50/30 dark:bg-zinc-900/50"}`}>
-                      <td className="px-4 py-3.5 text-xs text-zinc-400 dark:text-zinc-600 font-mono">{(safePage - 1) * PAGE_SIZE + idx + 1}</td>
-                      <td className="px-4 py-3.5"><ActionBadge actionType={log.actionType} /></td>
-                      <td className="px-4 py-3.5 max-w-xs"><p className="text-sm text-zinc-700 dark:text-zinc-300 truncate">{summary}</p></td>
-                      <td className="px-4 py-3.5 text-sm text-zinc-500 dark:text-zinc-400 whitespace-nowrap">{formatDate(log.createdAt)}</td>
-                      <td className="px-4 py-3.5 text-sm text-zinc-500 dark:text-zinc-400 whitespace-nowrap">{formatTime(log.createdAt)}</td>
-                      <td className="px-4 py-3.5 text-right">
-                        <button onClick={() => setSelectedLog(log)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors">
-                          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3.5 h-3.5"><circle cx="8" cy="8" r="3" /><path d="M1.5 8S4 3 8 3s6.5 5 6.5 5S14 13 8 13 1.5 8 1.5 8z" /></svg>
-                          View
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 shadow-sm">
+          <div className="relative border-l-2 border-zinc-100 dark:border-zinc-800 ml-4 md:ml-6 space-y-8 pb-4 mt-2">
+            {paginated.map((log, idx) => {
+              const { summary } = parseLog(log.description);
+              const cfg = ACTION_TYPES[log.actionType] ?? ACTION_TYPES.UPDATE;
+              return (
+                <div key={log.id} className="relative pl-6 md:pl-8 group">
+                  <div className={`absolute -left-[9px] top-1.5 w-4 h-4 rounded-full border-2 border-white dark:border-zinc-900 ${cfg.bg} flex items-center justify-center`}>
+                    <div className={`w-1.5 h-1.5 rounded-full ${cfg.dotColor}`} />
+                  </div>
+                  
+                  <div className="bg-zinc-50 dark:bg-zinc-800/40 rounded-xl p-4 border border-zinc-100 dark:border-zinc-700/50 hover:border-zinc-200 dark:hover:border-zinc-700 transition-colors shadow-sm">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                      <div className="flex items-center gap-3">
+                        <ActionBadge actionType={log.actionType} />
+                        <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5">
+                          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3.5 h-3.5"><circle cx="8" cy="8" r="6" /><path d="M8 5v3l2 2" /></svg>
+                          {formatDate(log.createdAt)} at {formatTime(log.createdAt)}
+                        </span>
+                      </div>
+                      <button onClick={() => setSelectedLog(log)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors self-start sm:self-auto">
+                        View Details
+                      </button>
+                    </div>
+                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 leading-relaxed">
+                      {summary}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-          <PaginationBar page={safePage} totalPages={totalPages} total={filtered.length} pageSize={PAGE_SIZE} onPage={setPage} />
+          <div className="mt-6 pt-6 border-t border-zinc-100 dark:border-zinc-800">
+            <PaginationBar page={safePage} totalPages={totalPages} total={filtered.length} pageSize={PAGE_SIZE} onPage={setPage} />
+          </div>
         </div>
       )}
 

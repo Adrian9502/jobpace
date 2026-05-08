@@ -30,6 +30,7 @@ export default function ApplicationModal({ open, onClose, editData, readOnly = f
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [selectedStage, setSelectedStage] = useState<string>(editData?.stage ?? "applied");
+  const [selectedStatus, setSelectedStatus] = useState<string>(editData?.status ?? "pending");
 
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState<{ skills: string[], insights: string } | null>(null);
@@ -42,6 +43,7 @@ export default function ApplicationModal({ open, onClose, editData, readOnly = f
       setError(null);
       setAiAnalysis(null);
       setSelectedStage(editData?.stage ?? "applied");
+      setSelectedStatus(editData?.status ?? "pending");
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -201,13 +203,21 @@ export default function ApplicationModal({ open, onClose, editData, readOnly = f
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="stage" className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">Stage <span className="text-red-500 dark:text-red-400">*</span></label>
-                      <select id="stage" name="stage" required value={selectedStage} disabled={isViewOnly} onChange={(e) => setSelectedStage(e.target.value)} className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all disabled:opacity-70 disabled:bg-zinc-50 dark:disabled:bg-zinc-900/50">
+                      <select id="stage" name="stage" required value={selectedStage} disabled={isViewOnly} onChange={(e) => {
+                        const newStage = e.target.value;
+                        setSelectedStage(newStage);
+                        if (newStage !== (editData?.stage ?? "applied")) {
+                          setSelectedStatus("pending");
+                        } else {
+                          setSelectedStatus(editData?.status ?? "pending");
+                        }
+                      }} className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all disabled:opacity-70 disabled:bg-zinc-50 dark:disabled:bg-zinc-900/50">
                         {STAGE_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
                       </select>
                     </div>
                     <div>
                       <label htmlFor="status" className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">Status {isFinalStage ? "" : <span className="text-red-500 dark:text-red-400">*</span>}</label>
-                      <select id="status" name="status" required={!isFinalStage} disabled={isFinalStage || isViewOnly} defaultValue={editData?.status ?? "pending"} className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all disabled:opacity-50 disabled:bg-zinc-100 dark:disabled:bg-zinc-900/50">
+                      <select id="status" name="status" required={!isFinalStage} disabled={isFinalStage || isViewOnly} value={isFinalStage ? "" : selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)} className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all disabled:opacity-50 disabled:bg-zinc-100 dark:disabled:bg-zinc-900/50">
                         {isFinalStage && <option value="">Not applicable</option>}
                         {STATUS_OPTIONS.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
                       </select>

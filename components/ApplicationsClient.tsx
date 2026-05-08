@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import type { ApplicationRow } from "@/lib/queries";
-import { STAGE_CONFIG } from "@/lib/constants";
+import { STAGE_CONFIG, FINAL_STAGES } from "@/lib/constants";
 import { formatDate, formatSalary } from "@/lib/utils";
 import { deleteApplication } from "@/lib/actions";
 import { toast } from "sonner";
@@ -25,10 +25,14 @@ export default function ApplicationsClient({ applications }: Props) {
   const [editData, setEditData] = useState<ApplicationRow | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ApplicationRow | null>(null);
   const [isViewMode, setIsViewMode] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
   const [page, setPage] = useState(1);
 
   const filtered = useMemo(() => {
     return applications.filter((app) => {
+      const isArchived = FINAL_STAGES.includes(app.stage as any);
+      if (!showArchived && isArchived) return false;
+
       const matchesSearch =
         !search ||
         app.companyName.toLowerCase().includes(search.toLowerCase()) ||
@@ -37,7 +41,7 @@ export default function ApplicationsClient({ applications }: Props) {
       const matchesStage = stageFilter === "all" || app.stage === stageFilter;
       return matchesSearch && matchesStage;
     });
-  }, [applications, search, stageFilter]);
+  }, [applications, search, stageFilter, showArchived]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
@@ -137,6 +141,18 @@ export default function ApplicationsClient({ applications }: Props) {
             </option>
           ))}
         </select>
+        <label className="flex items-center gap-2 cursor-pointer whitespace-nowrap text-sm text-zinc-600 dark:text-zinc-400 px-2 mt-2 sm:mt-0">
+          <input 
+            type="checkbox" 
+            checked={showArchived}
+            onChange={(e) => {
+              setShowArchived(e.target.checked);
+              setPage(1);
+            }}
+            className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-700 text-blue-600 focus:ring-blue-500/30"
+          />
+          Show Archived
+        </label>
       </div>
 
       {/* Table / Empty state */}

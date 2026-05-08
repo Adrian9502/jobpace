@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import type { ApplicationRow } from "@/lib/queries";
+import type { ApplicationRow, ActivityLogRow } from "@/lib/queries";
 import { STAGE_CONFIG, FINAL_STAGES } from "@/lib/constants";
 import {
   PieChart,
@@ -23,6 +23,7 @@ import {
 
 interface Props {
   applications: ApplicationRow[];
+  logs?: ActivityLogRow[];
 }
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -43,7 +44,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-export default function AnalyticsCharts({ applications }: Props) {
+export default function AnalyticsCharts({ applications, logs = [] }: Props) {
   // 1. Key Metrics Calculation
   const metrics = useMemo(() => {
     const total = applications.length;
@@ -61,12 +62,22 @@ export default function AnalyticsCharts({ applications }: Props) {
       return lastUpdate < fourteenDaysAgo;
     }).length;
 
-    // Avg time to offer (for hired apps)
     const hiredApps = applications.filter(a => a.stage === "hired" && a.dateApplied);
     const avgTimeToHire = hiredApps.length > 0 
       ? Math.round(hiredApps.reduce((acc, app) => {
           const start = new Date(app.dateApplied).getTime();
-          const end = new Date(app.updatedAt || new Date()).getTime();
+          let end = new Date(app.updatedAt || new Date()).getTime();
+
+          // Precise calculation using logs
+          const hireLog = logs.find(l => 
+            l.applicationId === app.id && 
+            l.actionType === "STATUS_CHANGE" && 
+            l.description.toLowerCase().includes("to hired")
+          );
+          if (hireLog && hireLog.createdAt) {
+            end = new Date(hireLog.createdAt).getTime();
+          }
+
           return acc + (end - start);
         }, 0) / hiredApps.length / (24 * 60 * 60 * 1000))
       : 0;
@@ -134,7 +145,23 @@ export default function AnalyticsCharts({ applications }: Props) {
       const avgDays = apps.length > 0
         ? Math.round(apps.reduce((acc, a) => {
             const start = new Date(a.dateApplied).getTime();
-            const end = new Date(a.updatedAt || new Date()).getTime();
+            let end = new Date(a.updatedAt || new Date()).getTime();
+            
+            // Precise calculation using logs
+            const stageLabels = s === "interview" 
+              ? ["interview", "assessment", "final interview"] 
+              : [STAGE_CONFIG[s as keyof typeof STAGE_CONFIG]?.label.toLowerCase() || s];
+            
+            const reachedLog = logs.find(l => 
+              l.applicationId === a.id && 
+              l.actionType === "STATUS_CHANGE" && 
+              stageLabels.some(label => l.description.toLowerCase().includes(`to ${label}`))
+            );
+            
+            if (reachedLog && reachedLog.createdAt) {
+               end = new Date(reachedLog.createdAt).getTime();
+            }
+
             return acc + (end - start);
           }, 0) / apps.length / (24 * 60 * 60 * 1000))
         : 0;
@@ -144,7 +171,7 @@ export default function AnalyticsCharts({ applications }: Props) {
         Days: avgDays
       };
     }).filter(d => d.Days > 0);
-  }, [applications]);
+  }, [applications, logs]);
 
   const COLORS = ["#3b82f6", "#8b5cf6", "#ec4899", "#f43f5e", "#f59e0b", "#10b981", "#0ea5e9", "#64748b"];
 

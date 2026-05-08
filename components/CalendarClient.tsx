@@ -59,13 +59,21 @@ export default function CalendarClient({ applications }: Props) {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState<ApplicationRow | null>(null);
 
-  const interviews = useMemo(
-    () => applications.filter((app) => app.interviewDate !== null),
-    [applications],
-  );
+  const calendarEvents = useMemo(() => {
+    const events: { app: ApplicationRow; date: Date; type: "interview" | "follow-up" }[] = [];
+    for (const app of applications) {
+      if (app.interviewDate) {
+        events.push({ app, date: new Date(app.interviewDate), type: "interview" });
+      }
+      if (app.followUpDate) {
+        events.push({ app, date: new Date(app.followUpDate), type: "follow-up" });
+      }
+    }
+    return events;
+  }, [applications]);
 
   const getEventStatus = useCallback(
-    (app: ApplicationRow) => getInterviewStatus(new Date(app.interviewDate!)),
+    (eventDate: Date) => getInterviewStatus(eventDate),
     [],
   );
 
@@ -79,12 +87,12 @@ export default function CalendarClient({ applications }: Props) {
     end: endOfWeek(monthEnd),
   });
 
-  const selectedInterviews = useMemo(() => {
+  const selectedEvents = useMemo(() => {
     if (!selectedDate) return [];
-    return interviews.filter((app) =>
-      isSameDay(new Date(app.interviewDate!), selectedDate),
+    return calendarEvents.filter((event) =>
+      isSameDay(event.date, selectedDate),
     );
-  }, [interviews, selectedDate]);
+  }, [calendarEvents, selectedDate]);
 
   const handleDayClick = (day: Date) => {
     setSelectedDate(day);
@@ -150,14 +158,14 @@ export default function CalendarClient({ applications }: Props) {
         {/* Days grid */}
         <div className="grid grid-cols-7">
           {calendarDays.map((day) => {
-            const dayInterviews = interviews.filter((app) =>
-              isSameDay(new Date(app.interviewDate!), day),
+            const dayEvents = calendarEvents.filter((event) =>
+              isSameDay(event.date, day),
             );
             const isSelected =
               selectedDate && drawerOpen && isSameDay(day, selectedDate);
             const isCurrentMonth = isSameMonth(day, monthStart);
             const isToday = isSameDay(day, new Date());
-            const hasInterviews = dayInterviews.length > 0;
+            const hasEvents = dayEvents.length > 0;
 
             return (
               <div
@@ -183,46 +191,51 @@ export default function CalendarClient({ applications }: Props) {
                   >
                     {format(day, "d")}
                   </span>
-                  {hasInterviews && (
+                  {hasEvents && (
                     <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
                   )}
                 </div>
 
                 <div className="space-y-1">
-                  {dayInterviews.slice(0, 2).map((app) => {
-                    const status = getEventStatus(app);
+                  {dayEvents.slice(0, 2).map((event, idx) => {
+                    const status = getEventStatus(event.date);
+                    const isFollowUp = event.type === "follow-up";
                     return (
                       <button
-                        key={app.id}
+                        key={`${event.app.id}-${event.type}-${idx}`}
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleEdit(app);
+                          handleEdit(event.app);
                         }}
                         className={`relative w-full text-left text-[10px] truncate px-1.5 py-0.5 rounded transition-colors ${
                           status === "past"
                             ? "opacity-45 line-through bg-zinc-100 dark:bg-zinc-800/30 text-zinc-400 dark:text-zinc-500 border border-zinc-200/50 dark:border-zinc-700/50"
                             : status === "today"
-                              ? "interview-today bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-2 border-blue-600"
-                              : "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-800/50 hover:bg-blue-200 dark:hover:bg-blue-800/50"
+                              ? isFollowUp
+                                ? "interview-today bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-2 border-purple-600"
+                                : "interview-today bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-2 border-blue-600"
+                              : isFollowUp
+                                ? "bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 border border-purple-200/50 dark:border-purple-800/50 hover:bg-purple-100 dark:hover:bg-purple-800/40"
+                                : "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-200/50 dark:border-blue-800/50 hover:bg-blue-100 dark:hover:bg-blue-800/40"
                         }`}
                       >
-                        {app.companyName}
+                        {isFollowUp ? `Follow up: ${event.app.companyName}` : event.app.companyName}
                         {status === "past" && (
                           <span className="absolute -top-1.5 -right-1 text-[8px] font-semibold bg-zinc-200 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400 px-1 py-px rounded-full leading-none">
                             Passed
                           </span>
                         )}
                         {status === "today" && (
-                          <span className="absolute -top-1.5 -right-1 text-[8px] font-semibold bg-blue-600 text-white px-1 py-px rounded-full leading-none">
+                          <span className={`absolute -top-1.5 -right-1 text-[8px] font-semibold text-white px-1 py-px rounded-full leading-none ${isFollowUp ? "bg-purple-600" : "bg-blue-600"}`}>
                             Today
                           </span>
                         )}
                       </button>
                     );
                   })}
-                  {dayInterviews.length > 2 && (
+                  {dayEvents.length > 2 && (
                     <p className="text-[9px] text-zinc-400 px-1">
-                      +{dayInterviews.length - 2} more
+                      +{dayEvents.length - 2} more
                     </p>
                   )}
                 </div>
@@ -262,7 +275,7 @@ export default function CalendarClient({ applications }: Props) {
             <div className="flex items-center justify-between px-6 py-5 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
               <div>
                 <p className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 mb-0.5">
-                  Interview Schedule
+                  Schedule Events
                 </p>
                 <p className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
                   {format(selectedDate, "EEEE, MMMM do")}
@@ -279,71 +292,80 @@ export default function CalendarClient({ applications }: Props) {
             {/* Drawer content */}
             <div className="flex-1 overflow-y-auto p-6">
               <AnimatePresence mode="wait">
-                {selectedInterviews.length > 0 ? (
+                {selectedEvents.length > 0 ? (
                   <motion.div
-                    key="interviews"
+                    key="events"
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
                     className="space-y-6"
                   >
-                    {selectedInterviews.map((app) => (
-                      <div
-                        key={app.id}
-                        onClick={() => handleEdit(app)}
-                        className="relative pl-5 border-l-2 border-blue-500 space-y-3 cursor-pointer group/card"
-                      >
-                        <div className="absolute -left-1.25 top-1 w-2 h-2 rounded-full bg-blue-500 group-hover/card:scale-125 transition-transform" />
+                    {selectedEvents.map((event, idx) => {
+                      const app = event.app;
+                      const isFollowUp = event.type === "follow-up";
+                      return (
+                        <div
+                          key={`${app.id}-${event.type}-${idx}`}
+                          onClick={() => handleEdit(app)}
+                          className={`relative pl-5 border-l-2 space-y-3 cursor-pointer group/card ${isFollowUp ? "border-purple-500" : "border-blue-500"}`}
+                        >
+                          <div className={`absolute -left-1.25 top-1 w-2 h-2 rounded-full group-hover/card:scale-125 transition-transform ${isFollowUp ? "bg-purple-500" : "bg-blue-500"}`} />
 
-                        <div>
-                          <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 group-hover/card:text-blue-600 dark:group-hover/card:text-blue-400 transition-colors">
-                            {app.position}
-                          </h4>
-                          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                            {app.companyName}
-                          </p>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="flex items-center gap-1.5 text-xs text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-900 p-2 rounded-lg border border-zinc-100 dark:border-zinc-800">
-                            <MapPin className="w-3 h-3 text-zinc-400 shrink-0" />
-                            <span className="truncate">
-                              {app.location || "Not set"}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-1.5 text-xs text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-900 p-2 rounded-lg border border-zinc-100 dark:border-zinc-800">
-                            <Briefcase className="w-3 h-3 text-zinc-400 shrink-0" />
-                            <span className="truncate">
-                              {app.workSetup || "Not set"}
-                            </span>
-                          </div>
-                        </div>
-
-                        {(app.contactName || app.contactEmail) && (
-                          <div className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-3 border border-zinc-100 dark:border-zinc-800 space-y-2">
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
-                              Recruiter Contact
+                          <div>
+                            <div className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isFollowUp ? "text-purple-500" : "text-blue-500"}`}>
+                              {isFollowUp ? "Follow Up" : "Interview"}
+                            </div>
+                            <h4 className={`text-sm font-bold text-zinc-900 dark:text-zinc-100 transition-colors ${isFollowUp ? "group-hover/card:text-purple-600 dark:group-hover/card:text-purple-400" : "group-hover/card:text-blue-600 dark:group-hover/card:text-blue-400"}`}>
+                              {app.position}
+                            </h4>
+                            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                              {app.companyName}
                             </p>
-                            {app.contactName && (
-                              <div className="flex items-center gap-2 text-xs">
-                                <User className="w-3 h-3 text-zinc-400" />
-                                <span className="text-zinc-700 dark:text-zinc-300">
-                                  {app.contactName}
-                                </span>
-                              </div>
-                            )}
-                            {app.contactEmail && (
-                              <div className="flex items-center gap-2 text-xs">
-                                <Mail className="w-3 h-3 text-zinc-400" />
-                                <span className="text-blue-600 dark:text-blue-400">
-                                  {app.contactEmail}
-                                </span>
-                              </div>
-                            )}
                           </div>
-                        )}
-                      </div>
-                    ))}
+
+                          {!isFollowUp && (
+                            <div className="grid grid-cols-2 gap-2">
+                              <div className="flex items-center gap-1.5 text-xs text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-900 p-2 rounded-lg border border-zinc-100 dark:border-zinc-800">
+                                <MapPin className="w-3 h-3 text-zinc-400 shrink-0" />
+                                <span className="truncate">
+                                  {app.location || "Not set"}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1.5 text-xs text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-900 p-2 rounded-lg border border-zinc-100 dark:border-zinc-800">
+                                <Briefcase className="w-3 h-3 text-zinc-400 shrink-0" />
+                                <span className="truncate">
+                                  {app.workSetup || "Not set"}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+
+                          {(app.contactName || app.contactEmail) && (
+                            <div className="bg-zinc-50 dark:bg-zinc-900 rounded-lg p-3 border border-zinc-100 dark:border-zinc-800 space-y-2">
+                              <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                                Recruiter Contact
+                              </p>
+                              {app.contactName && (
+                                <div className="flex items-center gap-2 text-xs">
+                                  <User className="w-3 h-3 text-zinc-400" />
+                                  <span className="text-zinc-700 dark:text-zinc-300">
+                                    {app.contactName}
+                                  </span>
+                                </div>
+                              )}
+                              {app.contactEmail && (
+                                <div className="flex items-center gap-2 text-xs">
+                                  <Mail className="w-3 h-3 text-zinc-400" />
+                                  <span className="text-blue-600 dark:text-blue-400">
+                                    {app.contactEmail}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </motion.div>
                 ) : (
                   <motion.div
@@ -357,7 +379,7 @@ export default function CalendarClient({ applications }: Props) {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">
-                        No interviews scheduled
+                        No events scheduled
                       </p>
                       <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">
                         Rest up or prepare for the next one!

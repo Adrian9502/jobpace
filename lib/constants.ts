@@ -177,7 +177,7 @@ export const STATUS_CONFIG: Record<Status, StatusConfig> = {
 // ──────────────────────────────────────────────
 
 /** Ordered columns for the Kanban board (by stage). We omit the negative final stages from the board. */
-export const KANBAN_COLUMNS = STAGES.filter((s) => !["rejected", "ghosted", "withdrawn"].includes(s));
+export const KANBAN_COLUMNS = STAGES.filter((s) => !FINAL_STAGES.includes(s as any));
 
 export const KANBAN_HEADER_BG: Record<Stage, string> = {
   applied: "bg-blue-100 dark:bg-blue-900/30",

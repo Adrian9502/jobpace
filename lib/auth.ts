@@ -8,13 +8,15 @@ import { users } from "./schema";
 import { eq } from "drizzle-orm";
 import { compare } from "bcryptjs";
 import { sendWelcomeEmail } from "./email";
+import { authConfig } from "../auth.config";
 
 const authSecret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   secret: authSecret,
   adapter: PostgresAdapter(pool),
-  session: { strategy: "database" },
+  session: { strategy: "jwt" },
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -64,12 +66,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: "/",
   },
   callbacks: {
-    async session({ session, user }) {
-      // Expose user.id in the session object
-      if (session.user && user) {
-        session.user.id = user.id;
+    ...authConfig.callbacks,
+    async session({ session, token }) {
+      if (session.user && token.sub) {
+        session.user.id = token.sub;
       }
       return session;
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.sub = user.id;
+      }
+      return token;
     },
   },
   events: {

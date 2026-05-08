@@ -9,6 +9,7 @@ import { eq, desc, and, sql } from "drizzle-orm";
 
 export type ApplicationRow = typeof jobApplications.$inferSelect;
 export type PersonalNoteRow = typeof personalNotes.$inferSelect;
+export type ActivityLogRow = typeof jobActivityLogs.$inferSelect;
 
 
 export type ApplicationStats = {
