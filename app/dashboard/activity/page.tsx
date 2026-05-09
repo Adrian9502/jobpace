@@ -1,5 +1,5 @@
 import { getActivityLogs } from "@/lib/queries";
-import ActivityClient from "@/components/ActivityClient";
+import ActivityClient from "@/components/activity/ActivityClient";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Activity Logs - JobPace" };
