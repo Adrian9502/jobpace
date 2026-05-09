@@ -19,17 +19,16 @@ export default function Sidebar({ userName, userImage }: SidebarProps) {
 
   return (
     <>
-      {/* Mobile toggle button */}
-      <button
-        className="lg:hidden fixed top-3 left-3 z-50 w-9 h-9 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md flex items-center justify-center shadow-sm"
-        onClick={() => setMobileOpen(!mobileOpen)}
-        aria-label="Toggle sidebar"
-      >
-        {mobileOpen 
-          ? <X className="w-4 h-4 text-zinc-800 dark:text-zinc-100" /> 
-          : <Menu className="w-4 h-4 text-zinc-800 dark:text-zinc-100" />
-        }
-      </button>
+      {/* Hamburger — only visible when sidebar is CLOSED */}
+      {!mobileOpen && (
+        <button
+          className="lg:hidden fixed top-3 left-3 z-50 w-9 h-9 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-md flex items-center justify-center shadow-sm"
+          onClick={() => setMobileOpen(true)}
+          aria-label="Open sidebar"
+        >
+          <Menu className="w-4 h-4 text-zinc-800 dark:text-zinc-100" />
+        </button>
+      )}
 
       {/* Mobile overlay */}
       {mobileOpen && (
@@ -50,7 +49,18 @@ export default function Sidebar({ userName, userImage }: SidebarProps) {
         `}
       >
         <div className="flex flex-col h-full">
-          <SidebarLogo />
+          {/* Logo row + close button on mobile */}
+          <div className="relative flex items-center justify-center lg:justify-start lg:block">
+            <SidebarLogo />
+            <button
+              className="lg:hidden absolute right-3 w-8 h-8 flex items-center justify-center rounded-md text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              onClick={() => setMobileOpen(false)}
+              aria-label="Close sidebar"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
           <SidebarNav onNavClick={() => setMobileOpen(false)} />
           <SidebarThemeToggle />
           <SidebarUserFooter
