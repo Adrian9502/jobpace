@@ -1,8 +1,7 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
-import PostgresAdapter from "@auth/pg-adapter";
-import { pool } from "./db"; // named import now
+import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db } from "./db";
 import { users } from "./schema";
 import { eq } from "drizzle-orm";
@@ -15,7 +14,7 @@ const authSecret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   secret: authSecret,
-  adapter: PostgresAdapter(pool),
+  adapter: DrizzleAdapter(db),
   session: { strategy: "jwt" },
   providers: [
     Google({
