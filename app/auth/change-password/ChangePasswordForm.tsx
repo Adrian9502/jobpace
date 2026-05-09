@@ -96,6 +96,7 @@ export default function ChangePasswordForm({ hasPassword }: Props) {
                   id="currentPassword"
                   name="currentPassword"
                   required
+                  maxLength={72}
                   autoComplete="current-password"
                   placeholder="••••••••"
                   hasError={!!fieldErrors.currentPassword}
@@ -115,6 +116,7 @@ export default function ChangePasswordForm({ hasPassword }: Props) {
                 id="newPassword"
                 name="newPassword"
                 required
+                maxLength={72}
                 autoComplete="new-password"
                 placeholder="••••••••"
                 value={newPassword}

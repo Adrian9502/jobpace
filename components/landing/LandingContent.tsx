@@ -321,6 +321,7 @@ export default function LandingContent() {
                             required
                             autoComplete="given-name"
                             placeholder="Juan"
+                            maxLength={50}
                             className={`w-full px-4 py-2.5 rounded-xl border text-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-zinc-500 outline-none transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 ${fieldErrors.firstName ? "border-red-400 dark:border-red-600" : "border-gray-200 dark:border-zinc-700"}`}
                           />
                           <FieldError errors={fieldErrors.firstName} />
@@ -339,6 +340,7 @@ export default function LandingContent() {
                             required
                             autoComplete="family-name"
                             placeholder="Dela Cruz"
+                            maxLength={50}
                             className={`w-full px-4 py-2.5 rounded-xl border text-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-zinc-500 outline-none transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 ${fieldErrors.lastName ? "border-red-400 dark:border-red-600" : "border-gray-200 dark:border-zinc-700"}`}
                           />
                           <FieldError errors={fieldErrors.lastName} />
@@ -361,6 +363,7 @@ export default function LandingContent() {
                         required
                         autoComplete="email"
                         placeholder="you@example.com"
+                        maxLength={255}
                         className={`w-full px-4 py-2.5 rounded-xl border text-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-zinc-500 outline-none transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 ${fieldErrors.email ? "border-red-400 dark:border-red-600" : "border-gray-200 dark:border-zinc-700"}`}
                       />
                       <FieldError errors={fieldErrors.email} />
@@ -378,6 +381,7 @@ export default function LandingContent() {
                         id="password"
                         name="password"
                         required
+                        maxLength={72}
                         autoComplete={
                           activeTab === "signup"
                             ? "new-password"

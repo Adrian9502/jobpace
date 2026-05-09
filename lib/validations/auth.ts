@@ -7,6 +7,7 @@ import { z } from "zod";
 const passwordSchema = z
   .string()
   .min(8, "Password must be at least 8 characters")
+  .max(72, "Password must be at most 72 characters")
   .regex(/[A-Z]/, "Password must contain at least 1 uppercase letter")
   .regex(/[a-z]/, "Password must contain at least 1 lowercase letter")
   .regex(/[0-9]/, "Password must contain at least 1 number");
@@ -30,6 +31,7 @@ export const signUpSchema = z
     email: z
       .string()
       .email("Please enter a valid email address")
+      .max(255, "Email must be at most 255 characters")
       .toLowerCase()
       .trim(),
     password: passwordSchema,
@@ -45,9 +47,10 @@ export const signInSchema = z.object({
   email: z
     .string()
     .email("Please enter a valid email address")
+    .max(255, "Email must be at most 255 characters")
     .toLowerCase()
     .trim(),
-  password: z.string().min(1, "Password is required"),
+  password: z.string().min(1, "Password is required").max(72, "Password must be at most 72 characters"),
 });
 
 export type SignInInput = z.infer<typeof signInSchema>;
@@ -60,6 +63,7 @@ export const forgotPasswordSchema = z.object({
   email: z
     .string()
     .email("Please enter a valid email address")
+    .max(255, "Email must be at most 255 characters")
     .toLowerCase()
     .trim(),
 });

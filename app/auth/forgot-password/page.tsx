@@ -128,6 +128,7 @@ export default function ForgotPasswordPage() {
                     required
                     autoComplete="email"
                     placeholder="you@example.com"
+                    maxLength={255}
                     className={`w-full px-4 py-3 rounded-xl border text-sm bg-white dark:bg-zinc-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-zinc-500 outline-none transition-all focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 ${
                       fieldErrors.email
                         ? "border-red-400 dark:border-red-600"

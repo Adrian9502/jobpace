@@ -113,6 +113,7 @@ export default function ResetPasswordContent() {
                   id="password"
                   name="password"
                   required
+                  maxLength={72}
                   autoComplete="new-password"
                   placeholder="••••••••"
                   value={password}
