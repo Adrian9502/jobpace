@@ -2,8 +2,8 @@ import { STAGE_CONFIG } from "@/lib/constants";
 import type { Stage } from "@/lib/constants";
 import { formatSalaryCompact, capitalizeFirst } from "@/lib/utils";
 import type { ApplicationRow } from "@/lib/queries";
-import StageBadge from "@/components/StageBadge";
-import StatusBadge from "@/components/StatusBadge";
+import StageBadge from "@/components/ui/StageBadge";
+import StatusBadge from "@/components/ui/StatusBadge";
 import Tag from "./Tag";
 import { getStatusNote, STATUS_NOTE_STYLE } from "@/utils/timeline";
 

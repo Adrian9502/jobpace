@@ -8,14 +8,29 @@ import { formatDate, formatSalary } from "@/lib/utils";
 import { deleteApplication } from "@/lib/actions";
 import { importApplications } from "@/lib/actions/settings";
 import { toast } from "sonner";
-import StatusBadge from "./StatusBadge";
-import StageBadge from "./StageBadge";
-import PaginationBar from "./PaginationBar";
-import ApplicationModal from "./ApplicationModal";
-import DeleteConfirmModal from "./DeleteConfirmModal";
-import { Eye, MapPin, Plus, Search, Download, Upload, X, Check, Loader2, FileDown } from "lucide-react";
+import StatusBadge from "@/components/ui/StatusBadge";
+import StageBadge from "@/components/ui/StageBadge";
+import PaginationBar from "@/components/ui/PaginationBar";
+import ApplicationModal from "@/components/modals/ApplicationModal";
+import DeleteConfirmModal from "@/components/modals/DeleteConfirmModal";
+import {
+  Eye,
+  MapPin,
+  Plus,
+  Search,
+  Download,
+  Upload,
+  X,
+  Check,
+  Loader2,
+  FileDown,
+} from "lucide-react";
 import Papa from "papaparse";
-import { applicationsToCsv, generateCsvTemplate, validateCsvRows } from "@/lib/csv-helpers";
+import {
+  applicationsToCsv,
+  generateCsvTemplate,
+  validateCsvRows,
+} from "@/lib/csv-helpers";
 import type { ImportValidationResult } from "@/lib/csv-helpers";
 interface Props {
   applications: ApplicationRow[];
@@ -33,7 +48,8 @@ export default function ApplicationsClient({ applications }: Props) {
   const [showArchived, setShowArchived] = useState(false);
   const [page, setPage] = useState(1);
   const [showImportModal, setShowImportModal] = useState(false);
-  const [importResult, setImportResult] = useState<ImportValidationResult | null>(null);
+  const [importResult, setImportResult] =
+    useState<ImportValidationResult | null>(null);
   const [importing, setImporting] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -95,7 +111,7 @@ export default function ApplicationsClient({ applications }: Props) {
     setShowModal(false);
     setEditData(null);
     setIsViewMode(false);
-    
+
     // Remove ?id from URL if present without triggering a refresh
     if (idFromUrl) {
       router.replace("/dashboard/applications", { scroll: false });
@@ -181,7 +197,9 @@ export default function ApplicationsClient({ applications }: Props) {
     const result = await importApplications(importResult.validRows);
     setImporting(false);
     if (result.success) {
-      const msg = result.changes?.[0] || `Successfully imported ${importResult.validRows.length} applications!`;
+      const msg =
+        result.changes?.[0] ||
+        `Successfully imported ${importResult.validRows.length} applications!`;
       toast.success(msg);
       setImportResult(null);
       setShowImportModal(false);
@@ -624,7 +642,9 @@ export default function ApplicationsClient({ applications }: Props) {
               >
                 <Upload className="w-8 h-8 text-zinc-400 mx-auto mb-3" />
                 <p className="text-sm text-zinc-600 dark:text-zinc-300 font-medium">
-                  {dragActive ? "Drop your CSV here" : "Click or drag a CSV file here"}
+                  {dragActive
+                    ? "Drop your CSV here"
+                    : "Click or drag a CSV file here"}
                 </p>
                 <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">
                   Max 2MB • .csv files only
@@ -653,7 +673,8 @@ export default function ApplicationsClient({ applications }: Props) {
                     <div className="flex items-center gap-1.5 text-sm">
                       <X className="w-4 h-4 text-red-500" />
                       <span className="text-zinc-700 dark:text-zinc-300 font-medium">
-                        {importResult.errors.length} error{importResult.errors.length !== 1 ? "s" : ""}
+                        {importResult.errors.length} error
+                        {importResult.errors.length !== 1 ? "s" : ""}
                       </span>
                     </div>
                   )}
@@ -666,7 +687,10 @@ export default function ApplicationsClient({ applications }: Props) {
                     </p>
                     <ul className="space-y-1">
                       {importResult.errors.map((err, i) => (
-                        <li key={i} className="text-xs text-red-600 dark:text-red-400">
+                        <li
+                          key={i}
+                          className="text-xs text-red-600 dark:text-red-400"
+                        >
                           Row {err.row}: {err.message}
                         </li>
                       ))}
@@ -688,7 +712,8 @@ export default function ApplicationsClient({ applications }: Props) {
                     ) : (
                       <>
                         <Upload className="w-4 h-4" />
-                        Import {importResult.validRows.length} Application{importResult.validRows.length !== 1 ? "s" : ""}
+                        Import {importResult.validRows.length} Application
+                        {importResult.validRows.length !== 1 ? "s" : ""}
                       </>
                     )}
                   </button>

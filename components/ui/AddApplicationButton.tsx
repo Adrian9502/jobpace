@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Plus } from "lucide-react";
-import ApplicationModal from "../ApplicationModal";
+import ApplicationModal from "@/components/modals/ApplicationModal";
 
 export default function AddApplicationButton() {
   const [showModal, setShowModal] = useState(false);

@@ -1,7 +1,7 @@
 import { getApplications } from "@/lib/queries";
-import KanbanBoard from "@/components/KanbanBoard";
+import KanbanBoard from "@/components/kanban/KanbanBoard";
 import AddApplicationButton from "@/components/ui/AddApplicationButton";
-import StageStatusGuide from "@/components/StageStatusGuide";
+import StageStatusGuide from "@/components/ui/StageStatusGuide";
 
 export const dynamic = "force-dynamic";
 

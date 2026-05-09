@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import ResetPasswordContent from "./ResetPasswordContent";
-import ThemeToggle from "@/components/ThemeToggle";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 export default function ResetPasswordPage() {
   return (
@@ -11,7 +11,7 @@ export default function ResetPasswordPage() {
         </div>
       }
     >
-       <div className="absolute top-6 right-6 sm:top-10 sm:right-10 z-50">
+      <div className="absolute top-6 right-6 sm:top-10 sm:right-10 z-50">
         <ThemeToggle />
       </div>
       <ResetPasswordContent />

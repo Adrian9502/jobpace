@@ -1,5 +1,5 @@
 import { getApplications } from "@/lib/queries";
-import ArchiveClient from "@/components/ArchiveClient";
+import ArchiveClient from "@/components/archive/ArchiveClient";
 
 export const dynamic = "force-dynamic";
 

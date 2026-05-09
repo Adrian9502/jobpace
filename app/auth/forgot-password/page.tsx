@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { forgotPassword } from "@/lib/actions/auth.actions";
-import ThemeToggle from "@/components/ThemeToggle";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 export default function ForgotPasswordPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -42,14 +42,23 @@ export default function ForgotPasswordPage() {
         transition={{ duration: 0.4 }}
         className="w-full max-w-md"
       >
-         <div className="absolute top-6 right-6 sm:top-10 sm:right-10 z-50">
-        <ThemeToggle />
-      </div>
+        <div className="absolute top-6 right-6 sm:top-10 sm:right-10 z-50">
+          <ThemeToggle />
+        </div>
         <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl p-8 sm:p-10 shadow-sm">
           {/* Logo */}
-           <div className="flex items-center justify-center gap-2 mb-8">
-              <Image src="/jobpace-logo-blue.png" alt="JobPace" width={40} height={40} className="rounded-lg shadow-sm pointer-events-none" priority />
-              <span className="text-2xl font-bold tracking-tight text-blue-600 dark:text-white">JobPace</span>
+          <div className="flex items-center justify-center gap-2 mb-8">
+            <Image
+              src="/jobpace-logo-blue.png"
+              alt="JobPace"
+              width={40}
+              height={40}
+              className="rounded-lg shadow-sm pointer-events-none"
+              priority
+            />
+            <span className="text-2xl font-bold tracking-tight text-blue-600 dark:text-white">
+              JobPace
+            </span>
           </div>
 
           {isSuccess ? (

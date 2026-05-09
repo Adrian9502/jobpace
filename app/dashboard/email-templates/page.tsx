@@ -1,4 +1,4 @@
-import EmailTemplates from "@/components/EmailTemplates";
+import EmailTemplates from "@/components/email_templates/EmailTemplates";
 import { getApplications } from "@/lib/queries";
 import { getSession } from "@/lib/auth-helpers";
 
@@ -10,7 +10,7 @@ export const metadata = {
 export default async function EmailTemplatesPage() {
   const [applications, session] = await Promise.all([
     getApplications(),
-    getSession()
+    getSession(),
   ]);
 
   const userName = session?.user?.name || "";
@@ -27,7 +27,11 @@ export default async function EmailTemplatesPage() {
           recruiters.
         </p>
       </div>
-      <EmailTemplates applications={applications} userName={userName} userEmail={userEmail} />
+      <EmailTemplates
+        applications={applications}
+        userName={userName}
+        userEmail={userEmail}
+      />
     </>
   );
 }

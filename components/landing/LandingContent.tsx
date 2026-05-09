@@ -7,9 +7,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import PolicyModal from "../PolicyModal";
+import PolicyModal from "../modals/PolicyModal";
 import VerificationModal from "./VerificationModal";
-import ThemeToggle from "../ThemeToggle";
+import ThemeToggle from "../ui/ThemeToggle";
 import {
   signUpWithCredentials,
   signInWithCredentials,
@@ -269,8 +269,6 @@ export default function LandingContent() {
                   </button>
                 ))}
               </div>
-
-
 
               {/* General Error */}
               <AnimatePresence>

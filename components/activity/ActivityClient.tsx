@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ACTION_TYPES } from "@/lib/constants";
-import PaginationBar from "@/components/PaginationBar";
+import PaginationBar from "@/components/ui/PaginationBar";
 import ActivityLogItem from "./ActivityLogItem";
 import LogDetailModal from "./LogDetailModal";
 import type { ActivityLog } from "@/types/activity";

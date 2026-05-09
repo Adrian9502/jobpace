@@ -1,4 +1,4 @@
-import ApplicationsClient from "@/components/ApplicationsClient";
+import ApplicationsClient from "@/components/application/ApplicationsClient";
 import { getApplications } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";

@@ -1,5 +1,5 @@
 import { getApplications } from "@/lib/queries";
-import CalendarClient from "@/components/CalendarClient";
+import CalendarClient from "@/components/calendar/CalendarClient";
 
 export const dynamic = "force-dynamic";
 export const metadata = {

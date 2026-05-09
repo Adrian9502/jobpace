@@ -1,0 +1,719 @@
+"use client";
+
+import { useState, useEffect, useTransition } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { createApplication, updateApplication } from "@/lib/actions";
+import type { ApplicationRow } from "@/lib/queries";
+import {
+  STAGE_OPTIONS,
+  STATUS_OPTIONS,
+  SOURCE_OPTIONS,
+  WORK_SETUP_OPTIONS,
+  EMPLOYMENT_TYPE_OPTIONS,
+  FINAL_STAGES,
+} from "@/lib/constants";
+import { toDateInputValue, getDateValidationBounds } from "@/lib/utils";
+import { toast } from "sonner";
+import confetti from "canvas-confetti";
+import { Brain } from "lucide-react";
+
+interface Props {
+  open: boolean;
+  onClose: () => void;
+  editData?: ApplicationRow | null;
+  readOnly?: boolean;
+}
+
+export default function ApplicationModal({
+  open,
+  onClose,
+  editData,
+  readOnly = false,
+}: Props) {
+  const isEdit = !!editData;
+  const isViewOnly = readOnly;
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+  const [selectedStage, setSelectedStage] = useState<string>(
+    editData?.stage ?? "applied",
+  );
+  const [selectedStatus, setSelectedStatus] = useState<string>(
+    editData?.status ?? "pending",
+  );
+
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [aiAnalysis, setAiAnalysis] = useState<{
+    skills: string[];
+    insights: string;
+  } | null>(null);
+
+  const isFinalStage = FINAL_STAGES.includes(selectedStage as any);
+  const dateBounds = getDateValidationBounds();
+
+  useEffect(() => {
+    if (open) {
+      setError(null);
+      setAiAnalysis(null);
+      setSelectedStage(editData?.stage ?? "applied");
+      setSelectedStatus(editData?.status ?? "pending");
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open, editData]);
+
+  function handleSubmit(formData: FormData) {
+    setError(null);
+    startTransition(async () => {
+      const result = isEdit
+        ? await updateApplication(editData!.id, formData)
+        : await createApplication(formData);
+
+      if (result.success) {
+        if (isEdit) {
+          if (result.changes && result.changes.length > 0) {
+            toast.success("Application updated", {
+              description: result.changes.join("\n"),
+            });
+          } else {
+            toast.success("Application updated");
+          }
+        } else {
+          toast.success("Application added", {
+            description: `${formData.get("companyName")} - ${formData.get("position")}`,
+          });
+        }
+
+        if (selectedStage === "hired" && editData?.stage !== "hired") {
+          const duration = 15 * 1000;
+          const animationEnd = Date.now() + duration;
+          const defaults = {
+            startVelocity: 30,
+            spread: 360,
+            ticks: 60,
+            zIndex: 9999,
+          };
+          const randomInRange = (min: number, max: number) =>
+            Math.random() * (max - min) + min;
+
+          const interval: any = setInterval(function () {
+            const timeLeft = animationEnd - Date.now();
+            if (timeLeft <= 0) return clearInterval(interval);
+
+            const particleCount = 50 * (timeLeft / duration);
+            confetti({
+              ...defaults,
+              particleCount,
+              origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+            });
+            confetti({
+              ...defaults,
+              particleCount,
+              origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+            });
+          }, 250);
+        }
+        onClose();
+      } else {
+        toast.error(result.error ?? "Something went wrong.");
+        setError(result.error ?? "Something went wrong.");
+      }
+    });
+  }
+
+  return (
+    <AnimatePresence mode="wait">
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={onClose}
+          />
+
+          {/* Modal */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="relative w-full max-w-2xl max-h-[90vh] bg-white dark:bg-zinc-950 rounded-xl shadow-2xl overflow-hidden flex flex-col"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 bg-gradient-to-r from-blue-50/50 dark:from-blue-900/10 to-transparent">
+              <div>
+                <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                  {isViewOnly
+                    ? "View Application"
+                    : isEdit
+                      ? "Edit Application"
+                      : "Add New Application"}
+                </h2>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                  {isViewOnly
+                    ? "Historical record of this application"
+                    : isEdit
+                      ? "Update the details of your application"
+                      : "Track a new job application"}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+              >
+                <svg
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className="w-4 h-4"
+                >
+                  <path d="M4 4l8 8M12 4l-8 8" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Form */}
+            <form action={handleSubmit} className="flex-1 overflow-y-auto">
+              <div className="px-6 py-5 space-y-6">
+                {error && (
+                  <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-400 text-sm px-4 py-3 rounded-lg flex items-start gap-2">
+                    <svg
+                      viewBox="0 0 16 16"
+                      fill="currentColor"
+                      className="w-4 h-4 mt-0.5 shrink-0"
+                    >
+                      <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 10.5a.75.75 0 110-1.5.75.75 0 010 1.5zM8.75 4.75a.75.75 0 00-1.5 0v3.5a.75.75 0 001.5 0v-3.5z" />
+                    </svg>
+                    {error}
+                  </div>
+                )}
+
+                {/* Basic Info */}
+                <fieldset>
+                  <legend className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">
+                    Basic Information
+                  </legend>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="sm:col-span-2">
+                      <label
+                        htmlFor="companyName"
+                        className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
+                      >
+                        Company Name{" "}
+                        <span className="text-red-500 dark:text-red-400">
+                          *
+                        </span>
+                      </label>
+                      <input
+                        id="companyName"
+                        name="companyName"
+                        type="text"
+                        required
+                        disabled={isViewOnly}
+                        defaultValue={editData?.companyName ?? ""}
+                        placeholder="e.g. Accenture Philippines"
+                        maxLength={100}
+                        className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70"
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label
+                        htmlFor="position"
+                        className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
+                      >
+                        Position{" "}
+                        <span className="text-red-500 dark:text-red-400">
+                          *
+                        </span>
+                      </label>
+                      <input
+                        id="position"
+                        name="position"
+                        type="text"
+                        required
+                        disabled={isViewOnly}
+                        defaultValue={editData?.position ?? ""}
+                        placeholder="e.g. Junior Software Developer"
+                        maxLength={100}
+                        className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="location"
+                        className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
+                      >
+                        Location
+                      </label>
+                      <input
+                        id="location"
+                        name="location"
+                        type="text"
+                        disabled={isViewOnly}
+                        defaultValue={editData?.location ?? ""}
+                        placeholder="e.g. Makati, BGC, Cebu"
+                        maxLength={100}
+                        className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="workSetup"
+                        className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
+                      >
+                        Work Setup
+                      </label>
+                      <select
+                        id="workSetup"
+                        name="workSetup"
+                        disabled={isViewOnly}
+                        defaultValue={editData?.workSetup ?? ""}
+                        className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all disabled:opacity-70 disabled:bg-zinc-50 dark:disabled:bg-zinc-900/50"
+                      >
+                        <option value="">Select...</option>
+                        {WORK_SETUP_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="employmentType"
+                        className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
+                      >
+                        Employment Type
+                      </label>
+                      <select
+                        id="employmentType"
+                        name="employmentType"
+                        disabled={isViewOnly}
+                        defaultValue={editData?.employmentType ?? ""}
+                        className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all disabled:opacity-70 disabled:bg-zinc-50 dark:disabled:bg-zinc-900/50"
+                      >
+                        <option value="">Select...</option>
+                        {EMPLOYMENT_TYPE_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </fieldset>
+
+                {/* Salary */}
+                <fieldset>
+                  <legend className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">
+                    Monthly Salary Range (₱)
+                  </legend>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label
+                        htmlFor="salaryMin"
+                        className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
+                      >
+                        Minimum
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-500 dark:text-zinc-400">
+                          ₱
+                        </span>
+                        <input
+                          id="salaryMin"
+                          name="salaryMin"
+                          type="number"
+                          min="0"
+                          step="1000"
+                          disabled={isViewOnly}
+                          defaultValue={editData?.salaryMin ?? ""}
+                          placeholder="25,000"
+                          className="w-full pl-7 pr-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="salaryMax"
+                        className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
+                      >
+                        Maximum
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-500 dark:text-zinc-400">
+                          ₱
+                        </span>
+                        <input
+                          id="salaryMax"
+                          name="salaryMax"
+                          type="number"
+                          min="0"
+                          step="1000"
+                          disabled={isViewOnly}
+                          defaultValue={editData?.salaryMax ?? ""}
+                          placeholder="35,000"
+                          className="w-full pl-7 pr-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </fieldset>
+
+                {/* Tracking */}
+                <fieldset>
+                  <legend className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">
+                    Tracking
+                  </legend>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label
+                        htmlFor="stage"
+                        className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
+                      >
+                        Stage{" "}
+                        <span className="text-red-500 dark:text-red-400">
+                          *
+                        </span>
+                      </label>
+                      <select
+                        id="stage"
+                        name="stage"
+                        required
+                        value={selectedStage}
+                        disabled={isViewOnly}
+                        onChange={(e) => {
+                          const newStage = e.target.value;
+                          setSelectedStage(newStage);
+                          if (newStage !== (editData?.stage ?? "applied")) {
+                            setSelectedStatus("pending");
+                          } else {
+                            setSelectedStatus(editData?.status ?? "pending");
+                          }
+                        }}
+                        className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all disabled:opacity-70 disabled:bg-zinc-50 dark:disabled:bg-zinc-900/50"
+                      >
+                        {STAGE_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="status"
+                        className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
+                      >
+                        Status{" "}
+                        {isFinalStage ? (
+                          ""
+                        ) : (
+                          <span className="text-red-500 dark:text-red-400">
+                            *
+                          </span>
+                        )}
+                      </label>
+                      <select
+                        id="status"
+                        name="status"
+                        required={!isFinalStage}
+                        disabled={isFinalStage || isViewOnly}
+                        value={isFinalStage ? "" : selectedStatus}
+                        onChange={(e) => setSelectedStatus(e.target.value)}
+                        className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all disabled:opacity-50 disabled:bg-zinc-100 dark:disabled:bg-zinc-900/50"
+                      >
+                        {isFinalStage && (
+                          <option value="">Not applicable</option>
+                        )}
+                        {STATUS_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="source"
+                        className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
+                      >
+                        Source
+                      </label>
+                      <select
+                        id="source"
+                        name="source"
+                        disabled={isViewOnly}
+                        defaultValue={editData?.source ?? ""}
+                        className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all disabled:opacity-70 disabled:bg-zinc-50 dark:disabled:bg-zinc-900/50"
+                      >
+                        <option value="">Select...</option>
+                        {SOURCE_OPTIONS.map((src) => (
+                          <option key={src} value={src}>
+                            {src}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label
+                        htmlFor="applicationLink"
+                        className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
+                      >
+                        Application Link
+                      </label>
+                      <input
+                        id="applicationLink"
+                        name="applicationLink"
+                        type="url"
+                        disabled={isViewOnly}
+                        defaultValue={editData?.applicationLink ?? ""}
+                        placeholder="e.g. https://jobstreet.com.ph/job/12345"
+                        maxLength={1000}
+                        className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="dateApplied"
+                        className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
+                      >
+                        Date Applied{" "}
+                        <span className="text-red-500 dark:text-red-400">
+                          *
+                        </span>
+                      </label>
+                      <input
+                        id="dateApplied"
+                        name="dateApplied"
+                        type="date"
+                        required
+                        min={dateBounds.min}
+                        max={dateBounds.max}
+                        disabled={isViewOnly}
+                        defaultValue={
+                          editData
+                            ? toDateInputValue(editData.dateApplied)
+                            : toDateInputValue(new Date())
+                        }
+                        className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all disabled:opacity-70"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="followUpDate"
+                        className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
+                      >
+                        Follow-up Date
+                      </label>
+                      <input
+                        id="followUpDate"
+                        name="followUpDate"
+                        type="date"
+                        min={dateBounds.min}
+                        max={dateBounds.max}
+                        disabled={isViewOnly}
+                        defaultValue={toDateInputValue(editData?.followUpDate)}
+                        className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="interviewDate"
+                        className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
+                      >
+                        Interview Date
+                      </label>
+                      <input
+                        id="interviewDate"
+                        name="interviewDate"
+                        type="date"
+                        min={dateBounds.min}
+                        max={dateBounds.max}
+                        disabled={isViewOnly}
+                        defaultValue={toDateInputValue(editData?.interviewDate)}
+                        className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70"
+                      />
+                    </div>
+                  </div>
+                </fieldset>
+
+                {/* Contact Info */}
+                <fieldset>
+                  <legend className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">
+                    Recruiter Contact
+                  </legend>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label
+                        htmlFor="contactName"
+                        className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
+                      >
+                        Contact Name
+                      </label>
+                      <input
+                        id="contactName"
+                        name="contactName"
+                        type="text"
+                        disabled={isViewOnly}
+                        defaultValue={editData?.contactName ?? ""}
+                        placeholder="e.g. Juan Dela Cruz"
+                        maxLength={100}
+                        className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="contactEmail"
+                        className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
+                      >
+                        Contact Email
+                      </label>
+                      <input
+                        id="contactEmail"
+                        name="contactEmail"
+                        type="email"
+                        disabled={isViewOnly}
+                        defaultValue={editData?.contactEmail ?? ""}
+                        placeholder="e.g. recruiter@company.com"
+                        maxLength={255}
+                        className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70"
+                      />
+                    </div>
+                  </div>
+                </fieldset>
+
+                {/* Details */}
+                <fieldset>
+                  <legend className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">
+                    Details & Research
+                  </legend>
+                  <div className="space-y-4">
+                    <div>
+                      <label
+                        htmlFor="companyResearch"
+                        className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
+                      >
+                        Company Research
+                      </label>
+                      <textarea
+                        id="companyResearch"
+                        name="companyResearch"
+                        rows={3}
+                        disabled={isViewOnly}
+                        defaultValue={editData?.companyResearch ?? ""}
+                        placeholder="What do you know about this company? Culture, tech stack, news..."
+                        maxLength={10000}
+                        className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all resize-none min-h-[80px] disabled:opacity-70"
+                      />
+                    </div>
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label
+                          htmlFor="jobDescription"
+                          className="block text-sm font-medium text-zinc-900 dark:text-zinc-100"
+                        >
+                          Job Description
+                        </label>
+                      </div>
+                      <textarea
+                        id="jobDescription"
+                        name="jobDescription"
+                        rows={3}
+                        disabled={isViewOnly}
+                        defaultValue={editData?.jobDescription ?? ""}
+                        maxLength={10000}
+                        className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all resize-none min-h-[80px] disabled:opacity-70"
+                      />
+
+                      <AnimatePresence>
+                        {aiAnalysis && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="mt-3 overflow-hidden"
+                          >
+                            <div className="p-3 bg-purple-50/50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-900/30 rounded-lg space-y-2">
+                              <div className="flex items-center gap-2 text-[10px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest">
+                                <Brain className="w-3 h-3" />
+                                AI Insights
+                              </div>
+                              <div className="flex flex-wrap gap-1.5">
+                                {aiAnalysis.skills.map((s) => (
+                                  <span
+                                    key={s}
+                                    className="px-1.5 py-0.5 rounded bg-white dark:bg-zinc-950 border border-purple-200 dark:border-purple-800 text-[10px] font-medium text-purple-700 dark:text-purple-300"
+                                  >
+                                    {s}
+                                  </span>
+                                ))}
+                              </div>
+                              <p className="text-[11px] text-purple-800/80 dark:text-purple-300/80 leading-relaxed italic">
+                                &quot;{aiAnalysis.insights}&quot;
+                              </p>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="notes"
+                        className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
+                      >
+                        Notes
+                      </label>
+                      <textarea
+                        id="notes"
+                        name="notes"
+                        rows={2}
+                        disabled={isViewOnly}
+                        defaultValue={editData?.notes ?? ""}
+                        maxLength={10000}
+                        className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all resize-none min-h-[60px] disabled:opacity-70"
+                      />
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+
+              {/* Footer */}
+              <div className="flex items-center justify-end gap-3 px-6 py-4 bg-zinc-50 dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  disabled={isPending}
+                  className="px-4 py-2 text-sm font-medium text-zinc-500 dark:text-zinc-400 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors disabled:opacity-50"
+                >
+                  {isViewOnly ? "Close" : "Cancel"}
+                </button>
+                {!isViewOnly && (
+                  <button
+                    type="submit"
+                    disabled={isPending}
+                    className="px-5 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-60 flex items-center gap-2"
+                  >
+                    {isPending && (
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    )}
+                    {isEdit ? "Save Changes" : "Add Application"}
+                  </button>
+                )}
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+}

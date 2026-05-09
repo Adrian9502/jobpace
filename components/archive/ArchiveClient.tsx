@@ -7,11 +7,11 @@ import { formatDate, formatSalary } from "@/lib/utils";
 import { deleteApplication, restoreApplication } from "@/lib/actions";
 import { toast } from "sonner";
 import { Search, Eye, RotateCcw, Trash2 } from "lucide-react";
-import StatusBadge from "./StatusBadge";
-import StageBadge from "./StageBadge";
-import PaginationBar from "./PaginationBar";
-import ApplicationModal from "./ApplicationModal";
-import DeleteConfirmModal from "./DeleteConfirmModal";
+import StatusBadge from "@/components/ui/StatusBadge";
+import StageBadge from "@/components/ui/StageBadge";
+import PaginationBar from "@/components/ui/PaginationBar";
+import ApplicationModal from "@/components/modals/ApplicationModal";
+import DeleteConfirmModal from "@/components/modals/DeleteConfirmModal";
 
 interface Props {
   applications: ApplicationRow[];

@@ -34,13 +34,12 @@ import {
 import type { Stage, Status } from "@/lib/constants";
 import { formatSalaryCompact } from "@/lib/utils";
 import { updateApplicationStage } from "@/lib/actions";
-import ApplicationModal from "./ApplicationModal";
+import ApplicationModal from "@/components/modals/ApplicationModal";
 import { deleteApplication } from "@/lib/actions";
 import { toast } from "sonner";
-import DeleteConfirmModal from "./DeleteConfirmModal";
+import DeleteConfirmModal from "@/components/modals/DeleteConfirmModal";
 
 import confetti from "canvas-confetti";
-
 
 interface Props {
   initialApplications: ApplicationRow[];
@@ -457,7 +456,6 @@ export default function KanbanBoard({ initialApplications }: Props) {
             }
           }}
         />
-
       )}
     </>
   );

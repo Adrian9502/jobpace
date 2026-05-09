@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import type { ApplicationRow } from "@/lib/queries";
 import { motion, AnimatePresence } from "framer-motion";
-import ApplicationModal from "./ApplicationModal";
+import ApplicationModal from "@/components/modals/ApplicationModal";
 
 interface Props {
   applications: ApplicationRow[];
@@ -41,9 +41,7 @@ function getManilaDateStr(date: Date = new Date()): string {
 /**
  * Determine interview time status relative to today in Asia/Manila timezone.
  */
-function getInterviewStatus(
-  interviewDate: Date,
-): "past" | "today" | "future" {
+function getInterviewStatus(interviewDate: Date): "past" | "today" | "future" {
   const today = getManilaDateStr();
   const eventDate = getManilaDateStr(new Date(interviewDate));
   if (eventDate < today) return "past";
@@ -60,13 +58,25 @@ export default function CalendarClient({ applications }: Props) {
   const [selectedApp, setSelectedApp] = useState<ApplicationRow | null>(null);
 
   const calendarEvents = useMemo(() => {
-    const events: { app: ApplicationRow; date: Date; type: "interview" | "follow-up" }[] = [];
+    const events: {
+      app: ApplicationRow;
+      date: Date;
+      type: "interview" | "follow-up";
+    }[] = [];
     for (const app of applications) {
       if (app.interviewDate) {
-        events.push({ app, date: new Date(app.interviewDate), type: "interview" });
+        events.push({
+          app,
+          date: new Date(app.interviewDate),
+          type: "interview",
+        });
       }
       if (app.followUpDate) {
-        events.push({ app, date: new Date(app.followUpDate), type: "follow-up" });
+        events.push({
+          app,
+          date: new Date(app.followUpDate),
+          type: "follow-up",
+        });
       }
     }
     return events;
@@ -219,14 +229,18 @@ export default function CalendarClient({ applications }: Props) {
                                 : "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-200/50 dark:border-blue-800/50 hover:bg-blue-100 dark:hover:bg-blue-800/40"
                         }`}
                       >
-                        {isFollowUp ? `Follow up: ${event.app.companyName}` : event.app.companyName}
+                        {isFollowUp
+                          ? `Follow up: ${event.app.companyName}`
+                          : event.app.companyName}
                         {status === "past" && (
                           <span className="absolute -top-1.5 -right-1 text-[8px] font-semibold bg-zinc-200 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400 px-1 py-px rounded-full leading-none">
                             Passed
                           </span>
                         )}
                         {status === "today" && (
-                          <span className={`absolute -top-1.5 -right-1 text-[8px] font-semibold text-white px-1 py-px rounded-full leading-none ${isFollowUp ? "bg-purple-600" : "bg-blue-600"}`}>
+                          <span
+                            className={`absolute -top-1.5 -right-1 text-[8px] font-semibold text-white px-1 py-px rounded-full leading-none ${isFollowUp ? "bg-purple-600" : "bg-blue-600"}`}
+                          >
                             Today
                           </span>
                         )}
@@ -309,13 +323,19 @@ export default function CalendarClient({ applications }: Props) {
                           onClick={() => handleEdit(app)}
                           className={`relative pl-5 border-l-2 space-y-3 cursor-pointer group/card ${isFollowUp ? "border-purple-500" : "border-blue-500"}`}
                         >
-                          <div className={`absolute -left-1.25 top-1 w-2 h-2 rounded-full group-hover/card:scale-125 transition-transform ${isFollowUp ? "bg-purple-500" : "bg-blue-500"}`} />
+                          <div
+                            className={`absolute -left-1.25 top-1 w-2 h-2 rounded-full group-hover/card:scale-125 transition-transform ${isFollowUp ? "bg-purple-500" : "bg-blue-500"}`}
+                          />
 
                           <div>
-                            <div className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isFollowUp ? "text-purple-500" : "text-blue-500"}`}>
+                            <div
+                              className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${isFollowUp ? "text-purple-500" : "text-blue-500"}`}
+                            >
                               {isFollowUp ? "Follow Up" : "Interview"}
                             </div>
-                            <h4 className={`text-sm font-bold text-zinc-900 dark:text-zinc-100 transition-colors ${isFollowUp ? "group-hover/card:text-purple-600 dark:group-hover/card:text-purple-400" : "group-hover/card:text-blue-600 dark:group-hover/card:text-blue-400"}`}>
+                            <h4
+                              className={`text-sm font-bold text-zinc-900 dark:text-zinc-100 transition-colors ${isFollowUp ? "group-hover/card:text-purple-600 dark:group-hover/card:text-purple-400" : "group-hover/card:text-blue-600 dark:group-hover/card:text-blue-400"}`}
+                            >
                               {app.position}
                             </h4>
                             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
