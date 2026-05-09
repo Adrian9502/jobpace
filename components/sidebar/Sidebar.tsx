@@ -11,9 +11,10 @@ import { getInitials } from "@/lib/utils";
 interface SidebarProps {
   userName: string;
   userImage?: string | null;
+  remindersCount?: number;
 }
 
-export default function Sidebar({ userName, userImage }: SidebarProps) {
+export default function Sidebar({ userName, userImage, remindersCount = 0 }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const initials = getInitials(userName);
 
@@ -61,7 +62,7 @@ export default function Sidebar({ userName, userImage }: SidebarProps) {
             </button>
           </div>
 
-          <SidebarNav onNavClick={() => setMobileOpen(false)} />
+          <SidebarNav onNavClick={() => setMobileOpen(false)} remindersCount={remindersCount} />
           <SidebarThemeToggle />
           <SidebarUserFooter
             userName={userName}

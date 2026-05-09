@@ -113,7 +113,7 @@ export async function logNotification(
   }: {
     userId: string;
     applicationId: string;
-    notificationType: "interview_reminder" | "follow_up_reminder";
+    notificationType: "interview_reminder" | "follow_up_reminder" | "stale_application_reminder";
   }
 ): Promise<void> {
   await db.insert(notificationLogs).values({
@@ -121,4 +121,148 @@ export async function logNotification(
     applicationId,
     notificationType,
   });
+}
+
+export interface StaleApplicationNotification {
+  applicationId: string;
+  userId: string;
+  userName: string | null;
+  userEmail: string;
+  companyName: string;
+  position: string;
+  dateApplied: Date;
+  updatedAt: Date | null;
+}
+
+/**
+ * Fetch applications that have been in 'applied' or 'screening' for >= 20 days
+ * and haven't been notified yet.
+ */
+export async function getStaleApplications(db: Database): Promise<StaleApplicationNotification[]> {
+  return await db
+    .select({
+      applicationId: jobApplications.id,
+      userId: users.id,
+      userName: users.name,
+      userEmail: users.email,
+      companyName: jobApplications.companyName,
+      position: jobApplications.position,
+      dateApplied: jobApplications.dateApplied,
+      updatedAt: jobApplications.updatedAt,
+    })
+    .from(jobApplications)
+    .innerJoin(users, eq(jobApplications.userId, users.id))
+    .where(
+      and(
+        sql`${jobApplications.stage} IN ('applied', 'screening')`,
+        sql`${jobApplications.updatedAt} <= (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Manila') - INTERVAL '20 days'`,
+        sql`NOT EXISTS (
+          SELECT 1 FROM ${notificationLogs} nl 
+          WHERE nl."applicationId" = ${jobApplications.id} 
+          AND nl."notificationType" = 'stale_application_reminder'
+        )`
+      )
+    );
+}
+
+export interface UpcomingReminder {
+  id: string;
+  type: "interview" | "follow_up" | "stale";
+  title: string;
+  companyName: string;
+  position: string;
+  date: Date;
+  applicationId: string;
+}
+
+export async function getUpcomingReminders(userId: string, db: Database): Promise<UpcomingReminder[]> {
+  const apps = await db.query.jobApplications.findMany({
+    where: eq(jobApplications.userId, userId),
+  });
+
+  const reminders: UpcomingReminder[] = [];
+  const now = new Date();
+  
+  for (const app of apps) {
+    if (["hired", "rejected", "ghosted", "withdrawn"].includes(app.stage)) continue;
+
+    // Interview Reminder
+    if (app.interviewDate && app.interviewDate >= now) {
+      reminders.push({
+        id: `int_${app.id}`,
+        type: "interview",
+        title: "Upcoming Interview",
+        companyName: app.companyName,
+        position: app.position,
+        date: app.interviewDate,
+        applicationId: app.id,
+      });
+    }
+
+    // Follow-up Reminder
+    if (app.followUpDate) {
+      const isPastDue = app.followUpDate < now;
+      const isSoon = (app.followUpDate.getTime() - now.getTime()) < (7 * 24 * 60 * 60 * 1000); // within 7 days
+      if (isPastDue || isSoon) {
+        reminders.push({
+          id: `fup_${app.id}`,
+          type: "follow_up",
+          title: isPastDue ? "Overdue Follow-up" : "Upcoming Follow-up",
+          companyName: app.companyName,
+          position: app.position,
+          date: app.followUpDate,
+          applicationId: app.id,
+        });
+      }
+    }
+
+    // Stale Application Reminder
+    if (["applied", "screening"].includes(app.stage) && app.updatedAt) {
+      const daysSinceUpdate = (now.getTime() - app.updatedAt.getTime()) / (1000 * 60 * 60 * 24);
+      if (daysSinceUpdate >= 20) {
+        reminders.push({
+          id: `stl_${app.id}`,
+          type: "stale",
+          title: "Stale Application",
+          companyName: app.companyName,
+          position: app.position,
+          date: app.updatedAt, // Showing the date it was last updated
+          applicationId: app.id,
+        });
+      }
+    }
+  }
+
+  // Sort reminders: Interviews first (closest date), then follow-ups, then stale
+  return reminders.sort((a, b) => {
+    return a.date.getTime() - b.date.getTime();
+  });
+}
+
+export interface NotificationHistoryItem {
+  id: string;
+  type: string;
+  sentAt: Date | null;
+  applicationId: string | null;
+  companyName?: string;
+  position?: string;
+}
+
+export async function getNotificationHistory(userId: string, db: Database): Promise<NotificationHistoryItem[]> {
+  const logs = await db
+    .select({
+      id: notificationLogs.id,
+      type: notificationLogs.notificationType,
+      sentAt: notificationLogs.sentAt,
+      applicationId: notificationLogs.applicationId,
+      companyName: jobApplications.companyName,
+      position: jobApplications.position,
+    })
+    .from(notificationLogs)
+    .leftJoin(jobApplications, eq(notificationLogs.applicationId, jobApplications.id))
+    .where(eq(notificationLogs.userId, userId))
+    .orderBy(sql`${notificationLogs.sentAt} DESC`)
+    .limit(50);
+
+  return logs;
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import type { ApplicationRow } from "@/lib/queries";
 import { STAGE_CONFIG, FINAL_STAGES } from "@/lib/constants";
 import { formatDate, formatSalary } from "@/lib/utils";
@@ -28,6 +29,20 @@ export default function ApplicationsClient({ applications }: Props) {
   const [showArchived, setShowArchived] = useState(false);
   const [page, setPage] = useState(1);
 
+  const searchParams = useSearchParams();
+  const idFromUrl = searchParams.get("id");
+
+  useEffect(() => {
+    if (idFromUrl) {
+      const app = applications.find((a) => a.id === idFromUrl);
+      if (app) {
+        setEditData(app);
+        setIsViewMode(true);
+        setShowModal(true);
+      }
+    }
+  }, [idFromUrl, applications]);
+
   const filtered = useMemo(() => {
     return applications.filter((app) => {
       const isArchived = FINAL_STAGES.includes(app.stage as any);
@@ -50,6 +65,8 @@ export default function ApplicationsClient({ applications }: Props) {
     safePage * PAGE_SIZE,
   );
 
+  const router = useRouter();
+
   function openCreate() {
     setEditData(null);
     setIsViewMode(false);
@@ -69,6 +86,11 @@ export default function ApplicationsClient({ applications }: Props) {
     setShowModal(false);
     setEditData(null);
     setIsViewMode(false);
+    
+    // Remove ?id from URL if present without triggering a refresh
+    if (idFromUrl) {
+      router.replace("/dashboard/applications", { scroll: false });
+    }
   }
 
   return (

@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import {
   getTodayInterviews,
   getTodayFollowUps,
+  getStaleApplications,
   logNotification,
 } from "@/lib/queries/notifications";
 import { sendNotificationEmail } from "@/lib/email/send-notifications";
@@ -16,9 +17,10 @@ export async function GET(request: Request): Promise<NextResponse> {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const [interviews, followUps] = await Promise.all([
+    const [interviews, followUps, staleApps] = await Promise.all([
       getTodayInterviews(db),
       getTodayFollowUps(db),
+      getStaleApplications(db),
     ]);
 
     let sent = 0;
@@ -111,6 +113,49 @@ export async function GET(request: Request): Promise<NextResponse> {
         );
         errors.push(
           `follow_up_reminder [${followUp.applicationId}]: ${message}`
+        );
+      }
+    }
+
+    // Process stale application reminders
+    for (const stale of staleApps) {
+      try {
+        const result = await sendNotificationEmail({
+          type: "stale_application_reminder",
+          to: stale.userEmail,
+          props: {
+            userName: stale.userName || "Job Seeker",
+            companyName: stale.companyName,
+            position: stale.position,
+            dateApplied: stale.dateApplied,
+            updatedAt: stale.updatedAt,
+            appUrl,
+          },
+        });
+
+        if (result.success) {
+          await logNotification(db, {
+            userId: stale.userId,
+            applicationId: stale.applicationId,
+            notificationType: "stale_application_reminder",
+          });
+          sent++;
+        } else {
+          failed++;
+          errors.push(
+            `stale_application_reminder [${stale.applicationId}]: ${result.error}`
+          );
+        }
+      } catch (error: unknown) {
+        failed++;
+        const message =
+          error instanceof Error ? error.message : "Unknown error";
+        console.error(
+          `stale_application_reminder [${stale.applicationId}]:`,
+          message
+        );
+        errors.push(
+          `stale_application_reminder [${stale.applicationId}]: ${message}`
         );
       }
     }

@@ -6,9 +6,10 @@ import SidebarNavItem from "./SidebarNavItem";
 
 interface SidebarNavProps {
   onNavClick?: () => void;
+  remindersCount?: number;
 }
 
-export default function SidebarNav({ onNavClick }: SidebarNavProps) {
+export default function SidebarNav({ onNavClick, remindersCount = 0 }: SidebarNavProps) {
   const pathname = usePathname();
 
   return (
@@ -18,14 +19,20 @@ export default function SidebarNav({ onNavClick }: SidebarNavProps) {
           <div className="px-2 pt-3 pb-1 text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">
             {group.section}
           </div>
-          {group.items.map((item) => (
-            <SidebarNavItem
-              key={item.href}
-              item={item}
-              isActive={pathname === item.href}
-              onNavClick={onNavClick}
-            />
-          ))}
+          {group.items.map((item) => {
+            // Override the badge for Reminders
+            const isReminders = item.href === "/dashboard/reminders";
+            const badge = isReminders ? (remindersCount > 0 ? remindersCount : undefined) : item.badge;
+            
+            return (
+              <SidebarNavItem
+                key={item.href}
+                item={{ ...item, badge }}
+                isActive={pathname === item.href}
+                onNavClick={onNavClick}
+              />
+            );
+          })}
         </div>
       ))}
     </nav>

@@ -135,6 +135,6 @@ export const notificationLogs = pgTable("notification_logs", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   applicationId: text("applicationId"),
-  notificationType: text("notificationType").notNull(), // 'interview_reminder' | 'follow_up_reminder'
+  notificationType: text("notificationType").notNull(), // 'interview_reminder' | 'follow_up_reminder' | 'stale_application_reminder'
   sentAt: timestamp("sentAt", { withTimezone: true }).defaultNow(),
 });
