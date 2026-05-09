@@ -13,7 +13,7 @@ export const applicationSchema = z.object({
   status: z.string().nullable().optional(),
   source: z.string().nullable().optional(),
   applicationLink: z.string().nullable().optional(),
-  dateApplied: z.date({ required_error: "Date applied is required" }),
+  dateApplied: z.date({ message: "Date applied is required" }),
   followUpDate: z.date().nullable().optional(),
   interviewDate: z.date().nullable().optional(),
   contactName: z.string().nullable().optional(),

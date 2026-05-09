@@ -2,6 +2,7 @@ import EmailTemplates from "@/components/EmailTemplates";
 import { getApplications } from "@/lib/queries";
 import { getSession } from "@/lib/auth-helpers";
 
+export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Email Templates - JobPace",
 };

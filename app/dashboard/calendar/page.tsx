@@ -1,6 +1,7 @@
 import { getApplications } from "@/lib/queries";
 import CalendarClient from "@/components/CalendarClient";
 
+export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Interview Calendar - JobPace",
 };

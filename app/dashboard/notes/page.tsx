@@ -1,6 +1,7 @@
 import { getPersonalNotes } from "@/lib/queries";
 import NotesClient from "@/components/notes/NotesClient";
 
+export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Notes - JobPace",
 };

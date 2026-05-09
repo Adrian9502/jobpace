@@ -56,7 +56,7 @@ export async function createApplication(formData: FormData): Promise<ActionResul
 
     const parsed = applicationSchema.safeParse(rawData);
     if (!parsed.success) {
-      return { success: false, error: parsed.error.errors[0].message };
+      return { success: false, error: parsed.error.issues[0].message };
     }
 
     const [{ value: userAppCount }] = await db
@@ -124,7 +124,7 @@ export async function updateApplication(id: string, formData: FormData): Promise
 
     const parsed = applicationSchema.safeParse(rawData);
     if (!parsed.success) {
-      return { success: false, error: parsed.error.errors[0].message };
+      return { success: false, error: parsed.error.issues[0].message };
     }
 
     const oldApp = await getApplicationById(id);
