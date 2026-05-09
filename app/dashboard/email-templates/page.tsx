@@ -1,13 +1,19 @@
 import EmailTemplates from "@/components/EmailTemplates";
 import { getApplications } from "@/lib/queries";
-import { getUserId } from "@/lib/auth-helpers";
+import { getSession } from "@/lib/auth-helpers";
 
 export const metadata = {
   title: "Email Templates - JobPace",
 };
 
 export default async function EmailTemplatesPage() {
-  const applications = await getApplications();
+  const [applications, session] = await Promise.all([
+    getApplications(),
+    getSession()
+  ]);
+
+  const userName = session?.user?.name || "";
+  const userEmail = session?.user?.email || "";
 
   return (
     <>
@@ -20,7 +26,7 @@ export default async function EmailTemplatesPage() {
           recruiters.
         </p>
       </div>
-      <EmailTemplates applications={applications} />
+      <EmailTemplates applications={applications} userName={userName} userEmail={userEmail} />
     </>
   );
 }

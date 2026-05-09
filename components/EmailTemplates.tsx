@@ -47,7 +47,15 @@ const DEFAULT_COLOR = {
   dot: "bg-zinc-400",
 };
 
-export default function EmailTemplates({ applications = [] }: { applications?: ApplicationRow[] }) {
+export default function EmailTemplates({
+  applications = [],
+  userName = "",
+  userEmail = "",
+}: {
+  applications?: ApplicationRow[];
+  userName?: string;
+  userEmail?: string;
+}) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState(ALL_CATEGORY);
   const [search, setSearch] = useState("");
@@ -55,15 +63,34 @@ export default function EmailTemplates({ applications = [] }: { applications?: A
   const [selectedAppId, setSelectedAppId] = useState<string>("");
 
   const processTemplate = (text: string) => {
-    if (!selectedAppId) return text;
-    const app = applications.find(a => a.id === selectedAppId);
-    if (!app) return text;
+    let processed = text;
 
-    return text
-      .replace(/\[Company Name\]/gi, app.companyName)
+    if (userName) {
+      processed = processed.replace(/\[Your Name\]/gi, userName);
+    }
+    if (userEmail) {
+      processed = processed.replace(/\[Email\]/gi, userEmail);
+    }
+
+    if (!selectedAppId) return processed;
+    const app = applications.find((a) => a.id === selectedAppId);
+    if (!app) return processed;
+
+    return processed
+      .replace(/\[Company Name\]|\[Company\]/gi, app.companyName)
       .replace(/\[Position\]/gi, app.position)
-      .replace(/\[Recruiter Name\]|\[Interviewer Name\]|\[Hiring Manager Name\]/gi, app.contactName || "[Name]")
-      .replace(/\[Date\]/gi, new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }));
+      .replace(
+        /\[Recruiter Name\]|\[Interviewer Name\]|\[Hiring Manager Name\]/gi,
+        app.contactName || "[Name]",
+      )
+      .replace(
+        /\[Date\]/gi,
+        new Date().toLocaleDateString("en-US", {
+          weekday: "long",
+          month: "short",
+          day: "numeric",
+        }),
+      );
   };
 
   const categories = [
@@ -258,14 +285,28 @@ export default function EmailTemplates({ applications = [] }: { applications?: A
                 <select
                   value={selectedAppId}
                   onChange={(e) => setSelectedAppId(e.target.value)}
-                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 >
-                  <option value="">Select an application to autofill...</option>
-                  {applications.map((app) => (
-                    <option key={app.id} value={app.id}>
-                      {app.companyName} - {app.position}
-                    </option>
-                  ))}
+                  <option
+                    value=""
+                    className="bg-white dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100"
+                  >
+                    Select an application to autofill...
+                  </option>
+                  {applications.map((app) => {
+                    const label = `${app.companyName} - ${app.position}`;
+                    const truncated =
+                      label.length > 55 ? label.slice(0, 55) + "…" : label;
+                    return (
+                      <option
+                        key={app.id}
+                        value={app.id}
+                        className="bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100"
+                      >
+                        {truncated}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
             )}
@@ -282,7 +323,10 @@ export default function EmailTemplates({ applications = [] }: { applications?: A
                     field="Subject"
                     copiedField={copiedField}
                     onClick={() =>
-                      copyToClipboard(processTemplate(selectedTemplate.subject), "Subject")
+                      copyToClipboard(
+                        processTemplate(selectedTemplate.subject),
+                        "Subject",
+                      )
                     }
                   />
                 </div>
@@ -301,7 +345,10 @@ export default function EmailTemplates({ applications = [] }: { applications?: A
                     field="Email Body"
                     copiedField={copiedField}
                     onClick={() =>
-                      copyToClipboard(processTemplate(selectedTemplate.body), "Email Body")
+                      copyToClipboard(
+                        processTemplate(selectedTemplate.body),
+                        "Email Body",
+                      )
                     }
                   />
                 </div>

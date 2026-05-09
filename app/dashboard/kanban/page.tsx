@@ -1,6 +1,6 @@
 import { getApplications } from "@/lib/queries";
 import KanbanBoard from "@/components/KanbanBoard";
-import AddApplicationButton from "@/components/AddApplicationButton";
+import AddApplicationButton from "@/components/ui/AddApplicationButton";
 import StageStatusGuide from "@/components/StageStatusGuide";
 
 export const dynamic = "force-dynamic";
@@ -14,21 +14,28 @@ export default async function KanbanPage() {
 
   return (
     <>
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        {/* Left: title + guide button */}
+        <div className="flex items-start gap-2">
           <div>
-            <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
-              Track Progress
-            </h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+                Track Progress
+              </h2>
+              <StageStatusGuide />
+            </div>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
               Drag and drop applications to quickly update their stage.
             </p>
           </div>
-          <StageStatusGuide />
         </div>
-        <AddApplicationButton />
+
+        {/* Right: add button */}
+        <div className="shrink-0">
+          <AddApplicationButton />
+        </div>
       </div>
-      
+
       <KanbanBoard initialApplications={applications} />
     </>
   );

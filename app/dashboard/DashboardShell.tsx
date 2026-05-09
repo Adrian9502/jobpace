@@ -20,7 +20,7 @@ export default async function DashboardShell({
         userImage={session!.user!.image}
       />
       <div className="flex flex-col flex-1 min-w-0 h-full">
-        <div className="h-14 lg:hidden shrink-0" />
+        <div className="h-8 lg:hidden shrink-0" />
         <main className="flex-1 p-6 pt-14 lg:pt-6 overflow-y-auto">
           {children}
         </main>
