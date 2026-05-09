@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, bigint, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, bigint, integer, boolean } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: text("id")
@@ -9,6 +9,10 @@ export const users = pgTable("users", {
   emailVerified: timestamp("emailVerified", { withTimezone: true }),
   image: text("image"),
   password: text("password"),
+  username: text("username"),
+  notifyInterview: boolean("notifyInterview").default(true),
+  notifyFollowUp: boolean("notifyFollowUp").default(true),
+  notifyStale: boolean("notifyStale").default(true),
 });
 
 export const accounts = pgTable("accounts", {
