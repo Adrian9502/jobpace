@@ -108,7 +108,7 @@ export function PasswordChangedEmail({
             <Text style={paragraph}>
               Best,
               <br />
-              The JobPace Security Team
+              John Adrian Bonto
             </Text>
           </Section>
 
