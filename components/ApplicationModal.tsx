@@ -149,15 +149,15 @@ export default function ApplicationModal({ open, onClose, editData, readOnly = f
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="sm:col-span-2">
                       <label htmlFor="companyName" className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">Company Name <span className="text-red-500 dark:text-red-400">*</span></label>
-                      <input id="companyName" name="companyName" type="text" required disabled={isViewOnly} defaultValue={editData?.companyName ?? ""} placeholder="e.g. Accenture Philippines" className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70" />
+                      <input id="companyName" name="companyName" type="text" required disabled={isViewOnly} defaultValue={editData?.companyName ?? ""} placeholder="e.g. Accenture Philippines" maxLength={100} className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70" />
                     </div>
                     <div className="sm:col-span-2">
                       <label htmlFor="position" className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">Position <span className="text-red-500 dark:text-red-400">*</span></label>
-                      <input id="position" name="position" type="text" required disabled={isViewOnly} defaultValue={editData?.position ?? ""} placeholder="e.g. Junior Software Developer" className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70" />
+                      <input id="position" name="position" type="text" required disabled={isViewOnly} defaultValue={editData?.position ?? ""} placeholder="e.g. Junior Software Developer" maxLength={100} className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70" />
                     </div>
                     <div>
                       <label htmlFor="location" className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">Location</label>
-                      <input id="location" name="location" type="text" disabled={isViewOnly} defaultValue={editData?.location ?? ""} placeholder="e.g. Makati, BGC, Cebu" className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70" />
+                      <input id="location" name="location" type="text" disabled={isViewOnly} defaultValue={editData?.location ?? ""} placeholder="e.g. Makati, BGC, Cebu" maxLength={100} className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70" />
                     </div>
                     <div>
                       <label htmlFor="workSetup" className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">Work Setup</label>
@@ -231,7 +231,7 @@ export default function ApplicationModal({ open, onClose, editData, readOnly = f
                     </div>
                     <div className="sm:col-span-2">
                       <label htmlFor="applicationLink" className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">Application Link</label>
-                      <input id="applicationLink" name="applicationLink" type="url" disabled={isViewOnly} defaultValue={editData?.applicationLink ?? ""} placeholder="e.g. https://jobstreet.com.ph/job/12345" className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70" />
+                      <input id="applicationLink" name="applicationLink" type="url" disabled={isViewOnly} defaultValue={editData?.applicationLink ?? ""} placeholder="e.g. https://jobstreet.com.ph/job/12345" maxLength={1000} className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70" />
                     </div>
                     <div>
                       <label htmlFor="dateApplied" className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">Date Applied <span className="text-red-500 dark:text-red-400">*</span></label>
@@ -254,11 +254,11 @@ export default function ApplicationModal({ open, onClose, editData, readOnly = f
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="contactName" className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">Contact Name</label>
-                      <input id="contactName" name="contactName" type="text" disabled={isViewOnly} defaultValue={editData?.contactName ?? ""} placeholder="e.g. Juan Dela Cruz" className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70" />
+                      <input id="contactName" name="contactName" type="text" disabled={isViewOnly} defaultValue={editData?.contactName ?? ""} placeholder="e.g. Juan Dela Cruz" maxLength={100} className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70" />
                     </div>
                     <div>
                       <label htmlFor="contactEmail" className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">Contact Email</label>
-                      <input id="contactEmail" name="contactEmail" type="email" disabled={isViewOnly} defaultValue={editData?.contactEmail ?? ""} placeholder="e.g. recruiter@company.com" className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70" />
+                      <input id="contactEmail" name="contactEmail" type="email" disabled={isViewOnly} defaultValue={editData?.contactEmail ?? ""} placeholder="e.g. recruiter@company.com" maxLength={255} className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70" />
                     </div>
                   </div>
                 </fieldset>
@@ -269,13 +269,13 @@ export default function ApplicationModal({ open, onClose, editData, readOnly = f
                   <div className="space-y-4">
                     <div>
                       <label htmlFor="companyResearch" className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">Company Research</label>
-                      <textarea id="companyResearch" name="companyResearch" rows={3} disabled={isViewOnly} defaultValue={editData?.companyResearch ?? ""} placeholder="What do you know about this company? Culture, tech stack, news..." className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all resize-none min-h-[80px] disabled:opacity-70" />
+                      <textarea id="companyResearch" name="companyResearch" rows={3} disabled={isViewOnly} defaultValue={editData?.companyResearch ?? ""} placeholder="What do you know about this company? Culture, tech stack, news..." maxLength={10000} className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all resize-none min-h-[80px] disabled:opacity-70" />
                     </div>
                     <div>
                       <div className="flex items-center justify-between mb-1">
                         <label htmlFor="jobDescription" className="block text-sm font-medium text-zinc-900 dark:text-zinc-100">Job Description</label>
                       </div>
-                      <textarea id="jobDescription" name="jobDescription" rows={3} disabled={isViewOnly} defaultValue={editData?.jobDescription ?? ""} className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all resize-none min-h-[80px] disabled:opacity-70" />
+                      <textarea id="jobDescription" name="jobDescription" rows={3} disabled={isViewOnly} defaultValue={editData?.jobDescription ?? ""} maxLength={10000} className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all resize-none min-h-[80px] disabled:opacity-70" />
                       
                       <AnimatePresence>
                         {aiAnalysis && (
@@ -307,7 +307,7 @@ export default function ApplicationModal({ open, onClose, editData, readOnly = f
                     </div>
                     <div>
                       <label htmlFor="notes" className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1">Notes</label>
-                      <textarea id="notes" name="notes" rows={2} disabled={isViewOnly} defaultValue={editData?.notes ?? ""} className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all resize-none min-h-[60px] disabled:opacity-70" />
+                      <textarea id="notes" name="notes" rows={2} disabled={isViewOnly} defaultValue={editData?.notes ?? ""} maxLength={10000} className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all resize-none min-h-[60px] disabled:opacity-70" />
                     </div>
                   </div>
                 </fieldset>

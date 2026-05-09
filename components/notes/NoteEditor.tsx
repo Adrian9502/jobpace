@@ -63,6 +63,7 @@ export default function NoteEditor({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Untitled"
+            maxLength={100}
             className="w-full text-3xl sm:text-[2rem] font-bold bg-transparent border-none focus:outline-none placeholder:text-zinc-200 dark:placeholder:text-zinc-800 text-zinc-900 dark:text-zinc-50 leading-tight"
           />
           <div className="w-8 h-px bg-zinc-200 dark:bg-zinc-700" />
@@ -70,6 +71,7 @@ export default function NoteEditor({
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Write something…"
+            maxLength={10000}
             className="w-full min-h-[calc(100vh-340px)] text-[15px] bg-transparent border-none focus:outline-none resize-none placeholder:text-zinc-300 dark:placeholder:text-zinc-700 text-zinc-700 dark:text-zinc-300 leading-[1.8] font-serif"
           />
         </div>

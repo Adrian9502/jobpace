@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Plus, Search, FileText, StickyNote } from "lucide-react";
+import { Plus, Search, FileText, StickyNote, ArrowLeft } from "lucide-react";
 import { createNote, updateNote, deleteNote } from "@/lib/actions";
 import type { PersonalNoteRow } from "@/lib/queries";
 import { toast } from "sonner";
 import { formatDate } from "@/lib/utils";
 import DeleteConfirmModal from "../DeleteConfirmModal";
 import NoteEditor from "@/components/notes/NoteEditor";
+
 interface Props {
   initialNotes: PersonalNoteRow[];
 }
@@ -20,6 +21,8 @@ export default function NotesClient({ initialNotes }: Props) {
   const [search, setSearch] = useState("");
   const [isPending, startTransition] = useTransition();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  // mobile: "list" | "editor"
+  const [mobileView, setMobileView] = useState<"list" | "editor">("list");
 
   const activeNoteId = selectedId ?? notes[0]?.id ?? null;
   const selectedNote = notes.find((n) => n.id === activeNoteId) ?? null;
@@ -57,10 +60,21 @@ export default function NotesClient({ initialNotes }: Props) {
     setIsDeleteModalOpen(true);
   };
 
+  const handleSelectNote = (id: string) => {
+    setSelectedId(id);
+    setMobileView("editor");
+  };
+
   return (
-    <div className="flex h-[calc(100vh-140px)] gap-0 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden shadow-sm">
-      {/* ── Sidebar ────────────────────────────────── */}
-      <div className="w-72 shrink-0 flex flex-col border-r border-zinc-100 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-900/40">
+    <div className="flex h-[calc(100vh-140px)] bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden shadow-sm">
+      {/* ── Sidebar ── */}
+      <div
+        className={`
+        flex flex-col border-r border-zinc-100 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-900/40
+        w-full md:w-72 md:shrink-0
+        ${mobileView === "editor" ? "hidden md:flex" : "flex"}
+      `}
+      >
         {/* Sidebar header */}
         <div className="px-4 pt-4 pb-3 space-y-3 border-b border-zinc-100 dark:border-zinc-800">
           <div className="flex items-center justify-between">
@@ -79,7 +93,6 @@ export default function NotesClient({ initialNotes }: Props) {
             </button>
           </div>
 
-          {/* Search */}
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400" />
             <input
@@ -108,7 +121,7 @@ export default function NotesClient({ initialNotes }: Props) {
               return (
                 <button
                   key={note.id}
-                  onClick={() => setSelectedId(note.id)}
+                  onClick={() => handleSelectNote(note.id)}
                   className={`w-full text-left px-3 py-3 rounded-lg transition-all group ${
                     isActive
                       ? "bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700"
@@ -137,8 +150,25 @@ export default function NotesClient({ initialNotes }: Props) {
         </div>
       </div>
 
-      {/* ── Editor ─────────────────────────────────── */}
-      <div className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-zinc-950">
+      {/* ── Editor ── */}
+      <div
+        className={`
+        flex-1 flex flex-col overflow-hidden bg-white dark:bg-zinc-950
+        w-full
+        ${mobileView === "list" ? "hidden md:flex" : "flex"}
+      `}
+      >
+        {/* Mobile back button */}
+        <div className="md:hidden flex items-center gap-2 px-4 py-3 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
+          <button
+            onClick={() => setMobileView("list")}
+            className="flex items-center gap-1.5 text-sm text-blue-600 dark:text-blue-400 font-medium"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Notes
+          </button>
+        </div>
+
         {selectedNote ? (
           <NoteEditor
             key={selectedNote.id}
@@ -186,6 +216,7 @@ export default function NotesClient({ initialNotes }: Props) {
               toast.success("Note deleted");
               const nextNote = notes.find((n) => n.id !== selectedNote.id);
               setSelectedId(nextNote?.id || null);
+              setMobileView("list");
             } else {
               toast.error(result.error ?? "Failed to delete note.");
               throw new Error(result.error);
