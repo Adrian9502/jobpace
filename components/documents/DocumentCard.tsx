@@ -5,6 +5,7 @@ import { CldUploadWidget } from "next-cloudinary";
 import { Download, Upload, FileText, Trash2, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
+import DeleteConfirmModal from "../modals/DeleteConfirmModal";
 
 interface Document {
   id: string;
@@ -36,9 +37,11 @@ export default function DocumentCard({
   isDeleting,
 }: DocumentCardProps) {
   const [isUploading, setIsUploading] = useState(false);
+  const [documentToDelete, setDocumentToDelete] = useState<Document | null>(null);
   const atLimit = documents.length >= limit;
 
   return (
+    <>
     <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-100 dark:border-zinc-800">
@@ -109,7 +112,7 @@ export default function DocumentCard({
                   <Download className="w-4 h-4" />
                 </a>
                 <button
-                  onClick={() => onDelete(doc.id)}
+                  onClick={() => setDocumentToDelete(doc)}
                   disabled={isDeleting === doc.id}
                   className="p-1.5 rounded-md text-zinc-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
                   title="Delete"
@@ -183,5 +186,19 @@ export default function DocumentCard({
         </CldUploadWidget>
       </div>
     </div>
+    
+    <DeleteConfirmModal
+      open={!!documentToDelete}
+      onClose={() => setDocumentToDelete(null)}
+      onConfirm={async () => {
+        if (documentToDelete) {
+          onDelete(documentToDelete.id);
+        }
+      }}
+      title="Delete Document"
+      description="Are you sure you want to delete this document?"
+      itemName={documentToDelete?.name}
+    />
+    </>
   );
 }
