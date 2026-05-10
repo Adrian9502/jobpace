@@ -9,6 +9,7 @@ import {
   Bell,
   FileText,
   Trophy,
+  StickyNote,
   Settings,
   Mail,
 } from "lucide-react";
@@ -32,23 +33,24 @@ export const navItems: NavGroup[] = [
       },
       { label: "Kanban Board", href: "/dashboard/kanban", icon: Kanban },
       { label: "Archive", href: "/dashboard/archive", icon: Archive },
-      { label: "Notes", href: "/dashboard/notes", icon: FileText },
+      { label: "Notes", href: "/dashboard/notes", icon: StickyNote },
       { label: "Timeline", href: "/dashboard/timeline", icon: Clock },
-
       { label: "Activity Logs", href: "/dashboard/activity", icon: Activity },
-
+      {
+        label: "Email Templates",
+        href: "/dashboard/email-templates",
+        icon: Mail,
+      },
     ],
   },
   {
     section: "Insights",
     items: [
       { label: "Analytics", href: "/dashboard/analytics", icon: BarChart2 },
-      { label: "Email Templates", href: "/dashboard/email-templates", icon: Mail },
       {
         label: "Reminders",
         href: "/dashboard/reminders",
         icon: Bell,
-        badge: 3,
       },
     ],
   },
@@ -56,8 +58,11 @@ export const navItems: NavGroup[] = [
   {
     section: "Profile",
     items: [
-      { label: "Portfolio", href: "/dashboard/portfolio", icon: FileText },
-      { label: "Achievements", href: "/dashboard/achievements", icon: Trophy },
+      {
+        label: "Resume & Documents",
+        href: "/dashboard/resume-and-documents",
+        icon: FileText,
+      },
       { label: "Settings", href: "/dashboard/settings", icon: Settings },
     ],
   },

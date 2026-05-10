@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { navItems } from "@/config/nav";
+import { navItems } from "@/lib/nav";
 import SidebarNavItem from "./SidebarNavItem";
 
 interface SidebarNavProps {
@@ -9,7 +9,10 @@ interface SidebarNavProps {
   remindersCount?: number;
 }
 
-export default function SidebarNav({ onNavClick, remindersCount = 0 }: SidebarNavProps) {
+export default function SidebarNav({
+  onNavClick,
+  remindersCount = 0,
+}: SidebarNavProps) {
   const pathname = usePathname();
 
   return (
@@ -22,8 +25,12 @@ export default function SidebarNav({ onNavClick, remindersCount = 0 }: SidebarNa
           {group.items.map((item) => {
             // Override the badge for Reminders
             const isReminders = item.href === "/dashboard/reminders";
-            const badge = isReminders ? (remindersCount > 0 ? remindersCount : undefined) : item.badge;
-            
+            const badge = isReminders
+              ? remindersCount > 0
+                ? remindersCount
+                : undefined
+              : item.badge;
+
             return (
               <SidebarNavItem
                 key={item.href}
