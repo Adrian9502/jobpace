@@ -7,6 +7,7 @@ import {
   Activity,
   BarChart2,
   Bell,
+  Bot,
   FileText,
   Trophy,
   StickyNote,
@@ -47,6 +48,11 @@ export const navItems: NavGroup[] = [
     section: "Insights",
     items: [
       { label: "Analytics", href: "/dashboard/analytics", icon: BarChart2 },
+      {
+        label: "AI Assistant",
+        href: "/dashboard/ai",
+        icon: Bot,
+      },
       {
         label: "Reminders",
         href: "/dashboard/reminders",
