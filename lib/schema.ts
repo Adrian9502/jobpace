@@ -142,3 +142,16 @@ export const notificationLogs = pgTable("notification_logs", {
   notificationType: text("notificationType").notNull(), // 'interview_reminder' | 'follow_up_reminder' | 'stale_application_reminder'
   sentAt: timestamp("sentAt", { withTimezone: true }).defaultNow(),
 });
+
+export const userDocuments = pgTable("user_documents", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  type: text("type").notNull(), // 'resume' | 'cover_letter' | 'other'
+  url: text("url").notNull(),
+  name: text("name").notNull(),
+  createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow(),
+});

@@ -176,6 +176,7 @@ export interface UpcomingReminder {
   position: string;
   date: Date;
   applicationId: string;
+  isActive: boolean;
 }
 
 export async function getUpcomingReminders(userId: string, db: Database): Promise<UpcomingReminder[]> {
@@ -199,6 +200,7 @@ export async function getUpcomingReminders(userId: string, db: Database): Promis
         position: app.position,
         date: app.interviewDate,
         applicationId: app.id,
+        isActive: app.interviewDate.getTime() - now.getTime() < 24 * 60 * 60 * 1000,
       });
     }
 
@@ -215,6 +217,7 @@ export async function getUpcomingReminders(userId: string, db: Database): Promis
           position: app.position,
           date: app.followUpDate,
           applicationId: app.id,
+          isActive: isPastDue,
         });
       }
     }
@@ -231,6 +234,7 @@ export async function getUpcomingReminders(userId: string, db: Database): Promis
           position: app.position,
           date: app.updatedAt, // Showing the date it was last updated
           applicationId: app.id,
+          isActive: true,
         });
       }
     }

@@ -4,7 +4,7 @@ export interface NavItem {
   label: string;
   href: string;
   icon: LucideIcon;
-  badge?: number;
+  badge?: number | string;
 }
 
 export interface NavGroup {

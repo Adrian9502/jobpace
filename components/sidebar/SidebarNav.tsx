@@ -27,7 +27,7 @@ export default function SidebarNav({
             const isReminders = item.href === "/dashboard/reminders";
             const badge = isReminders
               ? remindersCount > 0
-                ? remindersCount
+                ? remindersCount > 50 ? "50+" : remindersCount
                 : undefined
               : item.badge;
 

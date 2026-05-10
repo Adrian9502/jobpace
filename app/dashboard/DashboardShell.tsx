@@ -18,7 +18,7 @@ export default async function DashboardShell({
   // Safely get user ID if session exists
   const userId = session?.user?.id;
   const upcomingReminders = userId ? await getUpcomingReminders(userId, db) : [];
-  const remindersCount = upcomingReminders.length;
+  const remindersCount = upcomingReminders.filter(r => r.isActive).length;
 
   return (
     <div className="flex h-screen overflow-hidden bg-zinc-50 dark:bg-zinc-950">
