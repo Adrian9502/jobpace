@@ -4,6 +4,7 @@ import Sidebar from "@/components/sidebar/Sidebar";
 import { Analytics } from "@vercel/analytics/next";
 import { getUpcomingReminders } from "@/lib/queries/notifications";
 import { db } from "@/lib/db";
+import JobPaceAIWidget from "@/components/ai/JobPaceAIWidget";
 
 export default async function DashboardShell({
   children,
@@ -34,6 +35,7 @@ export default async function DashboardShell({
         </main>
       </div>
       <Analytics />
+      <JobPaceAIWidget />
     </div>
   );
 }
