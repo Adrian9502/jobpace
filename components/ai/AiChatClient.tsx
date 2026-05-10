@@ -24,6 +24,24 @@ const INITIAL_GREETING: Message = {
     "Hi! I'm JobPace AI. I can help you track applications, update statuses, and answer questions about your job search. What can I do for you?",
 };
 
+const UNRELATED_PATTERNS = [
+  /what (would|will) you (ask|do|say)/i,
+  /\d+\s*[\+\-\*\/]\s*\d+/,        // math expressions
+  /what is \d+/i,
+  /who (is|was|are)/i,
+  /what (is|are|was|were) (the|a|an)(?! (status|stage|count|total|number|needed|required|info|information|details|company|position|salary))/i,
+  /tell me (a joke|about yourself|something)/i,
+  /how are you/i,
+  /what do you think about/i,
+  /if you (could|were|had)/i,
+  /imagine/i,
+  /recommend (a movie|a book|music|food|restaurant)/i,
+];
+
+function isUnrelated(message: string): boolean {
+  return UNRELATED_PATTERNS.some((pattern) => pattern.test(message));
+}
+
 export default function AiChatClient() {
   const [messages, setMessages] = useState<Message[]>([INITIAL_GREETING]);
   const [isLoading, setIsLoading] = useState(false);
@@ -39,6 +57,20 @@ export default function AiChatClient() {
     const userMessage: Message = { role: "user", content };
     const updatedMessages = [...messages, userMessage];
     setMessages(updatedMessages);
+
+    // Block before hitting the API — saves tokens entirely
+    if (isUnrelated(content)) {
+      setMessages([
+        ...updatedMessages,
+        {
+          role: "assistant",
+          content: "I'm focused on helping you with your job search. Is there anything about your applications I can help you with?",
+          action: null,
+        },
+      ]);
+      return; // never hits the API
+    }
+
     setIsLoading(true);
 
     try {
