@@ -1,9 +1,18 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Bot, Sparkles } from "lucide-react";
+import { Bot, Sparkles, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
+import { saveChatMessage, deleteChatHistory } from "@/lib/actions/ai";
+import type { AiChatMessageRow } from "@/lib/queries/ai";
+import type { ApplicationRow, PersonalNoteRow, ActivityLogRow } from "@/lib/queries";
+import type { UserDocumentRow, NotificationLogRow } from "@/lib/queries/ai";
+
+// ──────────────────────────────────────────────
+// Types
+// ──────────────────────────────────────────────
 
 type Action = {
   tool: string;
@@ -18,6 +27,23 @@ type Message = {
   action?: Action | null;
 };
 
+type ContextPayload = {
+  applications: ApplicationRow[];
+  notes: PersonalNoteRow[];
+  activityLogs: ActivityLogRow[];
+  documents: UserDocumentRow[];
+  notificationLogs: NotificationLogRow[];
+};
+
+type Props = {
+  initialHistory: AiChatMessageRow[];
+  context: ContextPayload;
+};
+
+// ──────────────────────────────────────────────
+// Constants
+// ──────────────────────────────────────────────
+
 const INITIAL_GREETING: Message = {
   role: "assistant",
   content:
@@ -26,7 +52,7 @@ const INITIAL_GREETING: Message = {
 
 const UNRELATED_PATTERNS = [
   /what (would|will) you (ask|do|say)/i,
-  /\d+\s*[\+\-\*\/]\s*\d+/,        // math expressions
+  /\d+\s*[+\-*/]\s*\d+/,
   /what is \d+/i,
   /who (is|was|are)/i,
   /what (is|are|was|were) (the|a|an)(?! (status|stage|count|total|number|needed|required|info|information|details|company|position|salary))/i,
@@ -42,9 +68,40 @@ function isUnrelated(message: string): boolean {
   return UNRELATED_PATTERNS.some((pattern) => pattern.test(message));
 }
 
-export default function AiChatClient() {
-  const [messages, setMessages] = useState<Message[]>([INITIAL_GREETING]);
+/**
+ * Parse DB history into Message[], parsing the JSON action field.
+ */
+function parseHistory(rows: AiChatMessageRow[]): Message[] {
+  return rows.map((row) => {
+    let action: Action | null = null;
+    if (row.action) {
+      try {
+        action = JSON.parse(row.action) as Action;
+      } catch {
+        // ignore malformed JSON
+      }
+    }
+    return {
+      role: row.role as "user" | "assistant",
+      content: row.content,
+      action,
+    };
+  });
+}
+
+// ──────────────────────────────────────────────
+// Component
+// ──────────────────────────────────────────────
+
+export default function AiChatClient({ initialHistory, context }: Props) {
+  const [messages, setMessages] = useState<Message[]>(() => {
+    if (initialHistory.length > 0) {
+      return parseHistory(initialHistory);
+    }
+    return [INITIAL_GREETING];
+  });
   const [isLoading, setIsLoading] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -58,17 +115,21 @@ export default function AiChatClient() {
     const updatedMessages = [...messages, userMessage];
     setMessages(updatedMessages);
 
+    // Fire-and-forget: persist user message (no await, no UI blocking)
+    saveChatMessage("user", content).catch(() => {});
+
     // Block before hitting the API — saves tokens entirely
     if (isUnrelated(content)) {
-      setMessages([
-        ...updatedMessages,
-        {
-          role: "assistant",
-          content: "I'm focused on helping you with your job search. Is there anything about your applications I can help you with?",
-          action: null,
-        },
-      ]);
-      return; // never hits the API
+      const blockedReply: Message = {
+        role: "assistant",
+        content:
+          "I'm focused on helping you with your job search. Is there anything about your applications I can help you with?",
+        action: null,
+      };
+      setMessages([...updatedMessages, blockedReply]);
+      // Persist blocked reply
+      saveChatMessage("assistant", blockedReply.content).catch(() => {});
+      return;
     }
 
     setIsLoading(true);
@@ -82,6 +143,7 @@ export default function AiChatClient() {
             role: m.role,
             content: m.content,
           })),
+          context,
         }),
       });
 
@@ -89,10 +151,9 @@ export default function AiChatClient() {
         const errorData = await res.json().catch(() => null);
         const errorMessage =
           errorData?.error || "Something went wrong. Please try again.";
-        setMessages((prev) => [
-          ...prev,
-          { role: "assistant", content: errorMessage },
-        ]);
+        const errorReply: Message = { role: "assistant", content: errorMessage };
+        setMessages((prev) => [...prev, errorReply]);
+        saveChatMessage("assistant", errorMessage).catch(() => {});
         return;
       }
 
@@ -105,17 +166,41 @@ export default function AiChatClient() {
       };
 
       setMessages((prev) => [...prev, aiMessage]);
+
+      // Fire-and-forget: persist assistant message
+      saveChatMessage(
+        "assistant",
+        data.message,
+        data.action ? JSON.stringify(data.action) : null
+      ).catch(() => {});
     } catch {
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content:
-            "Sorry, I couldn't connect to the server. Please check your connection and try again.",
-        },
-      ]);
+      const fallback =
+        "Sorry, I couldn't connect to the server. Please check your connection and try again.";
+      setMessages((prev) => [...prev, { role: "assistant", content: fallback }]);
+      saveChatMessage("assistant", fallback).catch(() => {});
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  async function handleClearHistory() {
+    if (!window.confirm("Clear all chat history? This cannot be undone.")) {
+      return;
+    }
+
+    setIsClearing(true);
+    try {
+      const result = await deleteChatHistory();
+      if (result.success) {
+        setMessages([INITIAL_GREETING]);
+        toast.success("Chat history cleared");
+      } else {
+        toast.error("Failed to clear history");
+      }
+    } catch {
+      toast.error("Failed to clear history");
+    } finally {
+      setIsClearing(false);
     }
   }
 
@@ -123,6 +208,26 @@ export default function AiChatClient() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-160px)] bg-white dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+      {/* Header bar */}
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-zinc-200 dark:border-zinc-800">
+        <div className="flex items-center gap-2">
+          <Bot className="h-4 w-4 text-blue-500" />
+          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            JobPace AI
+          </span>
+        </div>
+        {hasMessages && (
+          <button
+            onClick={handleClearHistory}
+            disabled={isClearing}
+            className="flex items-center gap-1 text-xs text-zinc-400 hover:text-red-500 dark:text-zinc-500 dark:hover:text-red-400 transition-colors disabled:opacity-50"
+          >
+            <Trash2 className="h-3 w-3" />
+            Clear history
+          </button>
+        )}
+      </div>
+
       {/* Message list */}
       <div
         ref={scrollRef}

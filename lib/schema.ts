@@ -155,3 +155,16 @@ export const userDocuments = pgTable("user_documents", {
   name: text("name").notNull(),
   createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow(),
 });
+
+export const aiChatMessages = pgTable("ai_chat_messages", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  role: text("role").notNull(),
+  content: text("content").notNull(),
+  action: text("action"),
+  createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow(),
+});
