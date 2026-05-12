@@ -47,7 +47,7 @@ export default function TimelineClient({
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all border ${
+            className={`px-3 py-1.5 cursor-pointer rounded-full text-xs font-semibold transition-all border ${
               filter === f
                 ? "bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 border-zinc-900 dark:border-zinc-100"
                 : "bg-white dark:bg-zinc-900 text-zinc-500 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600"

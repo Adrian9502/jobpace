@@ -47,7 +47,7 @@ export default function ActivityClient({ logs }: { logs: ActivityLog[] }) {
             <button
               key={key}
               onClick={() => handleFilterChange(key)}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all border ${
+              className={`px-3 cursor-pointer py-1.5 rounded-full text-xs font-semibold transition-all border ${
                 active
                   ? cfg
                     ? `${cfg.bg} ${cfg.text} ${cfg.border}`

@@ -117,7 +117,7 @@ export default function RemindersClient({ upcoming, history }: Props) {
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
+            className={`px-3 py-1.5 cursor-pointer text-xs font-medium rounded-full transition-colors ${
               filter === f
                 ? "bg-zinc-800 text-white dark:bg-zinc-200 dark:text-zinc-900"
                 : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800/50 dark:text-zinc-400 dark:hover:bg-zinc-800"

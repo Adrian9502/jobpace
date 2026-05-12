@@ -5,9 +5,14 @@ import { Bot, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
+import DeleteConfirmModal from "@/components/modals/DeleteConfirmModal";
 import { saveChatMessage, deleteChatHistory } from "@/lib/actions/ai";
 import type { AiChatMessageRow } from "@/lib/queries/ai";
-import type { ApplicationRow, PersonalNoteRow, ActivityLogRow } from "@/lib/queries";
+import type {
+  ApplicationRow,
+  PersonalNoteRow,
+  ActivityLogRow,
+} from "@/lib/queries";
 import type { UserDocumentRow, NotificationLogRow } from "@/lib/queries/ai";
 
 // ──────────────────────────────────────────────
@@ -102,6 +107,7 @@ export default function AiChatClient({ initialHistory, context }: Props) {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -151,7 +157,10 @@ export default function AiChatClient({ initialHistory, context }: Props) {
         const errorData = await res.json().catch(() => null);
         const errorMessage =
           errorData?.error || "Something went wrong. Please try again.";
-        const errorReply: Message = { role: "assistant", content: errorMessage };
+        const errorReply: Message = {
+          role: "assistant",
+          content: errorMessage,
+        };
         setMessages((prev) => [...prev, errorReply]);
         saveChatMessage("assistant", errorMessage).catch(() => {});
         return;
@@ -171,12 +180,15 @@ export default function AiChatClient({ initialHistory, context }: Props) {
       saveChatMessage(
         "assistant",
         data.message,
-        data.action ? JSON.stringify(data.action) : null
+        data.action ? JSON.stringify(data.action) : null,
       ).catch(() => {});
     } catch {
       const fallback =
         "Sorry, I couldn't connect to the server. Please check your connection and try again.";
-      setMessages((prev) => [...prev, { role: "assistant", content: fallback }]);
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: fallback },
+      ]);
       saveChatMessage("assistant", fallback).catch(() => {});
     } finally {
       setIsLoading(false);
@@ -184,21 +196,20 @@ export default function AiChatClient({ initialHistory, context }: Props) {
   }
 
   async function handleClearHistory() {
-    if (!window.confirm("Clear all chat history? This cannot be undone.")) {
-      return;
-    }
-
     setIsClearing(true);
     try {
       const result = await deleteChatHistory();
       if (result.success) {
         setMessages([INITIAL_GREETING]);
         toast.success("Chat history cleared");
+        setShowClearConfirm(false);
       } else {
         toast.error("Failed to clear history");
+        throw new Error("Failed to clear history");
       }
     } catch {
       toast.error("Failed to clear history");
+      throw new Error("Failed to clear history");
     } finally {
       setIsClearing(false);
     }
@@ -218,7 +229,7 @@ export default function AiChatClient({ initialHistory, context }: Props) {
         </div>
         {hasMessages && (
           <button
-            onClick={handleClearHistory}
+            onClick={() => setShowClearConfirm(true)}
             disabled={isClearing}
             className="flex items-center gap-1 text-xs text-zinc-400 hover:text-red-500 dark:text-zinc-500 dark:hover:text-red-400 transition-colors disabled:opacity-50"
           >
@@ -229,10 +240,7 @@ export default function AiChatClient({ initialHistory, context }: Props) {
       </div>
 
       {/* Message list */}
-      <div
-        ref={scrollRef}
-        className="flex-1 overflow-y-auto px-4 py-4"
-      >
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">
         {!hasMessages && !isLoading ? (
           // Empty state (only initial greeting shown)
           <div className="flex flex-col items-center justify-center h-full text-center">
@@ -283,6 +291,14 @@ export default function AiChatClient({ initialHistory, context }: Props) {
 
       {/* Input bar pinned to bottom */}
       <ChatInput onSend={handleSend} disabled={isLoading} />
+
+      <DeleteConfirmModal
+        open={showClearConfirm}
+        onClose={() => setShowClearConfirm(false)}
+        title="Clear Chat History"
+        description="Are you sure you want to clear all chat history? This cannot be undone."
+        onConfirm={handleClearHistory}
+      />
     </div>
   );
 }
