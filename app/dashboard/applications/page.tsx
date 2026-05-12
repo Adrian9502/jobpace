@@ -10,8 +10,6 @@ export default async function ApplicationsPage() {
   const applications = await getApplications();
 
   return (
-    <ApplicationsClient
-      applications={JSON.parse(JSON.stringify(applications))}
-    />
+    <ApplicationsClient applications={applications} />
   );
 }
