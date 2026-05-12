@@ -168,3 +168,15 @@ export const aiChatMessages = pgTable("ai_chat_messages", {
   action: text("action"),
   createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow(),
 });
+
+export const userFeedbacks = pgTable("user_feedbacks", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  category: text("category").notNull(), // 'bug' | 'feature' | 'general'
+  description: text("description").notNull(),
+  createdAt: timestamp("createdAt", { withTimezone: true }).defaultNow(),
+});

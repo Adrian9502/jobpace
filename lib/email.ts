@@ -96,3 +96,33 @@ export async function sendPasswordChangedEmail(
     console.error("Nodemailer password changed email error:", error);
   }
 }
+
+export async function sendFeedbackEmail(
+  userEmail: string,
+  userName: string,
+  category: string,
+  description: string,
+): Promise<void> {
+  const html = `
+    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2>New Feedback Received</h2>
+      <p><strong>From:</strong> ${userName} (${userEmail})</p>
+      <p><strong>Category:</strong> ${category}</p>
+      <hr />
+      <h3>Description:</h3>
+      <p style="white-space: pre-wrap;">${description}</p>
+    </div>
+  `;
+
+  try {
+    await transporter.sendMail({
+      from: `"JobPace Feedback" <${process.env.EMAIL_SERVER_USER}>`,
+      to: "bontojohnadrian@gmail.com",
+      subject: `[JobPace] New ${category} from ${userName}`,
+      html,
+    });
+  } catch (error) {
+    console.error("Nodemailer feedback email error:", error);
+    throw new Error("Failed to send feedback email");
+  }
+}
