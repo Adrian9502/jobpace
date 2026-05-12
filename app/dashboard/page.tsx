@@ -4,7 +4,7 @@ import {
   getKanbanCounts,
   getApplications,
 } from "@/lib/queries";
-import { STAGE_CONFIG } from "@/lib/constants";
+import { STAGE_CONFIG, KANBAN_COLUMNS } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
 import AddApplicationButton from "@/components/ui/AddApplicationButton";
 import LiveDateTime from "@/components/dashboard/LiveDateTime";
@@ -27,15 +27,7 @@ export default async function DashboardPage() {
 
   const recentApps = applications.slice(0, 5);
 
-  // Show a subset of stages for the Kanban preview
-  const previewStages = [
-    "applied",
-    "screening",
-    "interview",
-    "assessment",
-    "offer",
-    "hired",
-  ] as const;
+
 
   return (
     <>
@@ -189,7 +181,7 @@ export default async function DashboardPage() {
           </a>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {previewStages.map((stage) => {
+          {KANBAN_COLUMNS.map((stage) => {
             const count = kanbanCounts[stage] ?? 0;
             const cfg = STAGE_CONFIG[stage];
             return (
