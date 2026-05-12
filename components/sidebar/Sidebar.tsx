@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import SidebarLogo from "./SidebarLogo";
 import SidebarNav from "./SidebarNav";
+import SidebarAbout from "./SidebarAbout";
 import SidebarThemeToggle from "./SidebarThemeToggle";
 import SidebarUserFooter from "./SidebarUserFooter";
 import { getInitials } from "@/lib/utils";
@@ -63,6 +64,7 @@ export default function Sidebar({ userName, userImage, remindersCount = 0 }: Sid
           </div>
 
           <SidebarNav onNavClick={() => setMobileOpen(false)} remindersCount={remindersCount} />
+          <SidebarAbout />
           <SidebarThemeToggle />
           <SidebarUserFooter
             userName={userName}
