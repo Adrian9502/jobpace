@@ -37,17 +37,18 @@ export default function ApplicationsClient({
   const searchParams = useSearchParams();
   const router = useRouter();
   const idFromUrl = searchParams.get("id");
+  const editFromUrl = searchParams.get("edit");
 
   useEffect(() => {
     if (idFromUrl) {
       const app = applications.find((a) => a.id === idFromUrl);
       if (app) {
         setEditData(app);
-        setIsViewMode(true);
+        setIsViewMode(editFromUrl !== "true");
         setShowModal(true);
       }
     }
-  }, [idFromUrl, applications]);
+  }, [idFromUrl, editFromUrl, applications]);
 
   const filtered = useMemo(() => {
     return applications.filter((app) => {

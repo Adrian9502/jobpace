@@ -148,8 +148,8 @@ export default function DocumentCard({
             setIsUploading(false);
             if (result?.info?.secure_url) {
               const url = result.info.secure_url;
-              const name =
-                result.info.original_filename + "." + result.info.format;
+              const format = result.info.format || result.info.original_extension;
+              const name = result.info.original_filename + (format ? "." + format : "");
               onUploadSuccess(url, name);
             }
           }}

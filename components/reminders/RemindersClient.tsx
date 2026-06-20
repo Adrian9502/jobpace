@@ -285,11 +285,11 @@ function ReminderCard({ reminder }: { reminder: SerializedUpcoming }) {
 
       <div className="border-t border-zinc-100 dark:border-zinc-800 p-3 bg-zinc-50/50 dark:bg-zinc-800/20">
         <Link
-          href={`/dashboard/applications?id=${reminder.applicationId}`}
+          href={`/dashboard/applications?id=${reminder.applicationId}&edit=true`}
           className="flex items-center justify-center gap-1.5 w-full py-2 text-xs font-semibold text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors"
         >
           <FileText className="w-3.5 h-3.5" />
-          View Application
+          Edit Application
         </Link>
       </div>
     </div>
