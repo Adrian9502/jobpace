@@ -5,7 +5,7 @@ import { Menu, X } from "lucide-react";
 import SidebarLogo from "./SidebarLogo";
 import SidebarNav from "./SidebarNav";
 import SidebarFeedback from "./SidebarFeedback";
-import SidebarAbout from "./SidebarAbout";
+// import SidebarAbout from "./SidebarAbout";
 import SidebarThemeToggle from "./SidebarThemeToggle";
 import SidebarUserFooter from "./SidebarUserFooter";
 import { getInitials } from "@/lib/utils";
@@ -16,7 +16,11 @@ interface SidebarProps {
   remindersCount?: number;
 }
 
-export default function Sidebar({ userName, userImage, remindersCount = 0 }: SidebarProps) {
+export default function Sidebar({
+  userName,
+  userImage,
+  remindersCount = 0,
+}: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const initials = getInitials(userName);
 
@@ -64,9 +68,12 @@ export default function Sidebar({ userName, userImage, remindersCount = 0 }: Sid
             </button>
           </div>
 
-          <SidebarNav onNavClick={() => setMobileOpen(false)} remindersCount={remindersCount} />
+          <SidebarNav
+            onNavClick={() => setMobileOpen(false)}
+            remindersCount={remindersCount}
+          />
           <SidebarFeedback />
-          <SidebarAbout />
+          {/* <SidebarAbout /> */}
           <SidebarThemeToggle />
           <SidebarUserFooter
             userName={userName}
