@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import type { ApplicationRow } from "@/lib/queries";
+import type { UserDocumentRow } from "@/lib/queries";
 import { FINAL_STAGES } from "@/lib/constants";
 import { deleteApplication } from "@/lib/actions";
 import { applicationsToCsv } from "@/lib/csv-helpers";
@@ -21,8 +22,10 @@ const PAGE_SIZE = 10;
 
 export default function ApplicationsClient({
   applications,
+  documents = [],
 }: {
   applications: ApplicationRow[];
+  documents?: UserDocumentRow[];
 }) {
   const [search, setSearch] = useState("");
   const [stageFilter, setStageFilter] = useState("all");
@@ -175,6 +178,7 @@ export default function ApplicationsClient({
         onClose={closeModal}
         editData={editData}
         readOnly={isViewMode}
+        documents={documents}
       />
 
       {deleteTarget && (

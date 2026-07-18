@@ -46,6 +46,7 @@ function parseApplicationForm(formData: FormData) {
     jobDescription: (formData.get("jobDescription") as string)?.trim() || null,
     notes: (formData.get("notes") as string)?.trim() || null,
     companyResearch: (formData.get("companyResearch") as string)?.trim() || null,
+    linkedResumeUrl: (formData.get("linkedResumeUrl") as string)?.trim() || null,
   };
 }
 

@@ -88,6 +88,7 @@ export const jobApplications = pgTable("job_applications", {
   status: text("status"), // pending | ongoing | passed | failed (nullable for final stages)
   source: text("source"), // Jobstreet | LinkedIn | Kalibrr | Indeed | Referral | Company Website | Facebook | Walk-in
   applicationLink: text("applicationLink"),
+  linkedResumeUrl: text("linkedResumeUrl"), // URL of the resume the user submitted for this application
   dateApplied: timestamp("dateApplied", { withTimezone: true }).notNull(),
   followUpDate: timestamp("followUpDate", { withTimezone: true }),
   interviewDate: timestamp("interviewDate", { withTimezone: true }),

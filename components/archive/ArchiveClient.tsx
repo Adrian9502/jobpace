@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import type { ApplicationRow } from "@/lib/queries";
+import type { ApplicationRow, UserDocumentRow } from "@/lib/queries";
 import { STAGE_CONFIG, FINAL_STAGES } from "@/lib/constants";
 import { formatDate, formatSalary } from "@/lib/utils";
 import { deleteApplication, restoreApplication } from "@/lib/actions";
@@ -15,12 +15,13 @@ import DeleteConfirmModal from "@/components/modals/DeleteConfirmModal";
 
 interface Props {
   applications: ApplicationRow[];
+  documents?: UserDocumentRow[];
 }
 
 const PAGE_SIZE = 10;
 const FINAL_STAGE_SET = new Set<string>(FINAL_STAGES);
 
-export default function ArchiveClient({ applications }: Props) {
+export default function ArchiveClient({ applications, documents = [] }: Props) {
   const [search, setSearch] = useState("");
   const [outcomeFilter, setOutcomeFilter] = useState("all");
   const [showModal, setShowModal] = useState(false);
@@ -325,6 +326,7 @@ export default function ArchiveClient({ applications }: Props) {
         onClose={closeModal}
         editData={viewData}
         readOnly={true}
+        documents={documents}
       />
       {deleteTarget && (
         <DeleteConfirmModal

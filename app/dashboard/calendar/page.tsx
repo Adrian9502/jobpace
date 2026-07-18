@@ -1,4 +1,4 @@
-import { getApplications } from "@/lib/queries";
+import { getApplications, getDocuments } from "@/lib/queries";
 import CalendarClient from "@/components/calendar/CalendarClient";
 
 export const dynamic = "force-dynamic";
@@ -7,7 +7,10 @@ export const metadata = {
 };
 
 export default async function CalendarPage() {
-  const applications = await getApplications();
+  const [applications, documents] = await Promise.all([
+    getApplications(),
+    getDocuments(),
+  ]);
 
   return (
     <>
@@ -19,7 +22,7 @@ export default async function CalendarPage() {
           Keep track of your scheduled interviews and assessments.
         </p>
       </div>
-      <CalendarClient applications={applications} />
+      <CalendarClient applications={applications} documents={documents} />
     </>
   );
 }

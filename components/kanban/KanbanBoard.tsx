@@ -25,6 +25,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { useDroppable } from "@dnd-kit/core";
 
 import type { ApplicationRow } from "@/lib/queries";
+import type { UserDocumentRow } from "@/lib/queries";
 import {
   STAGE_CONFIG,
   STATUS_CONFIG,
@@ -43,6 +44,7 @@ import confetti from "canvas-confetti";
 
 interface Props {
   initialApplications: ApplicationRow[];
+  documents?: UserDocumentRow[];
 }
 
 // --- Sortable Item Component ---
@@ -233,7 +235,7 @@ function KanbanColumn({
   );
 }
 
-export default function KanbanBoard({ initialApplications }: Props) {
+export default function KanbanBoard({ initialApplications, documents = [] }: Props) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -438,6 +440,7 @@ export default function KanbanBoard({ initialApplications }: Props) {
         open={!!editData}
         onClose={() => setEditData(null)}
         editData={editData}
+        documents={documents}
       />
       {deleteTarget && (
         <DeleteConfirmModal

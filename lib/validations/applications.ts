@@ -21,6 +21,7 @@ export const applicationSchema = z.object({
   jobDescription: z.string().max(10000, "Job description cannot exceed 10,000 characters").nullable().optional(),
   notes: z.string().max(10000, "Notes cannot exceed 10,000 characters").nullable().optional(),
   companyResearch: z.string().max(10000, "Company research cannot exceed 10,000 characters").nullable().optional(),
+  linkedResumeUrl: z.string().max(2000, "Resume URL is too long").nullable().optional(),
 }).superRefine((data, ctx) => {
   if (data.dateApplied) {
     const dateError = validateDateInBounds(data.dateApplied, "Date applied");

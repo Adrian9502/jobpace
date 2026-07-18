@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { jobApplications, jobActivityLogs, personalNotes } from "./schema";
+import { jobApplications, jobActivityLogs, personalNotes, userDocuments } from "./schema";
 import { getUserId } from "./auth-helpers";
 import { eq, desc, and, sql } from "drizzle-orm";
 
@@ -10,6 +10,7 @@ import { eq, desc, and, sql } from "drizzle-orm";
 export type ApplicationRow = typeof jobApplications.$inferSelect;
 export type PersonalNoteRow = typeof personalNotes.$inferSelect;
 export type ActivityLogRow = typeof jobActivityLogs.$inferSelect;
+export type UserDocumentRow = typeof userDocuments.$inferSelect;
 
 
 export type ApplicationStats = {
@@ -109,3 +110,12 @@ export async function getPersonalNotes(): Promise<PersonalNoteRow[]> {
     .orderBy(desc(personalNotes.updatedAt));
 }
 
+export async function getDocuments(): Promise<UserDocumentRow[]> {
+  const userId = await getUserId();
+
+  return db
+    .select()
+    .from(userDocuments)
+    .where(eq(userDocuments.userId, userId))
+    .orderBy(desc(userDocuments.createdAt));
+}

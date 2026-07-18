@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import ApplicationModal from "@/components/modals/ApplicationModal";
+import type { UserDocumentRow } from "@/lib/queries";
 
-export default function AddApplicationButton() {
+export default function AddApplicationButton({ documents = [] }: { documents?: UserDocumentRow[] }) {
   const [showModal, setShowModal] = useState(false);
 
   return (
@@ -22,6 +23,7 @@ export default function AddApplicationButton() {
         open={showModal}
         onClose={() => setShowModal(false)}
         editData={null}
+        documents={documents}
       />
     </>
   );

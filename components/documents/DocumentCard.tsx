@@ -138,10 +138,12 @@ export default function DocumentCard({
           }
           options={{
             maxFiles: 1,
-            resourceType: "raw",
+            resourceType: "auto",
             clientAllowedFormats: ["pdf", "doc", "docx"],
             maxFileSize: 5000000,
-          }}
+            use_filename: true,
+            unique_filename: true,
+          } as any}
           onOpen={() => setIsUploading(true)}
           onClose={() => setIsUploading(false)}
           onSuccess={(result: any) => {

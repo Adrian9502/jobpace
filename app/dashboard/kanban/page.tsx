@@ -1,4 +1,4 @@
-import { getApplications } from "@/lib/queries";
+import { getApplications, getDocuments } from "@/lib/queries";
 import KanbanBoard from "@/components/kanban/KanbanBoard";
 import AddApplicationButton from "@/components/ui/AddApplicationButton";
 import StageStatusGuide from "@/components/ui/StageStatusGuide";
@@ -10,7 +10,10 @@ export const metadata = {
 };
 
 export default async function KanbanPage() {
-  const applications = await getApplications();
+  const [applications, documents] = await Promise.all([
+    getApplications(),
+    getDocuments(),
+  ]);
 
   return (
     <>
@@ -32,11 +35,11 @@ export default async function KanbanPage() {
 
         {/* Right: add button */}
         <div className="shrink-0">
-          <AddApplicationButton />
+          <AddApplicationButton documents={documents} />
         </div>
       </div>
 
-      <KanbanBoard initialApplications={applications} />
+      <KanbanBoard initialApplications={applications} documents={documents} />
     </>
   );
 }

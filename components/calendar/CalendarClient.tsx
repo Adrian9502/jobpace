@@ -23,12 +23,13 @@ import {
   Mail,
   X,
 } from "lucide-react";
-import type { ApplicationRow } from "@/lib/queries";
+import type { ApplicationRow, UserDocumentRow } from "@/lib/queries";
 import { motion, AnimatePresence } from "framer-motion";
 import ApplicationModal from "@/components/modals/ApplicationModal";
 
 interface Props {
   applications: ApplicationRow[];
+  documents?: UserDocumentRow[];
 }
 
 /**
@@ -49,7 +50,7 @@ function getInterviewStatus(interviewDate: Date): "past" | "today" | "future" {
   return "future";
 }
 
-export default function CalendarClient({ applications }: Props) {
+export default function CalendarClient({ applications, documents = [] }: Props) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -420,6 +421,7 @@ export default function CalendarClient({ applications }: Props) {
           setSelectedApp(null);
         }}
         editData={selectedApp}
+        documents={documents}
       />
     </div>
   );
