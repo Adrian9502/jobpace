@@ -42,6 +42,9 @@ export default function ApplicationModal({
   );
   const [showAdvanced, setShowAdvanced] = useState(isEdit || isViewOnly);
 
+  const [isExtracting, setIsExtracting] = useState(false);
+  const [extractText, setExtractText] = useState("");
+
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState<{
     skills: string[];
@@ -66,6 +69,52 @@ export default function ApplicationModal({
       document.body.style.overflow = "";
     };
   }, [open, editData]);
+
+  const handleExtract = async () => {
+    if (!extractText.trim()) return;
+    setIsExtracting(true);
+    try {
+      const res = await fetch("/api/ai/extract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: extractText }),
+      });
+      if (!res.ok) {
+        throw new Error("Extraction failed");
+      }
+      const data = await res.json();
+
+      if (data.companyName) {
+        const el = document.getElementById("companyName") as HTMLInputElement;
+        if (el) el.value = data.companyName;
+      }
+      if (data.position) {
+        const el = document.getElementById("position") as HTMLInputElement;
+        if (el) el.value = data.position;
+      }
+      if (data.location) {
+        const el = document.getElementById("location") as HTMLInputElement;
+        if (el) el.value = data.location;
+      }
+      if (data.workSetup) {
+        const el = document.getElementById("workSetup") as HTMLSelectElement;
+        if (el) el.value = data.workSetup;
+      }
+      if (data.employmentType) {
+        const el = document.getElementById(
+          "employmentType",
+        ) as HTMLSelectElement;
+        if (el) el.value = data.employmentType;
+      }
+
+      toast.success("Form auto-filled successfully!");
+      setExtractText("");
+    } catch (err) {
+      toast.error("Failed to extract details. Please try manually.");
+    } finally {
+      setIsExtracting(false);
+    }
+  };
 
   function handleSubmit(formData: FormData) {
     setError(null);
@@ -203,6 +252,44 @@ export default function ApplicationModal({
                   </div>
                 )}
 
+                {/* Magic Auto-fill (Only for new applications) */}
+                {!isEdit && !isViewOnly && (
+                  <div className="bg-zinc-50/50 dark:bg-zinc-900/20 border border-zinc-200 dark:border-zinc-800/80 p-5 rounded-xl space-y-3">
+                    <div className="flex items-center gap-2">
+                      {/* <Brain className="w-4 h-4 text-zinc-900 dark:text-zinc-100" /> */}
+                      <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                        JobPace AI Auto-fill
+                      </h3>
+                    </div>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                      Paste a Job Description or LinkedIn snippet below. Let
+                      JobPace AI parse the details and automatically fill out
+                      this form for you!
+                    </p>
+                    <textarea
+                      value={extractText}
+                      maxLength={2000}
+                      onChange={(e) => setExtractText(e.target.value)}
+                      placeholder="Paste job description here..."
+                      className="w-full transition-all duration-300 ease-in-out px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-zinc-100/10 focus:border-zinc-900 dark:focus:border-zinc-100 transition-all resize-y min-h-[80px]"
+                      disabled={isExtracting}
+                    />
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={handleExtract}
+                        disabled={isExtracting || !extractText.trim()}
+                        className="px-4 py-2 text-xs font-medium rounded-lg transition-colors flex items-center gap-2 disabled:bg-zinc-100 disabled:text-zinc-400 dark:disabled:bg-zinc-800 dark:disabled:text-zinc-500 bg-blue-600 text-white hover:bg-blue-700"
+                      >
+                        {isExtracting && (
+                          <div className="w-3 h-3 border-2 border-current/30 border-t-current rounded-full animate-spin" />
+                        )}
+                        {isExtracting ? "Extracting Details..." : "Auto-fill"}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {/* Basic Info */}
                 <fieldset>
                   <legend className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">
@@ -317,7 +404,6 @@ export default function ApplicationModal({
                     </div>
                   </div>
                 </fieldset>
-
 
                 {/* Tracking */}
                 <fieldset>
@@ -519,7 +605,13 @@ export default function ApplicationModal({
                         onClick={() => setShowAdvanced(false)}
                         className="text-xs font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors flex items-center gap-1"
                       >
-                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" className="w-3 h-3">
+                        <svg
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          className="w-3 h-3"
+                        >
                           <path d="M4 10l4-4 4 4" />
                         </svg>
                         Hide Details
@@ -583,144 +675,144 @@ export default function ApplicationModal({
                       </div>
                     </fieldset>
 
-                {/* Contact Info */}
-                <fieldset>
-                  <legend className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">
-                    Recruiter Contact
-                  </legend>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label
-                        htmlFor="contactName"
-                        className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
-                      >
-                        Contact Name
-                      </label>
-                      <input
-                        id="contactName"
-                        name="contactName"
-                        type="text"
-                        disabled={isViewOnly}
-                        defaultValue={editData?.contactName ?? ""}
-                        placeholder="e.g. Juan Dela Cruz"
-                        maxLength={100}
-                        className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70"
-                      />
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="contactEmail"
-                        className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
-                      >
-                        Contact Email
-                      </label>
-                      <input
-                        id="contactEmail"
-                        name="contactEmail"
-                        type="email"
-                        disabled={isViewOnly}
-                        defaultValue={editData?.contactEmail ?? ""}
-                        placeholder="e.g. recruiter@company.com"
-                        maxLength={255}
-                        className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70"
-                      />
-                    </div>
-                  </div>
-                </fieldset>
-
-                {/* Details */}
-                <fieldset>
-                  <legend className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">
-                    Details & Research
-                  </legend>
-                  <div className="space-y-4">
-                    <div>
-                      <label
-                        htmlFor="companyResearch"
-                        className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
-                      >
-                        Company Research
-                      </label>
-                      <textarea
-                        id="companyResearch"
-                        name="companyResearch"
-                        rows={3}
-                        disabled={isViewOnly}
-                        defaultValue={editData?.companyResearch ?? ""}
-                        placeholder="What do you know about this company? Culture, tech stack, news..."
-                        maxLength={10000}
-                        className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all resize-none min-h-[80px] disabled:opacity-70"
-                      />
-                    </div>
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <label
-                          htmlFor="jobDescription"
-                          className="block text-sm font-medium text-zinc-900 dark:text-zinc-100"
-                        >
-                          Job Description
-                        </label>
-                      </div>
-                      <textarea
-                        id="jobDescription"
-                        name="jobDescription"
-                        rows={3}
-                        disabled={isViewOnly}
-                        defaultValue={editData?.jobDescription ?? ""}
-                        maxLength={10000}
-                        className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all resize-none min-h-[80px] disabled:opacity-70"
-                      />
-
-                      <AnimatePresence>
-                        {aiAnalysis && (
-                          <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="mt-3 overflow-hidden"
+                    {/* Contact Info */}
+                    <fieldset>
+                      <legend className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">
+                        Recruiter Contact
+                      </legend>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label
+                            htmlFor="contactName"
+                            className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
                           >
-                            <div className="p-3 bg-purple-50/50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-900/30 rounded-lg space-y-2">
-                              <div className="flex items-center gap-2 text-[10px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest">
-                                <Brain className="w-3 h-3" />
-                                AI Insights
-                              </div>
-                              <div className="flex flex-wrap gap-1.5">
-                                {aiAnalysis.skills.map((s) => (
-                                  <span
-                                    key={s}
-                                    className="px-1.5 py-0.5 rounded bg-white dark:bg-zinc-950 border border-purple-200 dark:border-purple-800 text-[10px] font-medium text-purple-700 dark:text-purple-300"
-                                  >
-                                    {s}
-                                  </span>
-                                ))}
-                              </div>
-                              <p className="text-[11px] text-purple-800/80 dark:text-purple-300/80 leading-relaxed italic">
-                                &quot;{aiAnalysis.insights}&quot;
-                              </p>
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="notes"
-                        className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
-                      >
-                        Notes
-                      </label>
-                      <textarea
-                        id="notes"
-                        name="notes"
-                        rows={2}
-                        disabled={isViewOnly}
-                        defaultValue={editData?.notes ?? ""}
-                        maxLength={10000}
-                        className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all resize-none min-h-[60px] disabled:opacity-70"
-                      />
-                    </div>
-                  </div>
-                </fieldset>
+                            Contact Name
+                          </label>
+                          <input
+                            id="contactName"
+                            name="contactName"
+                            type="text"
+                            disabled={isViewOnly}
+                            defaultValue={editData?.contactName ?? ""}
+                            placeholder="e.g. Juan Dela Cruz"
+                            maxLength={100}
+                            className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70"
+                          />
+                        </div>
+                        <div>
+                          <label
+                            htmlFor="contactEmail"
+                            className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
+                          >
+                            Contact Email
+                          </label>
+                          <input
+                            id="contactEmail"
+                            name="contactEmail"
+                            type="email"
+                            disabled={isViewOnly}
+                            defaultValue={editData?.contactEmail ?? ""}
+                            placeholder="e.g. recruiter@company.com"
+                            maxLength={255}
+                            className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70"
+                          />
+                        </div>
+                      </div>
+                    </fieldset>
+
+                    {/* Details */}
+                    <fieldset>
+                      <legend className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">
+                        Details & Research
+                      </legend>
+                      <div className="space-y-4">
+                        <div>
+                          <label
+                            htmlFor="companyResearch"
+                            className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
+                          >
+                            Company Research
+                          </label>
+                          <textarea
+                            id="companyResearch"
+                            name="companyResearch"
+                            rows={3}
+                            disabled={isViewOnly}
+                            defaultValue={editData?.companyResearch ?? ""}
+                            placeholder="What do you know about this company? Culture, tech stack, news..."
+                            maxLength={10000}
+                            className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all resize-none min-h-[80px] disabled:opacity-70"
+                          />
+                        </div>
+                        <div>
+                          <div className="flex items-center justify-between mb-1">
+                            <label
+                              htmlFor="jobDescription"
+                              className="block text-sm font-medium text-zinc-900 dark:text-zinc-100"
+                            >
+                              Job Description
+                            </label>
+                          </div>
+                          <textarea
+                            id="jobDescription"
+                            name="jobDescription"
+                            rows={3}
+                            disabled={isViewOnly}
+                            defaultValue={editData?.jobDescription ?? ""}
+                            maxLength={10000}
+                            className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all resize-none min-h-[80px] disabled:opacity-70"
+                          />
+
+                          <AnimatePresence>
+                            {aiAnalysis && (
+                              <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="mt-3 overflow-hidden"
+                              >
+                                <div className="p-3 bg-purple-50/50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-900/30 rounded-lg space-y-2">
+                                  <div className="flex items-center gap-2 text-[10px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest">
+                                    <Brain className="w-3 h-3" />
+                                    AI Insights
+                                  </div>
+                                  <div className="flex flex-wrap gap-1.5">
+                                    {aiAnalysis.skills.map((s) => (
+                                      <span
+                                        key={s}
+                                        className="px-1.5 py-0.5 rounded bg-white dark:bg-zinc-950 border border-purple-200 dark:border-purple-800 text-[10px] font-medium text-purple-700 dark:text-purple-300"
+                                      >
+                                        {s}
+                                      </span>
+                                    ))}
+                                  </div>
+                                  <p className="text-[11px] text-purple-800/80 dark:text-purple-300/80 leading-relaxed italic">
+                                    &quot;{aiAnalysis.insights}&quot;
+                                  </p>
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                        <div>
+                          <label
+                            htmlFor="notes"
+                            className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
+                          >
+                            Notes
+                          </label>
+                          <textarea
+                            id="notes"
+                            name="notes"
+                            rows={2}
+                            disabled={isViewOnly}
+                            defaultValue={editData?.notes ?? ""}
+                            maxLength={10000}
+                            className="w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 transition-all resize-none min-h-[60px] disabled:opacity-70"
+                          />
+                        </div>
+                      </div>
+                    </fieldset>
                   </div>
                 )}
               </div>
