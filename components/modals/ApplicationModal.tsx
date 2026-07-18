@@ -40,6 +40,7 @@ export default function ApplicationModal({
   const [selectedStatus, setSelectedStatus] = useState<string>(
     editData?.status ?? "pending",
   );
+  const [showAdvanced, setShowAdvanced] = useState(isEdit || isViewOnly);
 
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState<{
@@ -56,6 +57,7 @@ export default function ApplicationModal({
       setAiAnalysis(null);
       setSelectedStage(editData?.stage ?? "applied");
       setSelectedStatus(editData?.status ?? "pending");
+      setShowAdvanced(isEdit || isViewOnly);
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -125,26 +127,30 @@ export default function ApplicationModal({
   }
 
   return (
-    <AnimatePresence mode="wait">
-      {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop */}
+    <>
+      <AnimatePresence>
+        {open && (
           <motion.div
+            key="backdrop"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[90]"
             onClick={onClose}
           />
+        )}
+      </AnimatePresence>
 
-          {/* Modal */}
+      <AnimatePresence>
+        {open && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="relative w-full max-w-2xl max-h-[90vh] bg-white dark:bg-zinc-950 rounded-xl shadow-2xl overflow-hidden flex flex-col"
+            key="drawer"
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
+            className="fixed top-0 right-0 h-full w-full max-w-2xl bg-white dark:bg-zinc-950 border-l border-zinc-200 dark:border-zinc-800 shadow-2xl z-[100] flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 bg-gradient-to-r from-blue-50/50 dark:from-blue-900/10 to-transparent">
@@ -312,62 +318,6 @@ export default function ApplicationModal({
                   </div>
                 </fieldset>
 
-                {/* Salary */}
-                <fieldset>
-                  <legend className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">
-                    Monthly Salary Range (₱)
-                  </legend>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label
-                        htmlFor="salaryMin"
-                        className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
-                      >
-                        Minimum
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-500 dark:text-zinc-400">
-                          ₱
-                        </span>
-                        <input
-                          id="salaryMin"
-                          name="salaryMin"
-                          type="number"
-                          min="0"
-                          step="1000"
-                          disabled={isViewOnly}
-                          defaultValue={editData?.salaryMin ?? ""}
-                          placeholder="25,000"
-                          className="w-full pl-7 pr-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="salaryMax"
-                        className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
-                      >
-                        Maximum
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-500 dark:text-zinc-400">
-                          ₱
-                        </span>
-                        <input
-                          id="salaryMax"
-                          name="salaryMax"
-                          type="number"
-                          min="0"
-                          step="1000"
-                          disabled={isViewOnly}
-                          defaultValue={editData?.salaryMax ?? ""}
-                          placeholder="35,000"
-                          className="w-full pl-7 pr-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </fieldset>
 
                 {/* Tracking */}
                 <fieldset>
@@ -547,6 +497,92 @@ export default function ApplicationModal({
                   </div>
                 </fieldset>
 
+                {!showAdvanced && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAdvanced(true)}
+                    className="w-full py-3 border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-lg text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
+                  >
+                    + Add More Details (Salary, Contacts, Notes)
+                  </button>
+                )}
+
+                {showAdvanced && (
+                  <div className="space-y-6">
+                    {/* Advanced Details Header */}
+                    <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-2">
+                      <span className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
+                        Advanced Details
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setShowAdvanced(false)}
+                        className="text-xs font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors flex items-center gap-1"
+                      >
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" className="w-3 h-3">
+                          <path d="M4 10l4-4 4 4" />
+                        </svg>
+                        Hide Details
+                      </button>
+                    </div>
+
+                    {/* Salary */}
+                    <fieldset>
+                      <legend className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">
+                        Monthly Salary Range (₱)
+                      </legend>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label
+                            htmlFor="salaryMin"
+                            className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
+                          >
+                            Minimum
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-500 dark:text-zinc-400">
+                              ₱
+                            </span>
+                            <input
+                              id="salaryMin"
+                              name="salaryMin"
+                              type="number"
+                              min="0"
+                              step="1000"
+                              disabled={isViewOnly}
+                              defaultValue={editData?.salaryMin ?? ""}
+                              placeholder="25,000"
+                              className="w-full pl-7 pr-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label
+                            htmlFor="salaryMax"
+                            className="block text-sm font-medium text-zinc-900 dark:text-zinc-100 mb-1"
+                          >
+                            Maximum
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-500 dark:text-zinc-400">
+                              ₱
+                            </span>
+                            <input
+                              id="salaryMax"
+                              name="salaryMax"
+                              type="number"
+                              min="0"
+                              step="1000"
+                              disabled={isViewOnly}
+                              defaultValue={editData?.salaryMax ?? ""}
+                              placeholder="35,000"
+                              className="w-full pl-7 pr-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 bg-white dark:bg-zinc-950 transition-all disabled:opacity-70"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </fieldset>
+
                 {/* Contact Info */}
                 <fieldset>
                   <legend className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">
@@ -685,6 +721,8 @@ export default function ApplicationModal({
                     </div>
                   </div>
                 </fieldset>
+                  </div>
+                )}
               </div>
 
               {/* Footer */}
@@ -712,8 +750,8 @@ export default function ApplicationModal({
               </div>
             </form>
           </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
